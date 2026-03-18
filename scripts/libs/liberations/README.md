@@ -156,6 +156,9 @@ Supported panel `Type`s and custom properties can be found below.
 ### `Trap Panel`
 
 - `Encounter` a server path to the encounter, uses the map's default when missing.
+- `Damage` the amount of damage a player should take for activating this trap.
+  - If this property is excluded the trap will act as a Paralysis trap.
+- `Message` a custom message for the navi to say when hit with the trap.
 
 ### `Item Panel`
 

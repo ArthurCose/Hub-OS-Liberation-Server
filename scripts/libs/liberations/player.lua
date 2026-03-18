@@ -479,16 +479,16 @@ function Player:loot_panels(panels, remove_traps, destroy_items)
 
         if remove_traps then
           Async.await(self:message_with_mug("I found a trap! It's been removed."))
-        elseif panel.custom_properties["Damage Trap"] == "true" then
-          if panel.custom_properties["Trap Message"] ~= nil then
-            Async.await(self:message_with_mug(panel.custom_properties["Trap Message"]))
+        elseif panel.custom_properties["Damage"] then
+          if panel.custom_properties["Message"] ~= nil then
+            Async.await(self:message_with_mug(panel.custom_properties["Message"]))
           else
             Async.await(self:message_with_mug("Ah! A damage trap!"))
           end
-          self:hurt(tonumber(panel.custom_properties["Damage Dealt"]))
-        elseif panel.custom_properties["Stun Trap"] == "true" then
-          if panel.custom_properties["Trap Message"] ~= nil then
-            Async.await(self:message_with_mug(panel.custom_properties["Trap Message"]))
+          self:hurt(tonumber(panel.custom_properties["Damage"]))
+        else
+          if panel.custom_properties["Message"] ~= nil then
+            Async.await(self:message_with_mug(panel.custom_properties["Message"]))
           else
             Async.await(self:message_with_mug("Ah! A paralysis trap!"))
           end
