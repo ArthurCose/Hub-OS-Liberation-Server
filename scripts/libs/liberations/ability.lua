@@ -156,11 +156,13 @@ local Ability = {
   },
 }
 
----@type Liberation.Ability[]
-Ability.ALL = {}
+local ALL = {}
 
 for _, ability in pairs(Ability) do
-  Ability.ALL[#Ability.ALL + 1] = ability
+  ALL[#ALL + 1] = ability
 end
+
+---@type Liberation.Ability[]
+Ability.ALL = ALL
 
 return Ability
