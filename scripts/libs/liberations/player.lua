@@ -356,7 +356,7 @@ function Player:pass_turn()
 end
 
 function Player:complete_turn()
-  if self.disconnected then
+  if self.disconnected or self.completed_turn then
     return
   end
 
@@ -500,7 +500,7 @@ function Player:loot_panels(panels, remove_traps, destroy_items)
     -- Clear the selection so that it can be used again later.
     self.selection:clear()
 
-    return true;
+    return true
   end)
 end
 
@@ -509,7 +509,6 @@ function Player:liberate_and_loot_panels(panels, results, remove_traps, destroy_
   return Async.create_scope(function()
     Async.await(self:liberate_panels(panels, results))
     Async.await(self:loot_panels(panels, remove_traps, destroy_items))
-    self:complete_turn()
   end)
 end
 
