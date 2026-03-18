@@ -15,9 +15,9 @@ for i, area_id in ipairs(areas) do
   end
 end
 
-function handle_player_request(player_id, data)
-  if data == "iceberg" then
-    local spawn = Net.get_object_by_name("default", "Iceberg Spawn")
-    Net.transfer_player(player_id, "default", true, spawn.x, spawn.y, spawn.z, Direction.DOWN_RIGHT)
+Net:on("player_request", function(event)
+  if event.data == "index" then
+    local spawn = Net.get_object_by_name("default", "Index Spawn")
+    Net.transfer_player(event.player_id, "default", true, spawn.x, spawn.y, spawn.z, Direction.DOWN_RIGHT)
   end
-end
+end)

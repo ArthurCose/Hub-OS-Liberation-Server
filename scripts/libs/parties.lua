@@ -2,7 +2,7 @@ local Emotes = require("scripts/libs/emotes")
 
 local Parties = {}
 
-local parties = {} -- { members }[]
+local parties = {}          -- { members }[]
 local pending_requests = {} -- { requester, recruit, elapsed }[]
 local tick_timer = 0
 local REQUEST_EMOTE = Emotes.QUESTION
@@ -49,34 +49,6 @@ function Parties.is_in_same_party(player_a, player_b)
   end
 
   return false
-end
-
-function Parties.tick(elapsed)
-  tick_timer = tick_timer + elapsed
-
-  -- tick once per second
-  if tick_timer < 1 then return end
-
-  local dead_requests = {}
-
-  -- find dead requests and refresh emotes
-  for i, request in ipairs(pending_requests) do
-    request.elapsed = request.elapsed + tick_timer
-
-    if request.elapsed < 5 then
-      Net.exclusive_player_emote(request.recruit, request.requester, REQUEST_EMOTE)
-    else
-      dead_requests[#dead_requests + 1] = i
-    end
-  end
-
-  -- reverse loop remove dead requests
-  for i=1, #dead_requests do
-    local request_index = dead_requests[#dead_requests + 1 - i]
-    table.remove(pending_requests, request_index)
-  end
-
-  tick_timer = 0
 end
 
 function Parties.request(requester, recruit)
@@ -144,5 +116,33 @@ function Parties.leave(player_id)
     table.remove(parties, party_info.party_index)
   end
 end
+
+Net:on("tick", function(event)
+  tick_timer = tick_timer + event.delta_time
+
+  -- tick once per second
+  if tick_timer < 1 then return end
+
+  local dead_requests = {}
+
+  -- find dead requests and refresh emotes
+  for i, request in ipairs(pending_requests) do
+    request.elapsed = request.elapsed + tick_timer
+
+    if request.elapsed < 5 then
+      Net.exclusive_player_emote(request.recruit, request.requester, REQUEST_EMOTE)
+    else
+      dead_requests[#dead_requests + 1] = i
+    end
+  end
+
+  -- reverse loop remove dead requests
+  for i = 1, #dead_requests do
+    local request_index = dead_requests[#dead_requests + 1 - i]
+    table.remove(pending_requests, request_index)
+  end
+
+  tick_timer = 0
+end)
 
 return Parties

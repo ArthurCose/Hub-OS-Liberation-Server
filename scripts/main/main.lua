@@ -1,46 +1,58 @@
--- random may be called in required scripts, need to set the seed
-math.randomseed(os.time())
+local ScriptNodes = require("scripts/libs/script_nodes")
+local scripts = ScriptNodes:new()
 
-local Player = require("scripts/main/player")
-local Instance = require("scripts/main/liberations/instance")
+for _, area_id in ipairs(Net.list_areas()) do
+  scripts:load(area_id)
+end
+
+local Mission = require("scripts/libs/liberations/mission")
+local Ability = require("scripts/libs/liberations/ability")
 local Parties = require("scripts/libs/parties")
 
 local waiting_area = "default"
-local instances = {}
 local door = Net.get_object_by_name(waiting_area, "Door")
-local players = {}
-
-local function find_available_instance_id(start_id)
-  local number = 1
-  local instance_id = start_id
-
-  while instances[instance_id] do
-    number = number + 1
-    instance_id = start_id .. number
-  end
-
-  return instance_id
-end
 
 local function transfer_players_to_new_instance(base_area, player_ids)
-  local instance_id = find_available_instance_id(player_ids[1])
-  local instance_players = {}
+  -- using the scripts instancer will load script nodes on instanced areas
+  local instancer = scripts:instancer()
+  local instance_id = instancer:create_instance()
+  local area_id = instancer:clone_area_to_instance(instance_id, base_area) --[[@as string]]
+
+  local mission = Mission:new(area_id)
 
   for _, player_id in ipairs(player_ids) do
-    instance_players[#instance_players+1] = players[player_id]
+    -- resolve ability from items
+    local ability = Ability.LongSwrd
+
+    for i, ability_value in ipairs(Ability.ALL) do
+      if Net.get_player_item_count(player_id, ability_value.name) > 0 then
+        ability = ability_value
+        break
+      end
+    end
+
+    -- transfer player
+    mission:transfer_player(player_id, ability)
   end
 
-  local instance = Instance:new(base_area, instance_id, instance_players)
-  local spawn = instance:get_spawn_position()
+  mission.events:on("money", function(event)
+    -- todo:
+  end)
 
-  for _, player in ipairs(instance_players) do
-    Net.transfer_player(player.id, instance_id, true, spawn.x, spawn.y, spawn.z)
-    player.activity = instance
-  end
+  mission.events:on("player_kicked", function(event)
+    local player_id = event.player_id
 
-  instance:begin()
+    -- reset hp
+    Net.set_player_health(player_id, Net.get_player_max_health(player_id))
 
-  instances[instance_id] = instance
+    -- transfer out
+    local spawn = Net.get_spawn_position("default")
+    Net.transfer_player(player_id, "default", true, spawn.x, spawn.y, spawn.z)
+
+    if event.success then
+      -- todo: money?
+    end
+  end)
 end
 
 local function start_game_for_player(map, player_id)
@@ -57,116 +69,82 @@ local function detect_door_interaction(player_id, object_id, button)
   if button ~= 0 then return end
   if object_id ~= door.id then return end
 
-  local player = players[player_id]
+  local textbox_options = { mug = Net.get_player_mugshot(player_id) }
 
-  player:question_with_mug("Start mission?").and_then(function(response)
+  Async.question_player(player_id, "Start mission?", textbox_options).and_then(function(response)
     if response == 1 then
       start_game_for_player("acdc3", player_id)
     end
   end)
 end
 
-local function leave_party(player)
-  local party = Parties.find(player.id)
+local function leave_party(player_id)
+  local party = Parties.find(player_id)
 
   if not party then
     return
   end
 
-  Parties.leave(player.id)
+  Parties.leave(player_id)
 
   -- let everyone know you left
-  local name = Net.get_player_name(player.id)
+  local name = Net.get_player_name(player_id)
 
   for _, member_id in ipairs(party.members) do
-    local member = players[member_id]
-    member:message(name .. " has left your party.")
+    Net.message_player(member_id, name .. " has left your party.")
   end
 
   if #party.members == 1 then
-    local last_member = players[party.members[1]]
-    last_member:message("Party disbanded!")
+    Net.message_player(party.members[1], "Party disbanded!")
   end
-end
-
-local function remove_instance(area_id)
-  local instance = instances[area_id]
-
-  for _, player in ipairs(instance:get_players()) do
-    Net.transfer_player(player.id, waiting_area, true)
-
-    player.activity = nil
-  end
-
-  instance:clean_up().and_then(function()
-    instances[area_id] = nil
-  end)
 end
 
 -- handlers
-function tick(elapsed)
-  Parties.tick(elapsed)
+Net:on("tile_interaction", function(event)
+  local player_id = event.player_id
+  local area_id = Net.get_player_area(event.player_id)
 
-  local dead_instances = {}
+  if area_id ~= waiting_area or event.button ~= 0 then
+    return
+  end
 
-  for area_id, instance in pairs(instances) do
-    instance:tick(elapsed)
-
-    if #instance:get_players() == 0 and not instance:cleaning_up() then
-      dead_instances[#dead_instances + 1] = area_id
+  Async.quiz_player(player_id, "Leave party", "Close").and_then(function(response)
+    if response == 0 then
+      leave_party(player_id)
     end
-  end
+  end)
+end)
 
-  for i, area_id in ipairs(dead_instances) do
-    remove_instance(area_id)
-  end
-end
-
-function handle_tile_interaction(player_id, x, y, z, button)
-  local area_id = Net.get_player_area(player_id)
-
-  if area_id == waiting_area and button == 0 then
-    local player = players[player_id]
-
-    player:quiz("Leave party", "Close").and_then(function(response)
-      if response == 0 then
-        leave_party(player)
-      end
-    end)
-  elseif instances[area_id] ~= nil then
-    instances[area_id]:handle_tile_interaction(player_id, x, y, z, button)
-  end
-end
-
-function handle_object_interaction(player_id, object_id, button)
+Net:on("object_interaction", function(event)
+  local player_id = event.player_id
   local area_id = Net.get_player_area(player_id)
 
   if area_id == waiting_area then
-    detect_door_interaction(player_id, object_id, button)
-  elseif instances[area_id] ~= nil then
-    instances[area_id]:handle_object_interaction(player_id, object_id, button)
+    detect_door_interaction(player_id, event.object_id, event.button)
   end
-end
+end)
 
-function handle_actor_interaction(player_id, other_player_id, button)
+Net:on("actor_interaction", function(event)
+  local player_id = event.player_id
+  local other_player_id = event.actor_id
   local area_id = Net.get_player_area(player_id)
 
-  if area_id ~= waiting_area or button ~= 0 then return end
+  if area_id ~= waiting_area or event.button ~= 0 then return end
 
   if Net.is_bot(other_player_id) then return end
 
-  local player = players[player_id]
-  local name = Net.get_player_name(other_player_id)
+  local textbox_options = { mug = Net.get_player_mugshot(player_id) }
+  local other_name = Net.get_player_name(other_player_id)
 
   if Parties.is_in_same_party(player_id, other_player_id) then
-    player:message_with_mug(name .. " is already in our party.")
+    Net.message_player(player_id, other_name .. " is already in our party.", textbox_options)
     return
   end
 
   -- checking for an invite
   if Parties.has_request(player_id, other_player_id) then
     -- other player has a request for us
-    player:question_with_mug("Join " .. name .. "'s party?").and_then(function(response)
+    Async.question_player(player_id, "Join " .. other_name .. "'s party?", textbox_options).and_then(function(response)
       if response == 1 then
         Parties.accept(player_id, other_player_id)
       end
@@ -177,70 +155,19 @@ function handle_actor_interaction(player_id, other_player_id, button)
 
   -- try making a party request
   if Parties.has_request(other_player_id, player_id) then
-    player:message_with_mug("We already asked " .. name .. " to join our party.")
+    Net.message_player(player_id, "We already asked " .. other_name .. " to join our party.", textbox_options)
     return
   end
 
-  player:question_with_mug("Recruit " .. name .. "?").and_then(function(response)
+  Async.question_player(player_id, "Recruit " .. other_name .. "?", textbox_options).and_then(function(response)
     if response == 1 then
       -- create a request
       Parties.request(player_id, other_player_id)
     end
   end)
-end
+end)
 
-function handle_player_move(player_id, x, y, z)
-  local player = players[player_id]
-
-  player.x = x
-  player.y = y
-  player.z = z
-end
-
-function handle_textbox_response(player_id, response)
-  local player = players[player_id]
-
-  player:handle_textbox_response(response)
-end
-
-function handle_battle_results(player_id, stats)
-  local player = players[player_id]
-
-  player:handle_battle_results(stats)
-end
-
-function handle_player_avatar_change(player_id, details)
-  local player = players[player_id]
-
-  player.avatar_details = details
-
-  if player.activity then
-    player.activity:handle_player_avatar_change(player_id)
-  end
-end
-
-function handle_player_transfer(player_id)
-  local player = players[player_id]
-
-  local player_pos = Net.get_player_position(player_id)
-  player.x = player_pos.x
-  player.y = player_pos.y
-  player.z = player_pos.z
-
-  if player.activity then
-    player.activity:handle_player_transfer(player_id)
-  end
-end
-
-function handle_player_request(player_id)
-  players[player_id] = Player:new(player_id)
-end
-
-function handle_player_disconnect(player_id)
-  local player = players[player_id]
-
-  player:handle_disconnect()
-
-  leave_party(player)
-  players[player_id] = nil
-end
+Net:on("player_disconnect", function(event)
+  local player_id = event.player_id
+  leave_party(player_id)
+end)

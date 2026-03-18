@@ -1,0 +1,35 @@
+imagePath="shademan.png"
+
+animation state="IDLE_UR"
+frame duration="0.133" x="70" y="43" w="29" h="56" originx="11" originy="51" flipx="0" flipy="0"
+frame duration="0.133" x="29" y="64" w="29" h="55" originx="11" originy="50" flipx="0" flipy="0"
+frame duration="0.133" x="99" y="43" w="29" h="56" originx="11" originy="51" flipx="0" flipy="0"
+frame duration="0.133" x="178" y="0" w="29" h="57" originx="11" originy="52" flipx="0" flipy="0"
+
+animation state="IDLE_DR"
+frame duration="0.133" x="70" y="99" w="28" h="56" originx="12" originy="51" flipx="0" flipy="0"
+frame duration="0.133" x="178" y="114" w="28" h="55" originx="12" originy="50" flipx="0" flipy="0"
+frame duration="0.133" x="98" y="99" w="28" h="56" originx="12" originy="51" flipx="0" flipy="0"
+frame duration="0.133" x="128" y="43" w="28" h="57" originx="12" originy="52" flipx="0" flipy="0"
+
+animation state="IDLE_DL"
+frame duration="0.133" x="128" y="100" w="28" h="56" originx="16" originy="51" flipx="0" flipy="0"
+frame duration="0.133" x="0" y="120" w="28" h="55" originx="16" originy="50" flipx="0" flipy="0"
+frame duration="0.133" x="206" y="113" w="28" h="56" originx="16" originy="51" flipx="0" flipy="0"
+frame duration="0.133" x="178" y="57" w="28" h="57" originx="16" originy="52" flipx="0" flipy="0"
+
+animation state="IDLE_UL"
+frame duration="0.133" x="206" y="57" w="29" h="56" originx="18" originy="51" flipx="0" flipy="0"
+frame duration="0.133" x="29" y="119" w="29" h="55" originx="18" originy="50" flipx="0" flipy="0"
+frame duration="0.133" x="0" y="64" w="29" h="56" originx="18" originy="51" flipx="0" flipy="0"
+frame duration="0.133" x="207" y="0" w="29" h="57" originx="18" originy="52" flipx="0" flipy="0"
+
+animation state="ATTACK_DR"
+frame duration="0.167" x="0" y="0" w="35" h="64" originx="15" originy="59" flipx="0" flipy="0"
+frame duration="0.067" x="70" y="0" w="54" h="43" originx="12" originy="38" flipx="0" flipy="0"
+frame duration="0.133" x="70" y="155" w="34" h="43" originx="10" originy="38" flipx="0" flipy="0"
+
+animation state="ATTACK_DL"
+frame duration="0.167" x="35" y="0" w="35" h="64" originx="20" originy="59" flipx="0" flipy="0"
+frame duration="0.067" x="124" y="0" w="54" h="43" originx="41" originy="38" flipx="0" flipy="0"
+frame duration="0.133" x="128" y="156" w="34" h="43" originx="24" originy="38" flipx="0" flipy="0"

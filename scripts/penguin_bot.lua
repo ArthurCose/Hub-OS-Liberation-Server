@@ -15,12 +15,12 @@ local penguin_id = Net.create_bot({
 
 local fart_id
 
-function handle_actor_interaction(player_id, other_id, button)
-  if other_id ~= penguin_id then
+Net:on("actor_interaction", function(event)
+  if event.actor_id ~= penguin_id then
     return
   end
 
-  Net.play_sound_for_player(player_id, "/server/assets/sound effects/club penguin fart emote.ogg")
+  Net.play_sound_for_player(event.player_id, "/server/assets/sound effects/club penguin fart emote.ogg")
 
   if fart_id then
     return
@@ -41,4 +41,4 @@ function handle_actor_interaction(player_id, other_id, button)
     Net.remove_bot(fart_id, false)
     fart_id = nil
   end)
-end
+end)

@@ -1,5 +1,5 @@
 .vscode
-raw_assets
-net_battle_server
-launch.sh
 scripts/bbs/data.json
+
+downloaded_mods
+_*

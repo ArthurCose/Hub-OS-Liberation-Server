@@ -1,0 +1,41 @@
+imagePath="C:\Users\seven\OneDrive\Desktop\Server_12_22_2021\assets\liberations\bots\bladia.png"
+
+animation state="IDLE_UR"
+frame duration="0.133" x="61" y="44" w="36" h="43" originx="12" originy="38" flipx="0" flipy="0"
+frame duration="0.133" x="117" y="45" w="36" h="43" originx="12" originy="38" flipx="0" flipy="0"
+
+animation state="IDLE_DR"
+frame duration="0.133" x="198" y="49" w="31" h="45" originx="14" originy="40" flipx="0" flipy="0"
+frame duration="0.133" x="0" y="64" w="31" h="45" originx="14" originy="40" flipx="0" flipy="0"
+
+animation state="IDLE_DL"
+frame duration="0.133" x="198" y="49" w="31" h="45" originx="14" originy="40" flipx="1" flipy="0"
+frame duration="0.133" x="0" y="64" w="31" h="45" originx="14" originy="40" flipx="1" flipy="0"
+
+animation state="IDLE_UL"
+frame duration="0.133" x="61" y="44" w="36" h="43" originx="12" originy="38" flipx="1" flipy="0"
+frame duration="0.133" x="117" y="45" w="36" h="43" originx="12" originy="38" flipx="1" flipy="0"
+
+animation state="ATTACK_UR"
+frame duration="0.167" x="198" y="0" w="32" h="49" originx="19" originy="44" flipx="0" flipy="0"
+frame duration="0.05" x="0" y="0" w="33" h="64" originx="12" originy="59" flipx="0" flipy="0"
+frame duration="0.05" x="155" y="39" w="43" h="38" originx="11" originy="33" flipx="0" flipy="0"
+frame duration="0.167" x="155" y="0" w="43" h="39" originx="12" originy="34" flipx="0" flipy="0"
+
+animation state="ATTACK_DR"
+frame duration="0.167" x="33" y="44" w="28" h="53" originx="17" originy="48" flipx="0" flipy="0"
+frame duration="0.05" x="117" y="0" w="38" h="45" originx="13" originy="40" flipx="0" flipy="0"
+frame duration="0.05" x="33" y="0" w="42" h="44" originx="12" originy="38" flipx="0" flipy="0"
+frame duration="0.167" x="75" y="0" w="42" h="44" originx="13" originy="39" flipx="0" flipy="0"
+
+animation state="ATTACK_UL"
+frame duration="0.167" x="198" y="0" w="32" h="49" originx="19" originy="44" flipx="1" flipy="0"
+frame duration="0.05" x="0" y="0" w="33" h="64" originx="12" originy="59" flipx="1" flipy="0"
+frame duration="0.05" x="155" y="39" w="43" h="38" originx="11" originy="33" flipx="1" flipy="0"
+frame duration="0.167" x="155" y="0" w="43" h="39" originx="12" originy="34" flipx="1" flipy="0"
+
+animation state="ATTACK_DL"
+frame duration="0.167" x="33" y="44" w="28" h="53" originx="17" originy="48" flipx="1" flipy="0"
+frame duration="0.05" x="117" y="0" w="38" h="45" originx="13" originy="40" flipx="1" flipy="0"
+frame duration="0.05" x="33" y="0" w="42" h="44" originx="12" originy="38" flipx="1" flipy="0"
+frame duration="0.167" x="75" y="0" w="42" h="44" originx="13" originy="39" flipx="1" flipy="0"

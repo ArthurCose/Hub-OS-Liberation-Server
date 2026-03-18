@@ -1,11 +1,4 @@
 --== Script for user posts on BBS ==--
--- Should saved as scripts/bbs/main.lua
--- Saves data to "scripts/bbs/data.json"
---
--- Required libs:
---   json.lua by rxi (store as scripts/libs/json.lua)
---
--- Usage:
 -- Create a tile object
 --
 -- Properties for Minimap:
@@ -15,55 +8,59 @@
 --   BBS: bool (true)
 --   Name: name (make sure this is unique)
 --   Color: color
---   Post Limit: int
 --
 -- Optional Custom Properties:
 --   Character Limit: int
+--   Post Limit: int
+--
+-- Required libs:
+--   json.lua by rxi (store as scripts/libs/json.lua)
 
 local json = require("scripts/libs/json")
 local SAVE_LOCATION = "scripts/bbs/data.json"
 local TITLE_LIMIT = 14
 local AUTHOR_LIMIT = 7
 
--- storing last time players checked BBS to display the NEW icon
-local last_read_time = {}
 local player_states = {}
 local save_data = {}
 local saving = false
 local pending_save = false
 
 Async.read_file(SAVE_LOCATION).and_then(function(value)
-  local status, err = pcall(function ()
+  local status, err = pcall(function()
     if value ~= "" then
       save_data = json.decode(value)
     end
   end)
 
   if not status then
-    print("Failed to read data from \"" .. SAVE_LOCATION .. "\":")
+    warn("Failed to read data from \"" .. SAVE_LOCATION .. "\":")
     print(err)
   end
 end)
 
-function handle_player_connect(player_id)
-  last_read_time[player_id] = os.time()
-end
+Net:on("player_connect", function(event)
+  player_states[event.player_id] = {
+    join_time = os.time(),
+    read_time = {}
+  }
+end)
 
-function handle_player_disconnect(player_id)
+Net:on("player_disconnect", function(event)
   -- free memory
-  last_read_time[player_id] = nil
-  player_states[player_id] = nil
-end
+  player_states[event.player_id] = nil
+end)
 
-function handle_object_interaction(player_id, object_id)
+Net:on("object_interaction", function(event)
+  local player_id = event.player_id
   local area = Net.get_player_area(player_id)
-  local object = Net.get_object_by_id(area, object_id)
+  local object = Net.get_object_by_id(area, event.object_id)
 
   if not object or not object.custom_properties.BBS then
     return
   end
 
-  local name = object.custom_properties.Name
+  local board_name = object.custom_properties.Name
   local color_string = object.custom_properties.Color
 
   local color = {
@@ -80,8 +77,10 @@ function handle_object_interaction(player_id, object_id)
     },
   }
 
-  local last_time = last_read_time[player_id]
-  local board_data = save_data[name]
+  local player_state = player_states[player_id]
+  local last_time = player_state.read_time[board_name] or player_state.join_time
+
+  local board_data = save_data[board_name]
 
   if board_data then
     -- show pinned posts at the top
@@ -99,7 +98,7 @@ function handle_object_interaction(player_id, object_id)
           post.read = true
         end
 
-        posts[#posts+1] = post
+        posts[#posts + 1] = post
       end
     end
 
@@ -116,21 +115,28 @@ function handle_object_interaction(player_id, object_id)
           post.read = true
         end
 
-        posts[#posts+1] = post
+        posts[#posts + 1] = post
       end
     end
   end
 
-  Net.open_board(player_id, name, color, posts)
+  local emitter = Net.open_board(player_id, board_name, color, posts)
+
+  emitter:on("post_selection", function(event)
+    if event.post_id == "POST" then
+      send_post_form(player_id, player_state, object)
+    else
+      show_post(player_id, board_name, event.post_id)
+    end
+  end)
+
+  emitter:on("board_close", function()
+    player_state.read_time[board_name] = os.time()
+  end)
 
   -- track what board the player is looking at
-  player_states[player_id] = {
-    status = "READING",
-    area_id = area,
-    board_id = object.id,
-    board_name = name
-  }
-end
+  player_state.board = object
+end)
 
 function shallow_copy(original)
   local copy = {}
@@ -142,31 +148,7 @@ function shallow_copy(original)
   return copy
 end
 
-function handle_post_selection(player_id, post_id)
-  if not player_states[player_id] then
-    return
-  end
-
-  if post_id == "POST" then
-    send_post_form(player_id)
-  else
-    show_post(player_id, post_id)
-  end
-end
-
-function send_post_form(player_id)
-  local player_state = player_states[player_id]
-
-  local board = Net.get_object_by_id(player_state.area_id, player_state.board_id)
-
-  Net.prompt_player(player_id, board.custom_properties["Character Limit"])
-
-  player_state.status = "EDITING"
-end
-
-function show_post(player_id, post_id)
-  local board_name = player_states[player_id].board_name
-
+function show_post(player_id, board_name, post_id)
   local posts = save_data[board_name].posts
   local post
 
@@ -182,42 +164,32 @@ function show_post(player_id, post_id)
   end
 end
 
-function handle_textbox_response(player_id, response)
-  local player_state = player_states[player_id]
+send_post_form = Async.create_function(function(player_id, player_state, board)
+  Net.message_player(player_id, "Message:")
+  local text = Async.await(Async.prompt_player(player_id, board.custom_properties["Character Limit"]))
 
-  if not player_state then
+  if not text or contains_only_whitespace(text) then
+    -- blank post, cancel post
     return
   end
 
-  if player_state.status == "EDITING" then
-    if not contains_only_whitespace(response) then
-      player_state.submission_text = response
-      player_state.status = "SUBMITTING"
-      Net.question_player(player_id, "Do you want to submit?")
-      return
-    end
-  elseif player_state.status == "SUBMITTING" then
-    if response == 1 then
-      -- player said yes
-      Net.message_player(player_id, "Title:")
-      Net.prompt_player(player_id, TITLE_LIMIT, sanitize_title(player_state.submission_text, TITLE_LIMIT))
-      player_state.status = "INFORMED_OF_INPUT"
-      return
-    end
-  elseif player_state.status == "INFORMED_OF_INPUT" then
-    player_state.status = "TITLING"
+  local wants_to_submit = Async.await(Async.question_player(player_id, "Do you want to submit?"))
+
+  if wants_to_submit == 0 then
+    -- player decided not to submit
     return
-  elseif player_state.status == "TITLING" then
-    player_state.submission_title = response
-    create_post(player_id, player_state)
   end
 
-  player_state.status = "READING"
-end
+  -- player said yes
+  Net.message_player(player_id, "Title:")
+  local title = Async.await(Async.prompt_player(player_id, TITLE_LIMIT, sanitize_title(text, TITLE_LIMIT)))
 
-function create_post(player_id, player_state)
-  local board = Net.get_object_by_id(player_state.area_id, player_state.board_id)
-  local board_data = save_data[player_state.board_name]
+  create_post(player_id, board, title, text)
+end)
+
+function create_post(player_id, board, title, text)
+  local board_name = board.custom_properties.Name
+  local board_data = save_data[board_name]
 
   if not board_data then
     -- start storing posts for this board if there's no data
@@ -230,10 +202,8 @@ function create_post(player_id, player_state)
   local player_name = Net.get_player_name(player_id)
   local character_limit = tonumber(board.custom_properties["Character Limit"])
 
-  local title = player_state.submission_title
-
   if contains_only_whitespace(title) then
-    title = player_state.submission_text
+    title = text
   end
 
   local post = {
@@ -241,14 +211,14 @@ function create_post(player_id, player_state)
     author = sanitize_title(player_name, AUTHOR_LIMIT),
     title = sanitize_title(title, TITLE_LIMIT),
     id = tostring(board_data.next_id),
-    body = string.sub(player_state.submission_text, 1, character_limit)
+    body = string.sub(text, 1, character_limit)
   }
 
   board_data.next_id = board_data.next_id + 1
 
-  local post_limit = tonumber(board.custom_properties["Post Limit"])
+  local post_limit = board.custom_properties["Post Limit"]
 
-  if #board_data.posts >= post_limit then
+  if post_limit and #board_data.posts >= tonumber(post_limit) then
     -- remove the oldest non pinned post
     for i, old_post in ipairs(board_data.posts) do
       if not old_post.pin then
@@ -258,11 +228,11 @@ function create_post(player_id, player_state)
     end
   end
 
-  push_post(player_state.board_name, player_state.area_id, post)
-
-  board_data.posts[#board_data.posts+1] = post
-  save_data[player_state.board_name] = board_data
+  board_data.posts[#board_data.posts + 1] = post
+  save_data[board_name] = board_data
   save()
+
+  push_post(board_name, post)
 end
 
 function contains_only_whitespace(text)
@@ -270,15 +240,17 @@ function contains_only_whitespace(text)
 end
 
 function sanitize_title(text, limit)
-  return string.sub(string.gsub(text, "[\t\r\n]", " ", limit), 1, limit)
+  text = string.gsub(text, "[\t\r\n]", " ", limit)
+  return string.sub(text, 1, utf8.offset(text, limit))
 end
 
-function push_post(board_name, area_id, post)
+function push_post(board_name, post)
   local next_id = nil
 
   local board_data = save_data[board_name]
 
   if board_data then
+    -- find the first non pinned post
     local posts = save_data[board_name].posts
 
     for i = #posts, 1, -1 do
@@ -301,17 +273,11 @@ function push_post(board_name, area_id, post)
 
   local new_posts = { post }
 
-  for i, player_id in ipairs(Net.list_players(area_id)) do
-    local player_state = player_states[player_id]
-
-    if player_state and player_state.board_name == board_name then
+  for player_id, player_state in pairs(player_states) do
+    if player_state.board and player_state.board.custom_properties.Name == board_name then
       push_func(player_id, new_posts, next_id)
     end
   end
-end
-
-function handle_board_close(player_id)
-  last_read_time[player_id] = os.time()
 end
 
 function save()

@@ -1,14 +1,14 @@
 local player_count = 0
 
-function handle_player_request()
+Net:on("player_request", function()
   player_count = player_count + 1
   print_player_count()
-end
+end)
 
-function handle_player_disconnect()
+Net:on("player_disconnect", function()
   player_count = player_count - 1
   print_player_count()
-end
+end)
 
 function print_player_count()
   print("Player Count: " .. player_count)
