@@ -26,7 +26,7 @@ local rank_to_index = {
 
 local mob_health = { 400, 1200, 1600, 2000 }
 local mob_damage = { 40, 80, 120, 160 }
-local mob_ranks = { 0, 1, 2, 3 }
+local mob_ranks = { "V1", "V2", "V3", "SP" }
 
 ---@param options Liberation.EnemyOptions
 ---@return Liberation.Enemies.BlizzardMan
