@@ -696,6 +696,20 @@ function MissionInstance:transfer_player(player_id, ability)
   Net.transfer_player(player.id, self.area_id, true, spawn_position.x, spawn_position.y, spawn_position.z)
 end
 
+---@param player_id Net.ActorId
+function MissionInstance:kick_player(player_id)
+  if not self.player_map[player_id] then
+    return
+  end
+
+  self:handle_player_disconnect(player_id)
+
+  self.events:emit("player_kicked", {
+    player_id = player_id,
+    success = false
+  })
+end
+
 function MissionInstance:destroy()
   if not self.disposal_promise then
     self.disposal_promise = Async.create_promise(function(resolve)

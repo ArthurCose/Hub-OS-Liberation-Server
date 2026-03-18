@@ -53,6 +53,19 @@ local function transfer_players_to_new_instance(base_area, player_ids)
       -- todo: money?
     end
   end)
+
+  -- kick players for switching navis
+  local avatar_change_callback = function(event)
+    mission:kick_player(event.player_id)
+  end
+  Net:on("player_avatar_change", avatar_change_callback)
+
+  -- cleanup
+  instancer:events():on("instance_removed", function(event)
+    if event.instance_id == instance_id then
+      Net:remove_listener("player_avatar_change", avatar_change_callback)
+    end
+  end)
 end
 
 local function start_game_for_player(map, player_id)
