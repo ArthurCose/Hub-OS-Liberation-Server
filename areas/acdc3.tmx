@@ -74,6 +74,7 @@
   <object id="43" type="Dark Hole" gid="7" x="160" y="256" width="50" height="30">
    <properties>
     <property name="Direction" value="Down Left"/>
+    <property name="Encounter" value="/server/mods/BigBrute"/>
     <property name="Spawns" value="BigBrute"/>
    </properties>
   </object>
@@ -87,6 +88,7 @@
    <properties>
     <property name="Boss" value="BlizzardMan"/>
     <property name="Direction" value="Down Left"/>
+    <property name="Encounter" value="/server/mods/BlizzardMan"/>
    </properties>
   </object>
   <object id="57" name="Spawn Point" x="653" y="559">
@@ -108,6 +110,7 @@
   <object id="85" type="Dark Hole" gid="7" x="256" y="640" width="50" height="30">
    <properties>
     <property name="Direction" value="Down Right"/>
+    <property name="Encounter" value="/server/mods/BigBrute"/>
     <property name="Spawns" value="BigBrute"/>
    </properties>
   </object>
