@@ -41,6 +41,8 @@ WHEN YOU SEE A PLAYER WITH A ? ABOVE THEIR HEAD, INTERACTING WITH THAT PLAYER WI
 ]]
 
 local help = Async.create_function(function(player_id)
+  Net.lock_player_input(player_id)
+
   Net.message_player(
     player_id,
     "I'M THE TUTORIAL PROG. FOR BASIC INFORMATION YOU CAN VISIT ME!\nWHAT WOULD YOU LIKE TO KNOW?",
@@ -95,6 +97,8 @@ local help = Async.create_function(function(player_id)
       break
     end
   end
+
+  Net.unlock_player_input(player_id)
 end)
 
 local receiving_help = {}
@@ -108,13 +112,9 @@ Net:on("actor_interaction", function(event)
   local player_pos = Net.get_player_position(player_id)
   Net.set_bot_direction(id, Direction.from_points(spawn, player_pos))
 
-  Net.lock_player_input(player_id)
-
   receiving_help[player_id] = true
   help(player_id)
   receiving_help[player_id] = nil
-
-  Net.unlock_player_input(player_id)
 end)
 
 
