@@ -745,7 +745,7 @@ end
 
 ---@package
 function MissionInstance:tick(elapsed)
-  if not self.liberated and self.ready_count == #self.players then
+  if not self.liberated and self.ready_count >= #self.players then
     self.ready_count = 0
     -- now we can take a turn !
     take_enemy_turn(self)
