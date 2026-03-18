@@ -10,7 +10,6 @@ local Emotes = require("scripts/libs/emotes")
 ---@field instance Liberation.MissionInstance
 ---@field id Net.ActorId
 ---@field health number
----@field max_health number
 ---@field paralysis_effect Liberation.ParalysisEffect?
 ---@field paralysis_counter number
 ---@field emote_delay number
@@ -30,8 +29,7 @@ function Player:new(instance, player_id)
   local player = {
     instance = instance,
     id = player_id,
-    health = 100,
-    max_health = 100,
+    health = Net.get_player_max_health(player_id),
     paralysis_effect = nil,
     paralysis_counter = 0,
     emote_delay = 0,
@@ -173,7 +171,7 @@ end
 function Player:get_pass_turn_permission()
   local question = "End without doing anything?"
 
-  if self.health < self.max_health then
+  if self.health < self:max_health() then
     question = "Recover HP?"
   end
 
@@ -287,9 +285,10 @@ function Player:initiate_encounter(encounter_path, data)
 
         -- update player
         local results_player = self.instance.player_map[results.player_id]
+        local max_health = Net.get_player_max_health(results_player.id)
 
         results_player.health = results.health
-        Net.set_player_health(results_player.id, results.health)
+        Net.set_player_health(results_player.id, math.min(results.health, max_health))
         Net.set_player_emotion(results_player.id, results.emotion)
 
         if results.health == 0 then
@@ -309,11 +308,15 @@ function Player:initiate_encounter(encounter_path, data)
   return promise, emitter
 end
 
+function Player:max_health()
+  return Net.get_player_max_health(self.id)
+end
+
 function Player:heal(amount)
   return Async.create_promise(function(resolve)
     local previous_health = self.health
 
-    self.health = math.min(math.ceil(self.health + amount), self.max_health)
+    self.health = math.min(math.ceil(self.health + amount), self:max_health())
 
     Net.set_player_health(self.id, self.health)
 
@@ -350,7 +353,7 @@ end
 
 function Player:pass_turn()
   -- heal up to 50% of health
-  Async.await(self:heal(self.max_health / 2)).and_then(function()
+  Async.await(self:heal(self:max_health() / 2)).and_then(function()
     self:complete_turn()
   end)
 end
@@ -390,7 +393,7 @@ function Player:give_turn()
 
     -- heal 50% so we don't just start battles with 0 lol
     if self.health == 0 then
-      self:heal(self.max_health / 2)
+      self:heal(self:max_health() / 2)
     end
   end
 

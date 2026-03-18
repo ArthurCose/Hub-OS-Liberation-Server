@@ -16,7 +16,7 @@ Loot.HEART = {
   activate = function(instance, player)
     return Async.create_scope(function()
       Async.await(player:message_with_mug("I found\na heart!"))
-      player:heal(player.max_health / 2)
+      player:heal(player:max_health() / 2)
     end)
   end
 }

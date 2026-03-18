@@ -20,16 +20,24 @@ local function transfer_players_to_new_instance(base_area, player_ids)
 
   local mission = Mission:new(area_id)
 
+  local original_base_hps = {}
+
   for _, player_id in ipairs(player_ids) do
     -- resolve ability from items
     local ability = Ability.LongSwrd
 
-    for i, ability_value in ipairs(Ability.ALL) do
+    for _, ability_value in ipairs(Ability.ALL) do
       if Net.get_player_item_count(player_id, ability_value.name) > 0 then
         ability = ability_value
         break
       end
     end
+
+    -- nerf players by dividing their HP
+    local base_hp = Net.get_player_base_health(player_id)
+    original_base_hps[player_id] = base_hp
+    Net.set_player_base_health(player_id, base_hp // 5)
+    Net.set_player_health(player_id, Net.get_player_max_health(player_id))
 
     -- transfer player
     mission:transfer_player(player_id, ability)
@@ -41,8 +49,13 @@ local function transfer_players_to_new_instance(base_area, player_ids)
 
   mission.events:on("player_kicked", function(event)
     local player_id = event.player_id
+    local original_base_hp = original_base_hps[player_id]
 
     -- reset hp
+    if original_base_hp then
+      Net.set_player_base_health(player_id, original_base_hp)
+    end
+
     Net.set_player_health(player_id, Net.get_player_max_health(player_id))
 
     -- transfer out
@@ -56,6 +69,9 @@ local function transfer_players_to_new_instance(base_area, player_ids)
 
   -- kick players for switching navis
   local avatar_change_callback = function(event)
+    -- base hp already reset by switching characters
+    original_base_hps[event.player_id] = nil
+
     mission:kick_player(event.player_id)
   end
   Net:on("player_avatar_change", avatar_change_callback)
