@@ -230,6 +230,13 @@ local function liberate_panel(self, player)
 
           if enemy.health <= 0 then
             Async.await(Enemy.destroy(self, enemy))
+
+            if enemy == self.boss then
+              -- we saw the delete animation,
+              -- so we'll allow the players to complete the mission
+              liberate(self)
+              return
+            end
           end
         end
 
