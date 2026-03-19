@@ -1,6 +1,6 @@
 local RecoverEffect = {}
 
-local SFX_PATH = "/server/assets/liberations/sound effects/recover.ogg"
+local SFX_PATH = "/server/assets/liberations/sounds/recover.ogg"
 
 function RecoverEffect:new(actor_id, area_wide_sfx)
   local recover_effect = {

@@ -2,7 +2,7 @@
 ---@field bot_id Net.ActorId
 local ParalysisEffect = {}
 
-local SFX_PATH = "/server/assets/liberations/sound effects/paralyze.ogg"
+local SFX_PATH = "/server/assets/liberations/sounds/paralyze.ogg"
 
 ---@return Liberation.ParalysisEffect
 function ParalysisEffect:new(actor_id, area_wide_sfx)

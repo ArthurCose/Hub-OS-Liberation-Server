@@ -333,7 +333,7 @@ function Player:hurt(amount)
     return
   end
 
-  Net.play_sound_for_player(self.id, "/server/assets/liberations/sound effects/hurt.ogg")
+  Net.play_sound_for_player(self.id, "/server/assets/liberations/sounds/hurt.ogg")
 
   self.health = math.max(math.ceil(self.health - amount), 0)
 
