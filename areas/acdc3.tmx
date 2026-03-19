@@ -3,7 +3,7 @@
  <properties>
   <property name="Background Animation" value="/server/assets/backgrounds/ACDC.animation"/>
   <property name="Background Texture" value="/server/assets/backgrounds/ACDC Unliberated.png"/>
-  <property name="Liberation Encounter" value="/server/assets/encounters/acdc3.zip"/>
+  <property name="Liberation Encounter" value="/server/mods/BlizzardManViruses"/>
   <property name="Music" value="/server/assets/music/mission.ogg"/>
   <property name="Name" value="ACDC3"/>
   <property name="Target Phase" type="int" value="13"/>

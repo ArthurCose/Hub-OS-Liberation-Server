@@ -5,6 +5,11 @@ local package_ids = {
   "BattleNetwork5.BlizzardMan",
   "BattleNetwork5.Virus.BigBrute",
   -- viruses
+  "BattleNetwork6.Swordy",
+  "BattleNetwork6.Mettaur",
+  "BattleNetwork5.Cactikil",
+  "BattleNetwork3.Virus.Boomer",
+  -- "BattleNetwork5.Powie",
   -- libraries
   "BattleNetwork.Assets",
   "BattleNetwork.FallingRock",

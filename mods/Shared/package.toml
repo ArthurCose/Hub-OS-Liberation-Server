@@ -1,0 +1,4 @@
+[package]
+category = "library"
+id = "dev.konstinople.LiberationServer.Shared"
+name = "Default Liberation"
