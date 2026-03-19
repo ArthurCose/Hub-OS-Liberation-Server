@@ -3,8 +3,8 @@
  <properties>
   <property name="Background Animation" value="/server/assets/backgrounds/ACDC.animation"/>
   <property name="Background Texture" value="/server/assets/backgrounds/ACDC.png"/>
+  <property name="Music" value="/server/assets/music/lobby.ogg"/>
   <property name="Name" value="ACDC2"/>
-  <property name="Song" value="/server/assets/songs/04 Internet.ogg"/>
  </properties>
  <tileset firstgid="1" source="../assets/tiles/acdc2.tsx"/>
  <tileset firstgid="2" source="../assets/tiles/nebula door.tsx"/>
