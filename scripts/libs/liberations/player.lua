@@ -376,6 +376,7 @@ function Player:complete_turn()
 end
 
 function Player:give_turn()
+  self.completed_turn = false
   self.invincible = false
 
   if self.paralysis_counter > 0 then
@@ -397,7 +398,6 @@ function Player:give_turn()
     end
   end
 
-  self.completed_turn = false
   self:unlock_input()
 end
 
