@@ -76,7 +76,7 @@ Net.EventEmitter = {}
 ---@field texture_path? string
 ---@field animation_path? string
 ---@field animation? string
----@field loop_animation? string
+---@field loop_animation? boolean
 ---@field x? number
 ---@field y? number
 ---@field z? number
@@ -209,14 +209,10 @@ Net.EventEmitter = {}
 ---@field player_id Net.ActorId
 ---@field won boolean
 ---@field health number
----@field score number
 ---@field time number
 ---@field ran boolean
 ---@field emotion string
 ---@field turns number
----@field allies { name: string, health: number }[]
----@field enemies { name: string, health: number }[]
----@field neutral { name: string, health: number }[]
 
 ---@class Net.RequestOptions
 ---@field method? string
@@ -1412,9 +1408,9 @@ function Net.give_player_card(player_id, package_id, code, amount) end
 --- Returns the amount of matching cards the player owns.
 ---@param player_id Net.ActorId
 ---@param package_id string
----@param color Net.Color
+---@param color_name string
 ---@return number
-function Net.get_player_block_count(player_id, package_id, color) end
+function Net.get_player_block_count(player_id, package_id, color_name) end
 
 --- Adds blocks to the player's pack.
 ---
@@ -1423,9 +1419,9 @@ function Net.get_player_block_count(player_id, package_id, color) end
 --- Accepts negative amount.
 ---@param player_id Net.ActorId
 ---@param package_id string
----@param color Net.Color
+---@param color_name string
 ---@param amount? number
-function Net.give_player_block(player_id, package_id, color, amount) end
+function Net.give_player_block(player_id, package_id, color_name, amount) end
 
 --- Returns true if the player can use the playable character's abilities.
 ---@param player_id Net.ActorId

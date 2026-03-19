@@ -33,6 +33,7 @@ function ParalysisEffect:new(actor_id, area_wide_sfx)
     texture_path = "/server/assets/liberations/bots/paralyze.png",
     animation_path = "/server/assets/liberations/bots/paralyze.animation",
     animation = "THIN",
+    loop_animation = true,
     area_id = area_id,
     warp_in = false,
     x = position.x + 1 / 32,
