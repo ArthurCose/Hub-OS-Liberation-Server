@@ -84,6 +84,8 @@ local help = Async.create_function(function(player_id)
       Net.exclusive_player_emote(player_id, id, Emotes.HAPPY)
       Net.exclusive_player_emote(player_id, player_id, Emotes.HAPPY)
       Async.await(Async.sleep(2))
+    elseif response == 2 then
+      break
     end
 
     response = Async.await(Async.question_player(
