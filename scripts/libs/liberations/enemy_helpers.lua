@@ -56,6 +56,7 @@ function EnemyHelpers.face_position(enemy, x, y)
   y = y - (enemy.y + .5)
 
   Net.set_bot_direction(enemy.id, Direction.diagonal_from_offset(x, y))
+  EnemyHelpers.play_idle_animation(enemy)
 end
 
 function EnemyHelpers.can_move_to(instance, x, y, z)
@@ -126,11 +127,12 @@ function EnemyHelpers.move(instance, enemy, x, y, z, direction)
 
     Async.await(Async.sleep(animation_time))
 
+    -- move the enemy
     if direction then
       Net.set_bot_direction(enemy.id, direction)
+      EnemyHelpers.play_idle_animation(enemy)
     end
 
-    -- move the enemy
     Net.transfer_bot(enemy.id, area_id, false, x + .5, y + .5, z)
 
     -- delete the blur bot
