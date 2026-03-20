@@ -8,11 +8,13 @@ encounters = [
   "BattleNetwork6.Swordy",
   "BattleNetwork3.Virus.Boomer",
   "BattleNetwork6.Mettaur",
+  "BattleNetwork5.Cactikil",
 ]
 characters = [
   "BattleNetwork6.Swordy.Enemy",
   "BattleNetwork3.enemy.Gloomer",
   "BattleNetwork6.Mettaur.Enemy",
+  "BattleNetwork5.Cactroll.Enemy"
 ]
 libraries = [
   "dev.konstinople.library.liberation",
