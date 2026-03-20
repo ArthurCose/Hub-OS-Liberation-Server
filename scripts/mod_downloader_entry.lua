@@ -24,6 +24,9 @@ local package_ids = {
 ModDownloader.maintain(package_ids)
 
 Net:on("player_connect", function(event)
+  -- apply restrictions
+  Net.set_player_restrictions(event.player_id, "/server/assets/restrictions.toml")
+
   -- preload mods on join
   for _, package_id in ipairs(package_ids) do
     Net.provide_package_for_player(event.player_id, ModDownloader.resolve_asset_path(package_id))

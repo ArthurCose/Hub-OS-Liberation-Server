@@ -1,0 +1,7 @@
+[packages]
+id_blacklist = [
+  "BattleNetwork3.Program02.BreakBuster",
+  "dev.GladeWoodsgrove.SwitchDrives.ShieldSet", # recovers HP every battle
+
+]
+tag_blacklist = ["OFFLINE_ONLY"]
