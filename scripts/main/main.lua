@@ -36,7 +36,7 @@ local function transfer_players_to_new_instance(base_area, player_ids)
     -- nerf players by dividing their HP
     local base_hp = Net.get_player_base_health(player_id)
     original_base_hps[player_id] = base_hp
-    Net.set_player_base_health(player_id, base_hp // 5)
+    Net.set_player_base_health(player_id, math.max(base_hp // 4, 1))
     Net.set_player_health(player_id, Net.get_player_max_health(player_id))
 
     -- transfer player
