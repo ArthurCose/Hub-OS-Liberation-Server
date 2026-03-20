@@ -40,6 +40,8 @@ local PARTIES_RESPONSE_TEXT = [[
 WHEN YOU SEE A PLAYER WITH A ? ABOVE THEIR HEAD, INTERACTING WITH THAT PLAYER WILL ALLOW YOU TO RESPOND TO THEIR REQUEST. IF YOU ACCEPT YOU WILL BE ADDED TO THEIR PARTY AND BOTH MEMBERS WILL BE NOTIFIED THROUGH THIS INDICATOR:
 ]]
 
+local receiving_help = {}
+
 local help = Async.create_function(function(player_id)
   Net.lock_player_input(player_id)
 
@@ -101,9 +103,9 @@ local help = Async.create_function(function(player_id)
   end
 
   Net.unlock_player_input(player_id)
+  receiving_help[player_id] = nil
 end)
 
-local receiving_help = {}
 Net:on("actor_interaction", function(event)
   if event.actor_id ~= id or event.button ~= 0 then return end
 
@@ -116,7 +118,6 @@ Net:on("actor_interaction", function(event)
 
   receiving_help[player_id] = true
   help(player_id)
-  receiving_help[player_id] = nil
 end)
 
 
