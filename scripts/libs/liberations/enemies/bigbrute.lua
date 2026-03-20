@@ -17,6 +17,9 @@ local rank_to_index = {
   V1 = 1,
   V2 = 2,
   V3 = 3,
+  V4 = 4,
+  V5 = 5,
+  V6 = 6,
   SP = 4,
   Alpha = 2,
   Beta = 3,
@@ -25,6 +28,14 @@ local rank_to_index = {
 
 local mob_health = { 120, 180, 220, 250, 300, 360 }
 local mob_damage = { 30, 60, 90, 130, 170, 200 }
+local textures = {
+  "bigbrute.v1.png",
+  "bigbrute.v2.png",
+  "bigbrute.v3.png",
+  "bigbrute.v4.png",
+  "bigbrute.v5.png",
+  "bigbrute.v6.png",
+}
 
 ---@param options Liberation.EnemyOptions
 function BigBrute:new(options)
@@ -37,7 +48,7 @@ function BigBrute:new(options)
     health = mob_health[rank_index],
     max_health = mob_health[rank_index],
     damage = mob_damage[rank_index],
-    rank = "V1",
+    rank = options.rank,
     x = math.floor(options.position.x),
     y = math.floor(options.position.y),
     z = math.floor(options.position.z),
@@ -62,8 +73,10 @@ function BigBrute:new(options)
 end
 
 function BigBrute:spawn(direction)
+  local rank_index = rank_to_index[self.rank]
+
   self.id = Net.create_bot({
-    texture_path = "/server/assets/liberations/bots/bigbrute.png",
+    texture_path = "/server/assets/liberations/bots/" .. textures[rank_index],
     animation_path = "/server/assets/liberations/bots/bigbrute.animation",
     area_id = self.instance.area_id,
     direction = direction,
@@ -186,24 +199,28 @@ local function attempt_attack(self)
 
     Async.await(Async.sleep(1))
 
-    EnemyHelpers.play_attack_animation(self)
-
     local spawned_bots = {}
 
-    for _, player in ipairs(caught_players) do
-      local player_x, player_y, player_z = player:position_multi()
+    Net.synchronize(function()
+      EnemyHelpers.play_attack_animation(self)
 
-      table.insert(spawned_bots, Net.create_bot({
-        texture_path = "/server/assets/liberations/bots/beast_breath.png",
-        animation_path = "/server/assets/liberations/bots/beast_breath.animation",
-        animation = "ANIMATE",
-        area_id = self.instance.area_id,
-        warp_in = false,
-        x = player_x + 1 / 32,
-        y = player_y + 1 / 32,
-        z = player_z
-      }))
-    end
+      for _, player in ipairs(caught_players) do
+        local player_x, player_y, player_z = player:position_multi()
+
+        table.insert(spawned_bots, Net.create_bot({
+          texture_path = "/server/assets/liberations/bots/beast_breath.png",
+          animation_path = "/server/assets/liberations/bots/beast_breath.animation",
+          animation = "ANIMATE",
+          area_id = self.instance.area_id,
+          warp_in = false,
+          x = player_x + 1 / 32,
+          y = player_y + 1 / 32,
+          z = player_z
+        }))
+      end
+
+      Net.play_sound(self.instance.area_id, "/server/assets/liberations/sounds/beast_breath.ogg")
+    end)
 
     Async.await(Async.sleep(.5))
 
