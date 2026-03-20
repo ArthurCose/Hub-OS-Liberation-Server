@@ -50,10 +50,7 @@ function PlayerSelection:new(instance, player_id)
       end
     end
 
-    return (
-      panel.type == PanelType.DARK or
-      panel.type == PanelType.ITEM
-    )
+    return PanelType.ABILITY_ACTIONABLE[panel.type] ~= nil
   end
 
   player_selection.selection:set_filter(filter)
