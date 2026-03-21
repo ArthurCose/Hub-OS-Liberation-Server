@@ -2,6 +2,7 @@
 id_blacklist = [
   "BattleNetwork3.Program02.BreakBuster",
   "dev.GladeWoodsgrove.SwitchDrives.ShieldSet", # recovers HP every battle
+  "LDR100.card.stnd.22.LTGuardn", # pierces guard, hits the entire field, reggable
 
 ]
 tag_blacklist = ["OFFLINE_ONLY"]
