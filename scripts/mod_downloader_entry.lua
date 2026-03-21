@@ -15,6 +15,7 @@ local package_ids = {
   "BattleNetwork.FallingRock",
   "dev.konstinople.library.ai",
   "dev.konstinople.library.iterator",
+  "dev.konstinople.library.turn_based",
   "BattleNetwork6.TileStates.Ice",
   -- minimal libraries necessary for liberations:
   "dev.konstinople.library.liberation",
