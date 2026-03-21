@@ -8,6 +8,7 @@ end
 local Mission = require("scripts/libs/liberations/mission")
 local Ability = require("scripts/libs/liberations/ability")
 local Parties = require("scripts/libs/parties")
+local randomize_mission = require("scripts/main/randomize_mission")
 
 local waiting_area = "default"
 local door = Net.get_object_by_name(waiting_area, "Door")
@@ -17,6 +18,9 @@ local function transfer_players_to_new_instance(base_area, player_ids)
   local instancer = scripts:instancer()
   local instance_id = instancer:create_instance()
   local area_id = instancer:clone_area_to_instance(instance_id, base_area) --[[@as string]]
+
+  -- randomize before loading
+  randomize_mission(area_id)
 
   local mission = Mission:new(area_id)
 
