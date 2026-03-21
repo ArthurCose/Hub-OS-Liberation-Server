@@ -24,6 +24,13 @@ for _, area_id in ipairs(area_ids) do
       local posts = {}
       boards[area_id .. object.id] = posts
 
+      posts[1] = {
+        id = "https://github.com/" .. repo,
+        title = "Open Repo",
+        author = "GitHub",
+        read = true,
+      }
+
       Async.request("https://api.github.com/repos/" .. repo .. "/issues", request_options).and_then(function(response) -- { status, headers, body }
         if not response or response.status ~= 200 then
           print("Failed to download issues for " .. repo)
@@ -59,6 +66,7 @@ for _, area_id in ipairs(area_ids) do
   end
 end
 
+local link_prefix = "https://"
 Net:on("object_interaction", function(event)
   local player_id = event.player_id
   local area_id = Net.get_player_area(player_id)
@@ -73,12 +81,17 @@ Net:on("object_interaction", function(event)
   local emitter = Net.open_board(player_id, "Known Issues (from Github)", color, posts)
 
   emitter:on("post_selection", function(event)
-    local title = id_to_message[event.post_id]
-
-    if not title then
+    if event.post_id:sub(1, #link_prefix) == link_prefix then
+      Net.refer_link(player_id, event.post_id)
       return
     end
 
-    Net.message_player(player_id, title)
+    local content = id_to_message[event.post_id]
+
+    if not content then
+      return
+    end
+
+    Net.message_player(player_id, content)
   end)
 end)
