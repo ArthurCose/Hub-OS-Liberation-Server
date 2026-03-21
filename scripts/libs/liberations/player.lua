@@ -67,6 +67,7 @@ function Player:update_order_points_hud()
     Net.animate_sprite(self.order_points_sprite_id, tostring(self.instance.order_points))
   else
     self.order_points_sprite_id = Net.create_sprite({
+      player_id = self.id,
       parent_id = "hud",
       texture_path = "/server/assets/liberations/ui/order_points.png",
       animation_path = "/server/assets/liberations/ui/order_points.animation",
