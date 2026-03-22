@@ -1,4 +1,5 @@
 local RecoverEffect = require("scripts/libs/liberations/effects/recover_effect")
+local HealthSprites = require("scripts/libs/liberations/effects/health_sprites")
 local Direction = require("scripts/libs/direction")
 
 local EnemyHelpers = {
@@ -32,17 +33,13 @@ function EnemyHelpers.play_idle_animation(enemy)
 end
 
 ---@param enemy Liberation.Enemy
-  if enemy == nil then return end
-
-  Net.set_bot_name(enemy.id, enemy.name .. ": " .. enemy.health .. " HP")
-end
-
+---@param amount number
 function EnemyHelpers.heal(enemy, amount)
   local previous_health = enemy.health
 
   enemy.health = math.min(math.ceil(enemy.health + amount), enemy.max_health)
 
-  EnemyHelpers.update_name(enemy)
+  HealthSprites.update_sprite(enemy.id, enemy.health)
 
   if previous_health < enemy.health then
     RecoverEffect:new(enemy.id)

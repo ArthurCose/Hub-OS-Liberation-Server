@@ -22,6 +22,7 @@ local BigBrute = require("scripts/libs/liberations/enemies/bigbrute")
 local ShadeMan = require("scripts/libs/liberations/enemies/shademan")
 local Bladia = require("scripts/libs/liberations/enemies/bladia")
 local ExplodingEffect = require("scripts/libs/liberations/effects/exploding_effect")
+local HealthSprites = require("scripts/libs/liberations/effects/health_sprites")
 
 local Enemy = {}
 
@@ -58,13 +59,18 @@ end
 ---@return Liberation.Enemy
 function Enemy.from(options)
   local enemy = name_to_enemy[options.name]:new(options)
-  enemy.name = enemy.name or options.name
 
-  Net.set_bot_name(enemy.id, enemy.name .. ": " .. enemy.health)
+  -- set name
+  enemy.name = enemy.name or options.name
+  Net.set_bot_name(enemy.id, enemy.name)
+
+  -- display health
+  HealthSprites.update_sprite(enemy.id, enemy.health)
 
   return enemy
 end
 
+---@param enemy Liberation.Enemy
 function Enemy.is_alive(enemy)
   if enemy == nil then return false end
   return Net.is_bot(enemy.id)
@@ -91,6 +97,9 @@ function Enemy.destroy(instance, enemy)
         break
       end
     end
+
+    -- delete health sprite
+    HealthSprites.remove_sprite(enemy.id)
 
     -- begin exploding the enemy
     local explosions = ExplodingEffect:new(enemy.id)

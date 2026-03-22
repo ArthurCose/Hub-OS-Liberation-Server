@@ -1,6 +1,7 @@
 local PlayerSelection = require("scripts/libs/liberations/selections/player_selection")
 local Loot = require("scripts/libs/liberations/loot")
 local EnemyHelpers = require("scripts/libs/liberations/enemy_helpers")
+local HealthSprites = require("scripts/libs/liberations/effects/health_sprites")
 local ParalysisEffect = require("scripts/libs/liberations/effects/paralysis_effect")
 local RecoverEffect = require("scripts/libs/liberations/effects/recover_effect")
 local PanelType = require("scripts/libs/liberations/panel_type")
@@ -41,6 +42,8 @@ function Player:new(instance, player_id)
     input_locked = false,
     disconnected = false,
   }
+
+  HealthSprites.update_sprite(player.id, player.health)
 
   setmetatable(player, self)
   self.__index = self
@@ -291,6 +294,7 @@ function Player:initiate_encounter(encounter_path, data)
         results_player.health = results.health
         Net.set_player_health(results_player.id, math.min(results.health, max_health))
         Net.set_player_emotion(results_player.id, results.emotion)
+        HealthSprites.update_sprite(self.id, self.health)
 
         if results.health == 0 then
           results_player:paralyze()
@@ -320,6 +324,7 @@ function Player:heal(amount)
     self.health = math.min(math.ceil(self.health + amount), self:max_health())
 
     Net.set_player_health(self.id, self.health)
+    HealthSprites.update_sprite(self.id, self.health)
 
     if previous_health < self.health then
       RecoverEffect:new(self.id)
@@ -339,6 +344,7 @@ function Player:hurt(amount)
   self.health = math.max(math.ceil(self.health - amount), 0)
 
   Net.set_player_health(self.id, self.health)
+  HealthSprites.update_sprite(self.id, self.health)
 
   if self.health == 0 then
     Async.sleep(1).and_then(function()
@@ -532,6 +538,8 @@ function Player:handle_disconnect()
   if self.order_points_sprite_id then
     Net.remove_sprite(self.order_points_sprite_id)
   end
+
+  HealthSprites.remove_sprite(self.id)
 
   self:unlock_input()
 end

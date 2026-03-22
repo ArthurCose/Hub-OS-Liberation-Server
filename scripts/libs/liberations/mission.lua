@@ -5,6 +5,7 @@ local Loot = require("scripts/libs/liberations/loot")
 local PanelType = require("scripts/libs/liberations/panel_type")
 local TargetPhase = require("scripts/libs/liberations/target_phase")
 local Preloader = require("scripts/libs/liberations/preloader")
+local HealthSprites = require("scripts/libs/liberations/effects/health_sprites")
 
 local DEBUG_AUTO_WIN = false
 
@@ -226,7 +227,8 @@ local function liberate_panel(self, player)
       if not results or not results.won then
         if enemy then
           enemy.health = final_enemy_health
-          EnemyHelpers.update_name(enemy)
+
+          HealthSprites.update_sprite(enemy.id, enemy.health)
 
           if enemy.health <= 0 then
             Async.await(Enemy.destroy(self, enemy))
