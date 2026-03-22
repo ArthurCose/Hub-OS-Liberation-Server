@@ -110,7 +110,7 @@ function Enemy.destroy(instance, enemy)
     local extra_explosion_time = .5
 
     for _, player in ipairs(instance.players) do
-      player:lock_input()
+      player:stack_lock_input()
 
       if not Net.is_player_battling(player.id) then
         Net.slide_player_camera(player.id, enemy.x + .5, enemy.y + .5, enemy.z, slide_time)
@@ -154,7 +154,7 @@ function Enemy.destroy(instance, enemy)
 
     -- unlock players
     for _, player in ipairs(instance.players) do
-      player:unlock_input()
+      player:unstack_lock_input()
     end
 
     success = true

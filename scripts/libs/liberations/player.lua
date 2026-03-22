@@ -20,6 +20,7 @@ local Emotes = require("scripts/libs/emotes")
 ---@field selection Liberation.PlayerSelection
 ---@field ability Liberation.Ability?
 ---@field input_locked boolean
+---@field stacked_input_locks number
 ---@field disconnected boolean
 local Player = {}
 
@@ -40,6 +41,7 @@ function Player:new(instance, player_id)
     selection = PlayerSelection:new(instance, player_id),
     ability = nil,
     input_locked = false,
+    stacked_input_locks = 0,
     disconnected = false,
   }
 
@@ -87,6 +89,7 @@ function Player:position_multi()
   return Net.get_player_position_multi(self.id)
 end
 
+--- Used for direct control, locking due to the player's action or by the mission
 function Player:lock_input()
   if not self.input_locked then
     Net.lock_player_input(self.id)
@@ -94,11 +97,24 @@ function Player:lock_input()
   end
 end
 
+--- Used for direct control, locking due to the player's action or by the mission
 function Player:unlock_input()
   if self.input_locked then
     Net.unlock_player_input(self.id)
     self.input_locked = false
   end
+end
+
+--- Used for indirect control, locking from another player's action
+function Player:stack_lock_input()
+  self.stacked_input_locks = self.stacked_input_locks + 1
+  Net.lock_player_input(self.id)
+end
+
+--- Used for indirect control, unlocking from another player's action
+function Player:unstack_lock_input()
+  self.stacked_input_locks = self.stacked_input_locks - 1
+  Net.unlock_player_input(self.id)
 end
 
 ---@param message string
@@ -542,6 +558,10 @@ function Player:handle_disconnect()
   HealthSprites.remove_sprite(self.id)
 
   self:unlock_input()
+
+  for _ = 1, self.stacked_input_locks do
+    Net.unlock_player_input(self.id)
+  end
 end
 
 -- export
