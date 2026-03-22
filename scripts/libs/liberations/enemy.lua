@@ -76,11 +76,12 @@ end
 
 ---@param instance Liberation.MissionInstance
 function Enemy.destroy(instance, enemy)
-  return Async.create_promise(function(resolve)
+  return Async.create_scope(function()
     local success = false
+
     if not Enemy.is_alive(enemy) then
       -- already died
-      return resolve(success)
+      return success
     end
 
     -- remove from the instance
@@ -102,12 +103,14 @@ function Enemy.destroy(instance, enemy)
     for _, player in ipairs(instance.players) do
       player:lock_input()
 
-      Net.slide_player_camera(player.id, enemy.x + .5, enemy.y + .5, enemy.z, slide_time)
-      Net.move_player_camera(player.id, enemy.x + .5, enemy.y + .5, enemy.z, hold_time)
+      if not Net.is_player_battling(player.id) then
+        Net.slide_player_camera(player.id, enemy.x + .5, enemy.y + .5, enemy.z, slide_time)
+        Net.move_player_camera(player.id, enemy.x + .5, enemy.y + .5, enemy.z, hold_time)
 
-      local player_x, player_y, player_z = player:position_multi()
-      Net.slide_player_camera(player.id, player_x, player_y, player_z, slide_time)
-      Net.unlock_player_camera(player.id)
+        local player_x, player_y, player_z = player:position_multi()
+        Net.slide_player_camera(player.id, player_x, player_y, player_z, slide_time)
+        Net.unlock_player_camera(player.id)
+      end
     end
 
     Async.await(Async.sleep(slide_time))
@@ -118,7 +121,9 @@ function Enemy.destroy(instance, enemy)
     local animation_path = enemy.mug and enemy.mug.animation_path
     if message ~= nil then
       for _, player in ipairs(instance.players) do
-        player:message(message, texture_path, animation_path)
+        if not Net.is_player_busy(player.id) then
+          player:message(message, texture_path, animation_path)
+        end
       end
     end
 
@@ -138,14 +143,14 @@ function Enemy.destroy(instance, enemy)
 
     Async.await(Async.sleep(slide_time + unlock_padding))
 
-    -- unlock players who were not locked
+    -- unlock players
     for _, player in ipairs(instance.players) do
       player:unlock_input()
     end
 
     success = true
 
-    return resolve(success)
+    return success
   end)
 end
 
