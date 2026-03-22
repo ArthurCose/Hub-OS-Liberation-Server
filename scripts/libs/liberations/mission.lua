@@ -100,7 +100,7 @@ local function convert_indestructible_panels(self)
     player:message("No more DarkHoles! Nothing will save the Darkloids now!")
     local player_x, player_y, player_z = player:position_multi()
 
-    player:lock_input()
+    player:stack_lock_input()
 
     Net.slide_player_camera(player.id, self.boss.x, self.boss.y, self.boss.z, slide_time)
 
@@ -138,9 +138,7 @@ local function convert_indestructible_panels(self)
 
   -- returning control
   for _, player in ipairs(self.players) do
-    if not player.completed_turn then
-      player:unlock_input()
-    end
+    player:unstack_lock_input()
   end
 end
 
@@ -267,9 +265,9 @@ local function liberate_panel(self, player)
       Async.await(player:liberate_panels(panels, results))
 
       -- destroy enemy
-      local destroyed_enemy = Async.await(Enemy.destroy(self, enemy or panel.enemy))
+      Async.await(Enemy.destroy(self, enemy or panel.enemy))
 
-      if destroyed_enemy and panel.type == PanelType.DARK_HOLE and #self.dark_holes == 0 then
+      if panel.type == PanelType.DARK_HOLE and #self.dark_holes == 0 then
         convert_indestructible_panels(self)
       end
 
@@ -277,7 +275,7 @@ local function liberate_panel(self, player)
       Async.await(player:loot_panels(panels))
 
       -- figure out if we've won
-      if destroyed_enemy and enemy and enemy == self.boss then
+      if enemy == self.boss then
         liberate(self)
       else
         player:complete_turn()
