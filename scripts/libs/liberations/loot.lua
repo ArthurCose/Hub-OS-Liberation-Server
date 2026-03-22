@@ -1,4 +1,7 @@
 local Enemy = require("scripts/libs/liberations/enemy")
+local HealthSprites = require("scripts/libs/liberations/effects/health_sprites")
+local HitParticle = require("scripts/libs/liberations/effects/hit_particle")
+
 local ITEM_ASSET_PATH = "/server/assets/liberations/bots/item.png"
 local ITEM_ANIMATION_PATH = "/server/assets/liberations/bots/item.animation"
 
@@ -106,14 +109,43 @@ Loot.MAJOR_HIT = {
     return Async.create_scope(function()
       Async.await(player:message("Damages the closest Guardian the most!"))
 
-      local enemy = player:find_closest_guardian()
+      local enemy = player:find_closest_guardian() or instance.boss
 
-      if not enemy then
-        Async.await(player:message("No Guardians found"))
-        return
-      end
+      Async.await(Enemy.focus(instance, enemy, function()
+        -- wait before showing the attack
+        Async.await(Async.sleep(0.5))
 
-      Async.await(Enemy.destroy(instance, enemy))
+        Net.synchronize(function()
+          HitParticle.spawn(
+            instance.area_id,
+            "CHARGED_SHOT",
+            enemy.x + 0.51,
+            enemy.y + 0.51,
+            enemy.z + 0.5
+          )
+
+          Net.play_sound(instance.area_id, "/server/assets/liberations/sounds/hit_impact.ogg")
+        end)
+
+        if enemy == instance.boss then
+          if not Enemy.is_alive(enemy) then
+            return
+          end
+
+          enemy.health = math.max(enemy.health - enemy.max_health // 5, 1)
+          HealthSprites.update_sprite(enemy.id, enemy.health)
+
+          -- wait 1s before returning to players
+          Async.await(Async.sleep(1))
+          return
+        end
+
+        -- wait before destroying the enemy
+        Async.await(Async.sleep(0.5))
+
+        -- play delete animation
+        Async.await(Enemy.destroy_in_focus(instance, enemy))
+      end))
     end)
   end
 }

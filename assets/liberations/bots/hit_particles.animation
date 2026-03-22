@@ -1,0 +1,100 @@
+animation state="PEASHOT"
+frame x="315" y="55" w="22" h="22" originx="11" originy="11" duration="0.017"
+frame x="241" y="270" w="28" h="22" originx="14" originy="11" duration="0.017"
+frame x="181" y="147" w="30" h="24" originx="15" originy="12" duration="0.017"
+frame x="153" y="270" w="30" h="24" originx="15" originy="12" duration="0.017"
+frame
+
+animation state="CHARGED_SHOT"
+frame x="315" y="160" w="12" h="12" originx="6" originy="6" duration="0.017"
+frame x="315" y="79" w="24" h="20" originx="12" originy="10" duration="0.017"
+frame x="233" y="189" w="32" h="32" originx="16" originy="16" duration="0.033"
+frame x="185" y="270" w="26" h="24" originx="13" originy="12" duration="0.033"
+frame x="281" y="238" w="30" h="30" originx="15" originy="15" duration="0.033"
+frame x="281" y="69" w="32" h="31" originx="16" originy="15" duration="0.033"
+frame
+
+animation state="BREAK"
+frame x="281" y="102" w="30" h="32" originx="15" originy="16" duration="0.033"
+frame x="233" y="97" w="42" h="44" originx="21" originy="22" duration="0.033"
+frame x="181" y="49" w="46" h="48" originx="23" originy="24" duration="0.033"
+frame x="129" y="1" w="50" h="54" originx="25" originy="27" duration="0.033"
+frame
+
+animation state="FIRE"
+frame x="281" y="136" w="30" h="32" originx="15" originy="16" duration="0.033"
+frame x="233" y="143" w="42" h="44" originx="21" originy="22" duration="0.033"
+frame x="213" y="270" w="26" h="24" originx="13" originy="12" duration="0.033"
+frame x="1" y="66" w="56" h="58" originx="28" originy="29" duration="0.05"
+frame x="67" y="1" w="60" h="62" originx="30" originy="31" duration="0.05"
+frame x="1" y="1" w="64" h="63" originx="32" originy="32" duration="0.05"
+frame
+
+animation state="AQUA"
+frame x="199" y="176" w="32" h="32" originx="16" originy="16" duration="0.05"
+frame x="101" y="176" w="48" h="42" originx="24" originy="21" duration="0.05"
+frame x="1" y="126" w="56" h="48" originx="28" originy="24" duration="0.05"
+frame x="59" y="66" w="60" h="54" originx="30" originy="27" duration="0.033"
+frame
+
+animation state="ELEC"
+frame x="281" y="170" w="30" h="32" originx="15" originy="16" duration="0.033"
+frame x="1" y="224" w="42" h="44" originx="21" originy="22" duration="0.033"
+frame x="233" y="51" w="46" h="44" originx="23" originy="22" duration="0.033"
+frame x="51" y="176" w="48" h="44" originx="24" originy="22" duration="0.033"
+frame x="181" y="1" w="50" h="46" originx="25" originy="23" duration="0.033"
+frame x="59" y="126" w="50" h="48" originx="25" originy="24" duration="0.033"
+frame
+
+animation state="WOOD"
+frame x="281" y="204" w="30" h="32" originx="15" originy="16" duration="0.033"
+frame x="45" y="224" w="42" h="44" originx="21" originy="22" duration="0.033"
+frame x="281" y="1" w="32" h="32" originx="16" originy="16" duration="0.033"
+frame x="151" y="176" w="46" h="40" originx="23" originy="20" duration="0.033"
+frame x="181" y="99" w="48" h="46" originx="24" originy="23" duration="0.033"
+frame x="111" y="126" w="48" h="48" originx="24" originy="24" duration="0.05"
+frame
+
+animation state="TRAP"
+frame x="181" y="224" w="40" h="38" originx="20" originy="19" duration="0.033"
+frame x="133" y="224" w="46" h="40" originx="23" originy="20" duration="0.033"
+frame x="1" y="176" w="48" h="46" originx="24" originy="23" duration="0.033"
+frame x="133" y="224" w="46" h="40" originx="23" originy="20" duration="0.033"
+frame x="223" y="224" w="40" h="38" originx="20" originy="19" duration="0.033"
+frame x="133" y="224" w="46" h="40" originx="23" originy="20" duration="0.033"
+frame x="1" y="176" w="48" h="46" originx="24" originy="23" duration="0.033"
+frame x="133" y="224" w="46" h="40" originx="23" originy="20" duration="0.033"
+frame x="223" y="224" w="40" h="38" originx="20" originy="19" duration="0.033"
+frame x="133" y="224" w="46" h="40" originx="23" originy="20" duration="0.033"
+frame x="1" y="176" w="48" h="46" originx="24" originy="23" duration="0.033"
+frame x="181" y="224" w="40" h="38" originx="20" originy="19" duration="0.033"
+frame
+
+animation state="SPARK_1"
+frame x="315" y="174" w="12" h="12" originx="6" originy="6" duration="0.017"
+frame x="315" y="1" w="24" h="26" originx="12" originy="13" duration="0.017"
+frame x="125" y="270" w="26" h="28" originx="13" originy="14" duration="0.017"
+frame x="65" y="270" w="28" h="30" originx="14" originy="15" duration="0.017"
+frame
+
+animation state="SPARK_2"
+frame x="315" y="144" w="14" h="14" originx="7" originy="7" duration="0.017"
+frame x="315" y="124" w="18" h="18" originx="9" originy="9" duration="0.017"
+frame x="315" y="101" w="20" h="21" originx="10" originy="10" duration="0.017"
+frame
+
+animation state="COPY_DAMAGE"
+frame x="281" y="35" w="32" h="32" originx="16" originy="16" duration="0.067"
+frame x="33" y="270" w="30" h="30" originx="15" originy="15" duration="0.05"
+frame x="95" y="270" w="28" h="28" originx="14" originy="14" duration="0.05"
+frame x="315" y="29" w="24" h="24" originx="12" originy="12" duration="0.067"
+frame x="95" y="270" w="28" h="28" originx="14" originy="14" duration="0.05"
+frame x="33" y="270" w="30" h="30" originx="15" originy="15" duration="0.05"
+frame
+
+animation state="BLOOD"
+frame x="1" y="270" w="30" h="32" originx="15" originy="16" duration="0.05"
+frame x="89" y="224" w="42" h="44" originx="21" originy="22" duration="0.083"
+frame x="233" y="1" w="46" h="48" originx="23" originy="24" duration="0.05"
+frame x="129" y="57" w="50" h="54" originx="25" originy="27" duration="0.033"
+frame

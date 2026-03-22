@@ -11,6 +11,7 @@ local asset_paths = {
   "/server/assets/liberations/bots/recover.animation",
   "/server/assets/liberations/bots/item.png",
   "/server/assets/liberations/bots/item.animation",
+  "/server/assets/liberations/sounds/hit_impact.ogg",
   "/server/assets/liberations/sounds/hurt.ogg",
   "/server/assets/liberations/sounds/explode.ogg",
   "/server/assets/liberations/sounds/paralyze.ogg",

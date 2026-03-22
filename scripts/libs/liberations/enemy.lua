@@ -80,14 +80,60 @@ function Enemy.get_death_message()
   return ""
 end
 
+---Pans the camera to the enemy, returns the camera and unlocks it when the callback is completed
 ---@param instance Liberation.MissionInstance
+---@param enemy Liberation.Enemy
+---@param callback fun() called within an async scope
+function Enemy.focus(instance, enemy, callback)
+  return Async.create_scope(function()
+    local slide_time = .2
+
+    local involved_players = {}
+
+    -- moving every player's camera to the enemy
+    for _, player in ipairs(instance.players) do
+      player:stack_lock_input()
+
+      if not Net.is_player_battling(player.id) then
+        Net.slide_player_camera(player.id, enemy.x + .5, enemy.y + .5, enemy.z, slide_time)
+        involved_players[player.id] = true
+      end
+    end
+
+    Async.await(Async.sleep(slide_time))
+
+    -- execute callback
+    callback()
+
+    -- return camera to players
+    for _, player in ipairs(instance.players) do
+      if involved_players[player.id] then
+        local player_x, player_y, player_z = player:position_multi()
+        Net.slide_player_camera(player.id, player_x, player_y, player_z, slide_time)
+        Net.unlock_player_camera(player.id)
+      end
+    end
+
+    -- padding time to fix issues with unlock_player_camera
+    -- also looks nice with items
+    local unlock_padding = .3
+
+    Async.await(Async.sleep(slide_time + unlock_padding))
+
+    -- unlock players
+    for _, player in ipairs(instance.players) do
+      player:unstack_lock_input()
+    end
+  end)
+end
+
+---@param instance Liberation.MissionInstance
+---@param enemy Liberation.Enemy
 function Enemy.destroy(instance, enemy)
   return Async.create_scope(function()
-    local success = false
-
     if not Enemy.is_alive(enemy) then
       -- already died
-      return success
+      return
     end
 
     -- remove from the instance
@@ -104,25 +150,56 @@ function Enemy.destroy(instance, enemy)
     -- begin exploding the enemy
     local explosions = ExplodingEffect:new(enemy.id)
 
-    -- moving every player's camera to the enemy
-    local slide_time = .2
-    local hold_time = 3
-    local extra_explosion_time = .5
+    Async.await(Enemy.focus(instance, enemy, function()
+      -- display death message
+      local message = enemy:get_death_message()
+      local texture_path = enemy.mug and enemy.mug.texture_path
+      local animation_path = enemy.mug and enemy.mug.animation_path
+      if message ~= nil then
+        for _, player in ipairs(instance.players) do
+          if not Net.is_player_busy(player.id) then
+            player:message(message, texture_path, animation_path)
+          end
+        end
+      end
 
-    for _, player in ipairs(instance.players) do
-      player:stack_lock_input()
+      -- hold
+      Async.await(Async.sleep(3.5))
 
-      if not Net.is_player_battling(player.id) then
-        Net.slide_player_camera(player.id, enemy.x + .5, enemy.y + .5, enemy.z, slide_time)
-        Net.move_player_camera(player.id, enemy.x + .5, enemy.y + .5, enemy.z, hold_time)
+      -- remove from the server
+      Net.remove_bot(enemy.id)
 
-        local player_x, player_y, player_z = player:position_multi()
-        Net.slide_player_camera(player.id, player_x, player_y, player_z, slide_time)
-        Net.unlock_player_camera(player.id)
+      -- stop explosions after some delay
+      Async.await(Async.sleep(0.5))
+
+      explosions:remove()
+    end))
+  end)
+end
+
+---Destroys the enemy without panning the camera
+---@param instance Liberation.MissionInstance
+---@param enemy Liberation.Enemy
+function Enemy.destroy_in_focus(instance, enemy)
+  return Async.create_scope(function()
+    if not Enemy.is_alive(enemy) then
+      -- already died
+      return
+    end
+
+    -- remove from the instance
+    for i, stored_enemy in pairs(instance.enemies) do
+      if enemy == stored_enemy then
+        table.remove(instance.enemies, i)
+        break
       end
     end
 
-    Async.await(Async.sleep(slide_time))
+    -- delete health sprite
+    HealthSprites.remove_sprite(enemy.id)
+
+    -- begin exploding the enemy
+    local explosions = ExplodingEffect:new(enemy.id)
 
     -- display death message
     local message = enemy:get_death_message()
@@ -136,30 +213,16 @@ function Enemy.destroy(instance, enemy)
       end
     end
 
-    Async.await(Async.sleep(hold_time + extra_explosion_time))
+    -- hold
+    Async.await(Async.sleep(3.5))
 
     -- remove from the server
     Net.remove_bot(enemy.id)
 
-    Async.await(Async.sleep(extra_explosion_time))
+    -- stop explosions after some delay
+    Async.await(Async.sleep(0.5))
 
-    -- stop explosions
     explosions:remove()
-
-    -- padding time to fix issues with unlock_player_camera
-    -- also looks nice with items
-    local unlock_padding = .3
-
-    Async.await(Async.sleep(slide_time + unlock_padding))
-
-    -- unlock players
-    for _, player in ipairs(instance.players) do
-      player:unstack_lock_input()
-    end
-
-    success = true
-
-    return success
   end)
 end
 
