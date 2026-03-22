@@ -316,11 +316,35 @@ end
 
 -- returns a promise that resolves when the animation finishes
 -- resolved value is a function that cleans up the bot
-function Loot.spawn_randomized_item_bot(loot_pool, item_index, area_id, x, y, z)
+---@param loot_pool Liberation.Loot[]
+---@param item_index_or_state number|string
+---@param area_id string
+---@param x number
+---@param y number
+---@param z number
+function Loot.spawn_randomized_item_bot(loot_pool, item_index_or_state, area_id, x, y, z)
   local target_duration = 2
   local frame_duration = .075
   local total_frames = math.ceil(target_duration / frame_duration)
 
+  -- resolve the final index for the animation to stop on
+  local item_index
+
+  if type(item_index_or_state) == "number" then
+    item_index = item_index_or_state
+  else
+    -- default to a randomized index
+    item_index = math.random(#loot_pool)
+
+    -- resolve item index
+    for i, loot in ipairs(loot_pool) do
+      if loot.animation == item_index_or_state then
+        item_index = i
+      end
+    end
+  end
+
+  -- figure out what index we should start with to land on the item index
   local start_index = (item_index - total_frames - 2) % #loot_pool + 1
 
   local bot_data = {
@@ -334,6 +358,7 @@ function Loot.spawn_randomized_item_bot(loot_pool, item_index, area_id, x, y, z)
     z = z,
   }
 
+  ---@type Net.ActorKeyframe[]
   local property_animation = {}
 
   local total_duration = 0
@@ -358,6 +383,12 @@ function Loot.spawn_randomized_item_bot(loot_pool, item_index, area_id, x, y, z)
     end
 
     table.insert(property_animation, key_frame)
+  end
+
+  -- use a specific state
+  if type(item_index_or_state) == "string" then
+    local key_frame = property_animation[#property_animation]
+    key_frame.properties[1].value = item_index_or_state
   end
 
   -- return a promise that resolves when the animation finishes
@@ -421,7 +452,20 @@ end
 ---@param player Liberation.Player
 ---@param panel Liberation.PanelObject
 function Loot.loot_bonus_panel(instance, player, panel)
-  local loot_index = math.random(#Loot.BONUS_POOL)
+  ---@type string|number
+  local loot_index_or_state = panel.custom_properties["Specific Loot"]
+  local loot = Loot[loot_index_or_state]
+
+  if loot_index_or_state then
+    if not loot then
+      warn("Specified Loot: " .. loot_index_or_state .. " does not exist!")
+    end
+  end
+
+  if not loot then
+    loot_index_or_state = math.random(#Loot.BONUS_POOL)
+    loot = Loot.BONUS_POOL[loot_index_or_state]
+  end
 
   local spawn_x = math.floor(panel.x) + .5
   local spawn_y = math.floor(panel.y) + .5
@@ -431,7 +475,7 @@ function Loot.loot_bonus_panel(instance, player, panel)
     local remove_item_bot = Async.await(
       Loot.spawn_randomized_item_bot(
         Loot.BONUS_POOL,
-        loot_index,
+        loot_index_or_state,
         instance.area_id,
         spawn_x,
         spawn_y,
@@ -439,7 +483,6 @@ function Loot.loot_bonus_panel(instance, player, panel)
       )
     )
 
-    local loot = Loot.BONUS_POOL[loot_index]
     Async.await(loot.activate(instance, player, panel))
     remove_item_bot()
   end)

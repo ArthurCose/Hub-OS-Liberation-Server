@@ -1017,20 +1017,18 @@ function MissionInstance:create_panel(object)
   self.panels[z][y][x] = new_panel
 
   if object.type == PanelType.ITEM then
-    --if it has a set drop, try to apply it.
+    -- if it has a set drop, try to apply it.
     if object.custom_properties["Specific Loot"] ~= nil then
-      local check_loot = object.custom_properties["Specific Loot"]
+      local name = object.custom_properties["Specific Loot"]
+      new_panel.loot = Loot[name]
 
-      for i = 1, #Loot.FULL_POOL, 1 do
-        local potential_loot = Loot.FULL_POOL[i]
-
-        if potential_loot.animation == check_loot then
-          new_panel.loot = potential_loot
-          break
-        end
+      if type(new_panel.loot) ~= "table" then
+        warn("Specified Loot: " .. name .. " does not exist!")
       end
-    else
-      --otherwise, give it random loot from the basic pool.
+    end
+
+    if not new_panel.loot then
+      -- otherwise, give it random loot from the basic pool.
       new_panel.loot = Loot.DEFAULT_POOL[math.random(#Loot.DEFAULT_POOL)]
     end
   elseif object.type == PanelType.DARK_HOLE then
