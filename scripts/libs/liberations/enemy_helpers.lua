@@ -13,6 +13,7 @@ local direction_suffix_map = {
   [Direction.UP_RIGHT] = "UR",
 }
 
+---@param enemy Liberation.Enemy
 function EnemyHelpers.play_attack_animation(enemy)
   local direction = Net.get_bot_direction(enemy.id)
   local suffix = direction_suffix_map[direction]
@@ -21,6 +22,7 @@ function EnemyHelpers.play_attack_animation(enemy)
   Net.animate_bot(enemy.id, animation)
 end
 
+---@param enemy Liberation.Enemy
 function EnemyHelpers.play_idle_animation(enemy)
   local direction = Net.get_bot_direction(enemy.id)
   local suffix = direction_suffix_map[direction]
@@ -29,7 +31,7 @@ function EnemyHelpers.play_idle_animation(enemy)
   Net.animate_bot(enemy.id, animation, true)
 end
 
-function EnemyHelpers.update_name(enemy)
+---@param enemy Liberation.Enemy
   if enemy == nil then return end
 
   Net.set_bot_name(enemy.id, enemy.name .. ": " .. enemy.health .. " HP")
@@ -51,6 +53,9 @@ function EnemyHelpers.heal(enemy, amount)
   end
 end
 
+---@param enemy Liberation.Enemy
+---@param x number
+---@param y number
 function EnemyHelpers.face_position(enemy, x, y)
   x = x - (enemy.x + .5)
   y = y - (enemy.y + .5)
@@ -59,6 +64,10 @@ function EnemyHelpers.face_position(enemy, x, y)
   EnemyHelpers.play_idle_animation(enemy)
 end
 
+---@param instance Liberation.MissionInstance
+---@param x number
+---@param y number
+---@param z number
 function EnemyHelpers.can_move_to(instance, x, y, z)
   local panel = instance:get_panel_at(x, y, z)
 
@@ -74,6 +83,12 @@ end
 
 -- takes instance to move player cameras
 -- x, y, z should be floored
+---@param instance Liberation.MissionInstance
+---@param enemy Liberation.Enemy
+---@param x number
+---@param y number
+---@param z number
+---@param direction string?
 function EnemyHelpers.move(instance, enemy, x, y, z, direction)
   return Async.create_promise(function(resolve)
     x = math.floor(x)
@@ -148,6 +163,8 @@ function EnemyHelpers.move(instance, enemy, x, y, z, direction)
   end)
 end
 
+---@param position Net.Position
+---@param direction string
 function EnemyHelpers.offset_position_with_direction(position, direction)
   position = {
     x = position.x,
@@ -168,6 +185,10 @@ function EnemyHelpers.offset_position_with_direction(position, direction)
   return position
 end
 
+---@param enemy Liberation.Enemy
+---@param x number
+---@param y number
+---@param z number
 function EnemyHelpers.chebyshev_tile_distance(enemy, x, y, z)
   local xdiff = math.abs(enemy.x - math.floor(x))
   local ydiff = math.abs(enemy.y - math.floor(y))
