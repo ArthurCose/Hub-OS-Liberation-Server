@@ -732,6 +732,7 @@ function MissionInstance:destroy()
 
   for _, id in ipairs(Net.list_bots(self.area_id)) do
     Net.remove_bot(id)
+    HealthSprites.remove_sprite(id)
   end
 
   for i = #self.net_listeners, 1, -1 do
