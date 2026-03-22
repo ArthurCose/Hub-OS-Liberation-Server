@@ -19,6 +19,7 @@ local Emotes = require("scripts/libs/emotes")
 ---@field completed_turn boolean
 ---@field selection Liberation.PlayerSelection
 ---@field ability Liberation.Ability?
+---@field spectate_next_battle boolean
 ---@field input_locked boolean
 ---@field stacked_input_locks number
 ---@field disconnected boolean
@@ -40,6 +41,7 @@ function Player:new(instance, player_id)
     completed_turn = false,
     selection = PlayerSelection:new(instance, player_id),
     ability = nil,
+    spectate_next_battle = false,
     input_locked = false,
     stacked_input_locks = 0,
     disconnected = false,
@@ -57,6 +59,8 @@ function Player:emote_state()
     -- the client will send emotes for this
   elseif self.completed_turn then
     Net.set_player_emote(self.id, Emotes.GREEN_CHECK)
+  elseif self.spectate_next_battle then
+    Net.set_player_emote(self.id, Emotes.POPCORN_AND_SODA)
   elseif self.invincible then
     Net.set_player_emote(self.id, "HORSE")
   else
@@ -254,22 +258,31 @@ function Player:initiate_encounter(encounter_path, data)
   local player_ids = { self.id }
   local spectator_map = {}
 
+  -- disable spectating if we started a battle
+  self.spectate_next_battle = false
+
   for _, player in ipairs(self.instance.players) do
     if player == self then
       -- already included
       goto continue
     end
 
-    if not Net.is_player(player.id) or Net.is_player_busy(player.id) then
-      -- disconnected and pending removal, or just busy
+    if not Net.is_player(player.id) then
+      -- disconnected
       goto continue
     end
 
-    if player.completed_turn then
+    if (not player.spectate_next_battle and Net.is_player_busy(player.id)) or Net.is_player_battling(player.id) then
+      -- in a menu or already spectating
+      goto continue
+    end
+
+    if player.completed_turn or player.spectate_next_battle then
       -- include as a spectator
       data.spectators[#player_ids] = true
       spectator_map[player.id] = true
       player_ids[#player_ids + 1] = player.id
+      player.spectate_next_battle = false
       goto continue
     end
 
@@ -283,6 +296,7 @@ function Player:initiate_encounter(encounter_path, data)
       player_ids[#player_ids + 1] = player.id
       -- spend a turn on co-op
       player:complete_turn()
+      player.spectate_next_battle = false
     end
 
     ::continue::
@@ -388,6 +402,9 @@ function Player:complete_turn()
 
   self.completed_turn = true
   self.selection:clear()
+
+  -- cancel spectating
+  self.spectate_next_battle = false
 
   self:emote_state()
 

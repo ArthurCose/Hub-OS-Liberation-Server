@@ -816,13 +816,25 @@ function MissionInstance:handle_tile_interaction(player_id, x, y, z, button)
       not is_adjacent(player_position, { x = x, y = y, z = z })
   then
     -- not interactable
-    local quiz_promise = player:quiz("Pass", "Cancel")
+    local spectate_text
+
+    if player.spectate_next_battle then
+      spectate_text = "Cancel Spectating"
+    else
+      spectate_text = "Spectate Next Battle"
+    end
+
+    local quiz_promise = player:quiz("Pass", spectate_text, "Close")
 
     quiz_promise.and_then(function(response)
       if response == 0 then
         -- Pass
         player:get_pass_turn_permission()
       elseif response == 1 then
+        player.spectate_next_battle = not player.spectate_next_battle
+        player:emote_state()
+        player:unlock_input()
+      elseif response == 2 then
         -- Cancel
         player:unlock_input()
       end
