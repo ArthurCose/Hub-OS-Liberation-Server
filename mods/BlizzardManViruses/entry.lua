@@ -16,5 +16,6 @@ function encounter_init(encounter, data)
 
     encounter:set_spectate_on_delete(true)
 
+    SharedLib.generate_ice_field()
     SharedLib.spawn_viruses(encounter, data, VIRUS_POOL)
 end

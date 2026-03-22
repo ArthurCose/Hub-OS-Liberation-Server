@@ -2,3 +2,6 @@
 category = "library"
 id = "dev.konstinople.LiberationServer.Shared"
 name = "Default Liberation"
+
+[dependencies]
+tile_states = ["BattleNetwork6.TileStates.Ice"]

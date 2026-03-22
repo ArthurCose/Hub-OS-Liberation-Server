@@ -6,4 +6,7 @@ name = "BlizzardMan"
 [dependencies]
 encounters = ["BattleNetwork5.BlizzardMan"]
 characters = ["BattleNetwork5.BlizzardMan.Enemy"]
-libraries = ["dev.konstinople.library.liberation"]
+libraries = [
+  "dev.konstinople.library.liberation",
+  "dev.konstinople.LiberationServer.Shared"
+]

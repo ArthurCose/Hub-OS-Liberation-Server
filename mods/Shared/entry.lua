@@ -127,4 +127,8 @@ function Lib.spawn_viruses(encounter, data, pool)
     end)
 end
 
+function Lib.generate_ice_field()
+    require("generate_ice_field")()
+end
+
 return Lib
