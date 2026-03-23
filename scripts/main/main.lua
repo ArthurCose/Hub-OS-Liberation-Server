@@ -24,8 +24,19 @@ local function transfer_players_to_new_instance(base_area, player_ids)
 
   local mission = Mission:new(area_id)
 
+  -- resolve nerf functions
   local original_base_hps = {}
 
+  local function nerf_character(player_id)
+    -- nerf characters by dividing their base HP
+    local base_hp = Net.get_player_base_health(player_id)
+    original_base_hps[player_id] = base_hp
+
+    Net.set_player_base_health(player_id, math.max(base_hp // 4, 1))
+    Net.set_player_health(player_id, Net.get_player_max_health(player_id))
+  end
+
+  -- load players
   for _, player_id in ipairs(player_ids) do
     -- resolve ability from items
     local ability = Ability.LongSwrd
@@ -37,11 +48,11 @@ local function transfer_players_to_new_instance(base_area, player_ids)
       end
     end
 
-    -- nerf players by dividing their HP
-    local base_hp = Net.get_player_base_health(player_id)
-    original_base_hps[player_id] = base_hp
-    Net.set_player_base_health(player_id, math.max(base_hp // 4, 1))
-    Net.set_player_health(player_id, Net.get_player_max_health(player_id))
+    -- lock equipment
+    Net.lock_player_equipment(player_id)
+
+    -- apply nerfs
+    nerf_character(player_id)
 
     -- transfer player
     mission:transfer_player(player_id, ability)
@@ -62,6 +73,9 @@ local function transfer_players_to_new_instance(base_area, player_ids)
 
     Net.set_player_health(player_id, Net.get_player_max_health(player_id))
 
+    -- unlock equipment
+    Net.unlock_player_equipment(player_id)
+
     -- transfer out
     local spawn = Net.get_spawn_position("default")
     Net.transfer_player(player_id, "default", true, spawn.x, spawn.y, spawn.z)
@@ -71,12 +85,16 @@ local function transfer_players_to_new_instance(base_area, player_ids)
     end
   end)
 
-  -- kick players for switching navis
+  -- nerf players again if they switched characters after transfer
   local avatar_change_callback = function(event)
-    -- base hp already reset by switching characters
-    original_base_hps[event.player_id] = nil
+    local player = mission.player_map[event.player_id]
 
-    mission:kick_player(event.player_id)
+    if not player then
+      return
+    end
+
+    nerf_character(event.player_id)
+    player.health = math.min(player:max_health())
   end
   Net:on("player_avatar_change", avatar_change_callback)
 
