@@ -149,34 +149,42 @@ function BlizzardMan:take_turn()
 
     local spawned_bots = {}
 
-    for _, player in ipairs(caught_players) do
-      local player_x, player_y, player_z = player:position_multi()
-      local snowball_bot_id = Net.create_bot({
-        texture_path = "/server/assets/liberations/bots/snowball.png",
-        animation_path = "/server/assets/liberations/bots/snowball.animation",
-        area_id = self.instance.area_id,
-        warp_in = false,
-        x = player_x - .5,
-        y = player_y - .5,
-        z = player_z + 8
-      })
+    Net.synchronize(function()
+      for _, player in ipairs(caught_players) do
+        local player_x, player_y, player_z = player:position_multi()
+        local snowball_bot_id = Net.create_bot({
+          texture_path = "/server/assets/liberations/bots/snowball.png",
+          animation_path = "/server/assets/liberations/bots/snowball.animation",
+          area_id = self.instance.area_id,
+          warp_in = false,
+          x = player_x + 1 / 32,
+          y = player_y + 1 / 32,
+          z = player_z + 8.5
+        })
 
-      Net.animate_bot_properties(snowball_bot_id, {
-        {
-          properties = {
-            { property = "Animation", value = "FALL" },
-          }
-        },
-        {
-          properties = {
-            { property = "Z", ease = "Linear", value = player_z + 1 },
+        Net.animate_bot_properties(snowball_bot_id, {
+          {
+            properties = {
+              { property = "Animation", value = "FALL" },
+            },
           },
-          duration = .5
-        }
-      })
+          {
+            properties = {
+              { property = "Z", ease = "Linear", value = player_z + 1.25 },
+            },
+            duration = .5
+          },
+          {
+            properties = {
+              { property = "Animation", value = "" },
+            },
+            duration = .5
+          },
+        })
 
-      spawned_bots[#spawned_bots + 1] = snowball_bot_id
-    end
+        spawned_bots[#spawned_bots + 1] = snowball_bot_id
+      end
+    end)
 
     Async.await(Async.sleep(.5))
 
@@ -188,13 +196,11 @@ function BlizzardMan:take_turn()
       player:hurt(self.damage)
     end
 
-    Async.await(Async.sleep(.5))
+    Async.await(Async.sleep(1.5))
 
     for _, bot_id in ipairs(spawned_bots) do
       Net.remove_bot(bot_id, false)
     end
-
-    Async.await(Async.sleep(1))
 
     EnemyHelpers.play_idle_animation(self)
 
