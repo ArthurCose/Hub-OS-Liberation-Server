@@ -823,16 +823,17 @@ function MissionInstance:handle_tile_interaction(player_id, x, y, z, button)
       spectate_text = "Spectate Next Battle"
     end
 
-    local quiz_promise = player:quiz("Pass", spectate_text, "Close")
+    local quiz_promise = player:quiz(spectate_text, "Pass Turn", "Close")
 
     quiz_promise.and_then(function(response)
       if response == 0 then
-        -- Pass
-        player:get_pass_turn_permission()
-      elseif response == 1 then
+        -- Toggle Spectating
         player.spectate_next_battle = not player.spectate_next_battle
         player:emote_state()
         player:unlock_input()
+      elseif response == 1 then
+        -- Pass
+        player:get_pass_turn_permission()
       elseif response == 2 then
         -- Cancel
         player:unlock_input()
@@ -857,7 +858,7 @@ function MissionInstance:handle_tile_interaction(player_id, x, y, z, button)
     local quiz_promise = player:quiz(
       "Liberation",
       ability.name,
-      "Pass"
+      "Pass Turn"
     )
 
     quiz_promise.and_then(function(response)
