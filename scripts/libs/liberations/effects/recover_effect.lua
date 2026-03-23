@@ -36,7 +36,7 @@ function RecoverEffect:new(actor_id, area_wide_sfx)
     z = position.z,
   })
 
-  Net.animate_bot(recover_bot_id, "RECOVER")
+  Net.animate_bot(recover_bot_id, "DEFAULT")
 
   Async.sleep(.5).and_then(function()
     Net.remove_bot(recover_bot_id)
