@@ -141,11 +141,11 @@ function BlizzardMan:take_turn()
       )
     end
 
-    Async.await(Async.sleep(1.5))
+    Async.await(Async.sleep(4.5))
 
     EnemyHelpers.play_attack_animation(self)
 
-    Async.await(Async.sleep(1.5))
+    Async.await(Async.sleep(.5))
 
     local spawned_bots = {}
 

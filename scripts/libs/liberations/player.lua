@@ -4,6 +4,7 @@ local EnemyHelpers = require("scripts/libs/liberations/enemy_helpers")
 local HealthSprites = require("scripts/libs/liberations/effects/health_sprites")
 local ParalysisEffect = require("scripts/libs/liberations/effects/paralysis_effect")
 local RecoverEffect = require("scripts/libs/liberations/effects/recover_effect")
+local DamageNumbers = require("scripts/libs/liberations/effects/damage_numbers")
 local PanelType = require("scripts/libs/liberations/panel_type")
 local Emotes = require("scripts/libs/emotes")
 
@@ -371,8 +372,20 @@ function Player:hurt(amount)
 
   Net.play_sound_for_player(self.id, "/server/assets/liberations/sounds/hurt.ogg")
 
+  local prev_health = self.health
   self.health = math.max(math.ceil(self.health - amount), 0)
 
+  -- spawn damage numbers
+  local x, y, z = Net.get_player_position_multi(self.id)
+  DamageNumbers.spawn(
+    self.instance.area_id,
+    prev_health - self.health,
+    x + 2 / 32,
+    y + 2 / 32,
+    z + 0.5
+  )
+
+  -- update UI
   Net.set_player_health(self.id, self.health)
   HealthSprites.update_sprite(self.id, self.health)
 
