@@ -769,6 +769,8 @@ function MissionInstance:tick(elapsed)
   end
 end
 
+local IMMEDIATE_TOKEN = "\x04"
+
 ---@package
 function MissionInstance:handle_tile_interaction(player_id, x, y, z, button)
   local player = self.player_map[player_id]
@@ -823,7 +825,10 @@ function MissionInstance:handle_tile_interaction(player_id, x, y, z, button)
       spectate_text = "Spectate Next Battle"
     end
 
-    local quiz_promise = player:quiz(spectate_text, "Pass Turn", "Close")
+    local quiz_promise = player:quiz(
+      IMMEDIATE_TOKEN .. spectate_text,
+      IMMEDIATE_TOKEN .. "Pass Turn",
+      IMMEDIATE_TOKEN .. "Close")
 
     quiz_promise.and_then(function(response)
       if response == 0 then
@@ -856,9 +861,9 @@ function MissionInstance:handle_tile_interaction(player_id, x, y, z, button)
 
   if ability and can_use_ability then
     local quiz_promise = player:quiz(
-      "Liberation",
-      ability.name,
-      "Pass Turn"
+      IMMEDIATE_TOKEN .. "Liberation",
+      IMMEDIATE_TOKEN .. ability.name,
+      IMMEDIATE_TOKEN .. "Pass Turn"
     )
 
     quiz_promise.and_then(function(response)
@@ -882,9 +887,9 @@ function MissionInstance:handle_tile_interaction(player_id, x, y, z, button)
   end
 
   local quiz_promise = player:quiz(
-    "Liberation",
-    "Pass",
-    "Cancel"
+    IMMEDIATE_TOKEN .. "Liberation",
+    IMMEDIATE_TOKEN .. "Pass Turn",
+    IMMEDIATE_TOKEN .. "Cancel"
   )
 
   quiz_promise.and_then(function(response)
