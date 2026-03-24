@@ -82,8 +82,6 @@ local function transfer_players_to_new_instance(base_area, player_ids)
 
         transfer_to_lobby(player_id, false)
 
-        Async.await(Async.sleep(0.75))
-
         Net.fade_player_camera(player_id, { r = 0, g = 0, b = 0, a = 0 }, 0.25)
       end)
     else
