@@ -416,6 +416,9 @@ function Player:complete_turn()
   self.completed_turn = true
   self.selection:clear()
 
+  -- make sure input is locked
+  self:lock_input()
+
   -- cancel spectating
   self.spectate_next_battle = false
 
