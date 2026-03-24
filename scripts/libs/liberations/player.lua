@@ -23,6 +23,7 @@ local Emotes = require("scripts/libs/emotes")
 ---@field spectate_next_battle boolean
 ---@field movement_locked boolean
 ---@field stacked_movement_locks number
+---@field viewing_player Net.ActorId?
 ---@field disconnected boolean
 local Player = {}
 
@@ -45,6 +46,7 @@ function Player:new(instance, player_id)
     spectate_next_battle = false,
     movement_locked = false,
     stacked_movement_locks = 0,
+    viewing_player = self.id,
     disconnected = false,
   }
 
@@ -455,6 +457,7 @@ function Player:give_turn()
   end
 
   self:unlock_movement()
+  Net.track_with_player_camera(self.id, self.id)
 end
 
 function Player:find_closest_guardian()
@@ -569,6 +572,29 @@ function Player:liberate_and_loot_panels(panels, results, remove_traps, destroy_
     Async.await(self:liberate_panels(panels, results))
     Async.await(self:loot_panels(panels, remove_traps, destroy_items))
   end)
+end
+
+function Player:cycle_camera_target()
+  if not self.instance.player_map[self.viewing_player] then
+    self.viewing_player = self.id
+  end
+
+  local index
+
+  for i = 1, #self.instance.players do
+    local player = self.instance.players[i]
+
+    if player.id == self.viewing_player then
+      index = i
+      break
+    end
+  end
+
+  index = index % #self.instance.players + 1
+
+  self.viewing_player = self.instance.players[index].id
+
+  Net.track_with_player_camera(self.id, self.viewing_player)
 end
 
 function Player:handle_disconnect()

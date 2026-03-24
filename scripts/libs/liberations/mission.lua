@@ -779,8 +779,12 @@ function MissionInstance:handle_tile_interaction(player_id, x, y, z, button)
     return
   end
 
-  if player.completed_turn or Net.is_player_in_widget(player_id) then
-    -- ignore selection as it's not our turn or waiting for a response
+  if Net.is_player_in_widget(player_id) then
+    return
+  end
+
+  if player.completed_turn then
+    player:cycle_camera_target()
     return
   end
 
