@@ -233,8 +233,12 @@ local function start_mission(scripts, base_area, player_ids)
     -- send the player somewhere else
     Net.transfer_player(event.player_id, "default", true)
 
-    if event.success then
+    if event.reason == "success" then
       -- optional, reward the player in some way
+    elseif event.reason == "abandoned" then
+      -- optional, customize transition
+    elseif event.reason == "failed" then
+      -- optional, customize transition
     end
   end)
 

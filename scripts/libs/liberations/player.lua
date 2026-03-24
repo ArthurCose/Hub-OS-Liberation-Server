@@ -24,6 +24,7 @@ local Emotes = require("scripts/libs/emotes")
 ---@field movement_locked boolean
 ---@field stacked_movement_locks number
 ---@field viewing_player Net.ActorId?
+---@field abandoning boolean?
 ---@field disconnected boolean
 local Player = {}
 

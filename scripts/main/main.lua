@@ -12,6 +12,19 @@ local randomize_mission = require("scripts/main/randomize_mission")
 
 local waiting_area = "default"
 local door = Net.get_object_by_name(waiting_area, "Door")
+local return_point = Net.get_object_by_name(waiting_area, "Return Point")
+
+local function transfer_to_lobby(player_id, warp_out)
+  Net.transfer_player(
+    player_id,
+    waiting_area,
+    warp_out,
+    return_point.x,
+    return_point.y,
+    return_point.z,
+    return_point.custom_properties.Direction
+  )
+end
 
 local function transfer_players_to_new_instance(base_area, player_ids)
   -- using the scripts instancer will load script nodes on instanced areas
@@ -76,12 +89,25 @@ local function transfer_players_to_new_instance(base_area, player_ids)
     -- unlock equipment
     Net.unlock_player_equipment(player_id)
 
-    -- transfer out
-    local spawn = Net.get_spawn_position("default")
-    Net.transfer_player(player_id, "default", true, spawn.x, spawn.y, spawn.z)
-
-    if event.success then
+    if event.reason == "success" then
       -- todo: money?
+    end
+
+    -- transfer out
+    if event.reason == "abandoned" then
+      Async.create_scope(function()
+        Net.fade_player_camera(player_id, { r = 0, g = 0, b = 0, a = 255 }, 0.25)
+
+        Async.await(Async.sleep(0.75))
+
+        transfer_to_lobby(player_id, false)
+
+        Async.await(Async.sleep(0.75))
+
+        Net.fade_player_camera(player_id, { r = 0, g = 0, b = 0, a = 0 }, 0.25)
+      end)
+    else
+      transfer_to_lobby(player_id, true)
     end
   end)
 

@@ -1,3 +1,4 @@
+local TableUtil = require("scripts/libs/liberations/table_util")
 local Player = require("scripts/libs/liberations/player")
 local Enemy = require("scripts/libs/liberations/enemy")
 local EnemyHelpers = require("scripts/libs/liberations/enemy_helpers")
@@ -74,11 +75,7 @@ local function liberate(self)
 
   for _, player in ipairs(self.players) do
     player:message(victory_message).and_then(function()
-      self:handle_player_disconnect(player.id)
-      self.events:emit("player_kicked", {
-        player_id = player.id,
-        success = true
-      })
+      self:kick_player(player.id, "success")
     end)
   end
 end
@@ -317,12 +314,7 @@ local function take_enemy_turn(self)
 
           Net.unlock_player_camera(player.id)
 
-          self:handle_player_disconnect(player.id)
-
-          self.events:emit("player_kicked", {
-            player_id = player.id,
-            success = false
-          })
+          self:kick_player(player.id, "failure")
         end)
       end
 
@@ -477,8 +469,9 @@ end
 ---@field gate_panels Liberation.PanelObject[]
 ---@field panel_gid_map table<string, number[]>
 ---@field collision_template Net.ObjectOptions
----@field events Net.EventEmitter "money" { player_id, money }, "player_kicked" { player_id, success }
+---@field events Net.EventEmitter "money" { player_id, money }, "player_kicked" { player_id, reason }
 ---@field package spawn_positions Net.Object[]
+---@field package abandon_points table<number, table<number, table<number, boolean>>>
 ---@field package net_listeners [string, fun()][]
 ---@field package updating boolean
 ---@field package needs_disposal boolean
@@ -521,6 +514,7 @@ function MissionInstance:new(area_id)
       },
     },
     spawn_positions = {},
+    abandon_points = {},
     net_listeners = {},
     events = Net.EventEmitter.new(),
     updating = false,
@@ -559,6 +553,17 @@ function MissionInstance:new(area_id)
       mission.points_of_interest[#mission.points_of_interest + 1] = object
       -- delete to reduce map size
       Net.remove_object(mission.area_id, object_id)
+    elseif object.name == "Abandon Point" then
+      -- delete to reduce map size
+      Net.remove_object(mission.area_id, object_id)
+
+      TableUtil.set(
+        mission.abandon_points,
+        math.floor(object.x),
+        math.floor(object.y),
+        math.floor(object.z),
+        true
+      )
     elseif PanelType.ALL[object.type] then
       -- track gid
       local type_map = mission.panel_gid_map[object.type]
@@ -654,6 +659,10 @@ function MissionInstance:new(area_id)
     mission:handle_object_interaction(event.player_id, event.object_id, event.button)
   end)
 
+  add_event_listener("player_move", function(event)
+    mission:handle_player_move(event.player_id, event.x, event.y, event.z)
+  end)
+
   add_event_listener("player_area_transfer", function(event)
     if Net.get_player_area(event.player_id) ~= area_id then
       mission:handle_player_disconnect(event.player_id)
@@ -703,8 +712,11 @@ function MissionInstance:transfer_player(player_id, ability)
   Net.transfer_player(player.id, self.area_id, true, spawn_position.x, spawn_position.y, spawn_position.z)
 end
 
+---@alias Liberation.KickReason "success" | "failure" | "abandoned"
+
 ---@param player_id Net.ActorId
-function MissionInstance:kick_player(player_id)
+---@param reason Liberation.KickReason
+function MissionInstance:kick_player(player_id, reason)
   if not self.player_map[player_id] then
     return
   end
@@ -713,7 +725,7 @@ function MissionInstance:kick_player(player_id)
 
   self.events:emit("player_kicked", {
     player_id = player_id,
-    success = false
+    reason = reason
   })
 end
 
@@ -922,6 +934,36 @@ function MissionInstance:handle_object_interaction(player_id, object_id, button)
   end
 
   self:handle_tile_interaction(player_id, object.x, object.y, object.z, button)
+end
+
+---@package
+function MissionInstance:handle_player_move(player_id, x, y, z)
+  local player = self.player_map[player_id]
+
+  if not player then
+    return
+  end
+
+  local abandoning = TableUtil.get(
+    self.abandon_points,
+    math.floor(x),
+    math.floor(y),
+    math.floor(z)
+  )
+
+  if abandoning == player.abandoning then
+    return
+  end
+
+  player.abandoning = abandoning
+
+  if abandoning then
+    player:question_with_mug("Abandon mission?").and_then(function(response)
+      if response == 1 then
+        self:kick_player(player_id, "abandoned")
+      end
+    end)
+  end
 end
 
 ---@package
