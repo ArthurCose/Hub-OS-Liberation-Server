@@ -100,7 +100,7 @@ local function convert_indestructible_panels(self)
     player:message("No more DarkHoles! Nothing will save the Darkloids now!")
     local player_x, player_y, player_z = player:position_multi()
 
-    player:stack_lock_input()
+    player:stack_lock_movement()
 
     Net.slide_player_camera(player.id, self.boss.x, self.boss.y, self.boss.z, slide_time)
 
@@ -138,7 +138,7 @@ local function convert_indestructible_panels(self)
 
   -- returning control
   for _, player in ipairs(self.players) do
-    player:unstack_lock_input()
+    player:unstack_lock_movement()
   end
 end
 
@@ -162,7 +162,7 @@ local function liberate_panel(self, player)
 
       Async.await(Loot.loot_bonus_panel(self, player, panel))
 
-      player:unlock_input()
+      player:unlock_movement()
     else
       if panel.custom_properties["Message"] ~= nil then
         Async.await(player:message_with_mug(panel.custom_properties["Message"]))
@@ -427,7 +427,7 @@ local function take_enemy_turn(self)
 
       -- If they aren't paralyzed or otherwise unable to move, return input
       if not player.paralysis_effect then
-        player:unlock_input()
+        player:unlock_movement()
       end
     end
 
@@ -809,7 +809,7 @@ function MissionInstance:handle_tile_interaction(player_id, x, y, z, button)
     end
   end
 
-  player:lock_input()
+  player:lock_movement()
 
   if
       not panel or
@@ -835,13 +835,13 @@ function MissionInstance:handle_tile_interaction(player_id, x, y, z, button)
         -- Toggle Spectating
         player.spectate_next_battle = not player.spectate_next_battle
         player:emote_state()
-        player:unlock_input()
+        player:unlock_movement()
       elseif response == 1 then
         -- Pass
         player:get_pass_turn_permission()
       elseif response == 2 then
         -- Cancel
-        player:unlock_input()
+        player:unlock_movement()
       end
     end)
 
@@ -903,7 +903,7 @@ function MissionInstance:handle_tile_interaction(player_id, x, y, z, button)
     elseif response == 2 then
       -- Cancel
       player.selection:clear()
-      player:unlock_input()
+      player:unlock_movement()
     end
   end)
 end

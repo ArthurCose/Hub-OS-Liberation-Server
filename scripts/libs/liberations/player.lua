@@ -21,8 +21,8 @@ local Emotes = require("scripts/libs/emotes")
 ---@field selection Liberation.PlayerSelection
 ---@field ability Liberation.Ability?
 ---@field spectate_next_battle boolean
----@field input_locked boolean
----@field stacked_input_locks number
+---@field movement_locked boolean
+---@field stacked_movement_locks number
 ---@field disconnected boolean
 local Player = {}
 
@@ -43,8 +43,8 @@ function Player:new(instance, player_id)
     selection = PlayerSelection:new(instance, player_id),
     ability = nil,
     spectate_next_battle = false,
-    input_locked = false,
-    stacked_input_locks = 0,
+    movement_locked = false,
+    stacked_movement_locks = 0,
     disconnected = false,
   }
 
@@ -95,31 +95,31 @@ function Player:position_multi()
 end
 
 --- Used for direct control, locking due to the player's action or by the mission
-function Player:lock_input()
-  if not self.input_locked then
-    Net.lock_player_input(self.id)
-    self.input_locked = true
+function Player:lock_movement()
+  if not self.movement_locked then
+    Net.lock_player_movement(self.id)
+    self.movement_locked = true
   end
 end
 
 --- Used for direct control, locking due to the player's action or by the mission
-function Player:unlock_input()
-  if self.input_locked then
-    Net.unlock_player_input(self.id)
-    self.input_locked = false
+function Player:unlock_movement()
+  if self.movement_locked then
+    Net.unlock_player_movement(self.id)
+    self.movement_locked = false
   end
 end
 
 --- Used for indirect control, locking from another player's action
-function Player:stack_lock_input()
-  self.stacked_input_locks = self.stacked_input_locks + 1
-  Net.lock_player_input(self.id)
+function Player:stack_lock_movement()
+  self.stacked_movement_locks = self.stacked_movement_locks + 1
+  Net.lock_player_movement(self.id)
 end
 
 --- Used for indirect control, unlocking from another player's action
-function Player:unstack_lock_input()
-  self.stacked_input_locks = self.stacked_input_locks - 1
-  Net.unlock_player_input(self.id)
+function Player:unstack_lock_movement()
+  self.stacked_movement_locks = self.stacked_movement_locks - 1
+  Net.unlock_player_movement(self.id)
 end
 
 ---@param message string
@@ -172,7 +172,7 @@ function Player:get_ability_permission()
     if response == 0 then
       -- No
       self.selection:clear()
-      self:unlock_input()
+      self:unlock_movement()
       return
     end
 
@@ -205,7 +205,7 @@ function Player:get_pass_turn_permission()
   question_promise.and_then(function(response)
     if response == 0 then
       -- No
-      self:unlock_input()
+      self:unlock_movement()
     elseif response == 1 then
       -- Yes
       self:pass_turn()
@@ -287,7 +287,7 @@ function Player:initiate_encounter(encounter_path, data)
       goto continue
     end
 
-    if Net.is_player_input_locked(player.id) then
+    if Net.is_player_movement_locked(player.id) then
       goto continue
     end
 
@@ -417,7 +417,7 @@ function Player:complete_turn()
   self.selection:clear()
 
   -- make sure input is locked
-  self:lock_input()
+  self:lock_movement()
 
   -- cancel spectating
   self.spectate_next_battle = false
@@ -454,7 +454,7 @@ function Player:give_turn()
     end
   end
 
-  self:unlock_input()
+  self:unlock_movement()
 end
 
 function Player:find_closest_guardian()
@@ -590,10 +590,10 @@ function Player:handle_disconnect()
 
   HealthSprites.remove_sprite(self.id)
 
-  self:unlock_input()
+  self:unlock_movement()
 
-  for _ = 1, self.stacked_input_locks do
-    Net.unlock_player_input(self.id)
+  for _ = 1, self.stacked_movement_locks do
+    Net.unlock_player_movement(self.id)
   end
 end
 

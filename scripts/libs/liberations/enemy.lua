@@ -92,7 +92,7 @@ function Enemy.focus(instance, enemy, callback)
 
     -- moving every player's camera to the enemy
     for _, player in ipairs(instance.players) do
-      player:stack_lock_input()
+      player:stack_lock_movement()
 
       if not Net.is_player_battling(player.id) then
         Net.slide_player_camera(player.id, enemy.x + .5, enemy.y + .5, enemy.z, slide_time)
@@ -122,7 +122,7 @@ function Enemy.focus(instance, enemy, callback)
 
     -- unlock players
     for _, player in ipairs(instance.players) do
-      player:unstack_lock_input()
+      player:unstack_lock_movement()
     end
   end)
 end
