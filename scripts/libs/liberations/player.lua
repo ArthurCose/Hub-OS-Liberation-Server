@@ -35,7 +35,7 @@ function Player:new(instance, player_id)
   local player = {
     instance = instance,
     id = player_id,
-    health = Net.get_player_max_health(player_id),
+    health = Net.get_player_health(player_id),
     paralysis_effect = nil,
     paralysis_counter = 0,
     emote_delay = 0,
