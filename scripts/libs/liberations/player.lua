@@ -76,6 +76,10 @@ function Player:emote_state()
 end
 
 function Player:update_order_points_hud()
+  if self.disconnected then
+    return
+  end
+
   if self.order_points_sprite_id then
     Net.animate_sprite(self.order_points_sprite_id, tostring(self.instance.order_points))
   else
@@ -142,6 +146,10 @@ end
 
 ---@param message string
 function Player:message_with_mug(message)
+  if self.disconnected then
+    return Async.create_scope(function() end)
+  end
+
   local mug = Net.get_player_mugshot(self.id)
   return self:message(message, mug.texture_path, mug.animation_path)
 end
@@ -155,6 +163,10 @@ end
 
 ---@param question string
 function Player:question_with_mug(question)
+  if self.disconnected then
+    return Async.create_scope(function() end)
+  end
+
   local mug = Net.get_player_mugshot(self.id)
   return self:question(question, mug.texture_path, mug.animation_path)
 end
@@ -369,7 +381,7 @@ function Player:heal(amount)
 end
 
 function Player:hurt(amount)
-  if self.invincible or self.health == 0 or amount <= 0 then
+  if self.disconnected or self.invincible or self.health == 0 or amount <= 0 then
     return
   end
 
@@ -400,6 +412,10 @@ function Player:hurt(amount)
 end
 
 function Player:paralyze()
+  if self.disconnected then
+    return
+  end
+
   self.paralysis_counter = 2
   self.paralysis_effect = ParalysisEffect:new(self.id)
 end
