@@ -787,16 +787,16 @@ local IMMEDIATE_TOKEN = "\x04"
 function MissionInstance:handle_tile_interaction(player_id, x, y, z, button)
   local player = self.player_map[player_id]
 
-  if not player then
-    return
-  end
-
-  if Net.is_player_in_widget(player_id) then
+  if not player or Net.is_player_in_widget(player_id) then
     return
   end
 
   if player.completed_turn then
     player:cycle_camera_target()
+    return
+  end
+
+  if Net.is_player_movement_locked(player_id) then
     return
   end
 
