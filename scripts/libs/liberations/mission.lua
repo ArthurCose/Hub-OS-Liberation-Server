@@ -219,6 +219,13 @@ local function liberate_panel(self, player)
         results = Async.await(promise)
       end
 
+      if results and results.connection_failed then
+        -- avoid ending this player's turn to allow them to retry
+        player:unlock_movement()
+        selection:clear()
+        return
+      end
+
       if not results or not results.won then
         if enemy then
           enemy.health = final_enemy_health
@@ -1107,6 +1114,15 @@ function MissionInstance:create_panel(object)
   end
 
   return new_panel
+end
+
+---@param points number
+function MissionInstance:add_order_points(points)
+  self.order_points = math.max(math.min(self.order_points + points, self.MAX_ORDER_POINTS), 0)
+
+  for _, p in ipairs(self.players) do
+    p:update_order_points_hud()
+  end
 end
 
 -- exporting

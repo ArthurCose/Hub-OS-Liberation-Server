@@ -310,8 +310,9 @@ function Player:initiate_encounter(encounter_path, data)
 
     if x == math.floor(other_x) and y == math.floor(other_y) and z == math.floor(other_z) then
       player_ids[#player_ids + 1] = player.id
-      -- spend a turn on co-op
-      player:complete_turn()
+      -- prepare to spend a turn on co-op
+      player:lock_movement()
+      player.selection:clear()
       player.spectate_next_battle = false
     end
 
@@ -326,15 +327,28 @@ function Player:initiate_encounter(encounter_path, data)
 
   local promise = Async.create_promise(function(resolve)
     local final_result = { won = false, turns = 0 }
+    local resolved = false
 
     emitter:on("battle_results", function(results)
-      if results ~= nil and not spectator_map[results.player_id] then
-        -- contribute to final result
-        final_result.won = final_result.won or results.won
-        final_result.turns = math.max(final_result.turns, results.turns)
+      local results_player = self.instance.player_map[results.player_id]
 
-        -- update player
-        local results_player = self.instance.player_map[results.player_id]
+      -- update player
+      if results ~= nil and not spectator_map[results.player_id] and results_player then
+        if results.connection_failed then
+          -- connection failed, free players that joined in
+          if self.id ~= results_player.id then
+            results_player:unlock_movement()
+          end
+
+          if not resolved then
+            -- resolve immediately
+            resolve(results)
+            resolved = true
+          end
+
+          return
+        end
+
         local max_health = Net.get_player_max_health(results_player.id)
 
         results_player.health = results.health
@@ -345,6 +359,18 @@ function Player:initiate_encounter(encounter_path, data)
         if results.health == 0 then
           results_player:paralyze()
         end
+
+        if self.id ~= results_player.id then
+          results_player:complete_turn()
+        end
+
+        -- contribute to final result
+        final_result.won = final_result.won or results.won
+        final_result.turns = math.max(final_result.turns, results.turns)
+      end
+
+      if resolved then
+        return
       end
 
       -- resolve final result

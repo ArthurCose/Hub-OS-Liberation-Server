@@ -41,9 +41,17 @@ local function initiate_encounter(instance, player)
   return player:initiate_encounter(encounter_path, data)
 end
 
+---@param instance Liberation.MissionInstance
+---@param player Liberation.Player
 local function battle_to_liberate_and_loot(instance, player)
   initiate_encounter(instance, player).and_then(function(battle_results)
-    if battle_results.won then
+    if battle_results.connection_failed then
+      -- avoid ending this player's turn to allow them to retry
+      player:unlock_movement()
+      player.selection:clear()
+      -- return order points
+      instance:add_order_points(1)
+    elseif battle_results.won then
       liberate_and_loot(instance, player, battle_results)
     else
       player:complete_turn()
