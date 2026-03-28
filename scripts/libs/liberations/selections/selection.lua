@@ -90,10 +90,29 @@ local function widen_row(row, new_width)
   end
 end
 
+local function clone_shape(shape)
+  local clone = {}
+
+  for i, original_row in ipairs(shape) do
+    local row = {}
+
+    for j, value in ipairs(original_row) do
+      row[j] = value
+    end
+
+    clone[i] = row
+  end
+
+  return clone
+end
+
 function Selection:merge_shape(shape, shape_offset_x, shape_offset_y)
   if shape_offset_x ~= 0 then
     warn("Selection:merge_shape() does not support shape_offset_x yet")
   end
+
+  -- clone shape to avoid modifying the original input, in case it's reused
+  self.shape = clone_shape(self.shape)
 
   local shape_y_difference = shape_offset_y - self.shape_offset_y
 
