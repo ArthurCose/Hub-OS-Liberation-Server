@@ -88,7 +88,7 @@ Net.EventEmitter = {}
 ---```lua
 ---keyframes: {
 ---  properties: {
----    property: "Animation" | "Animation Speed" | "X" | "Y" | "Z" | "ScaleX" | "ScaleY" | "Rotation" | "Direction" | "Sound Effect" | "Sound Effect Loop",
+---    property: "Animation" | "Animation Loop" | "Animation Speed" | "X" | "Y" | "Z" | "ScaleX" | "ScaleY" | "Rotation" | "Direction" | "Sound Effect" | "Sound Effect Loop",
 ---    ease?: "Linear" | "In" | "Out" | "InOut" | "Floor",
 ---    value: number | string
 ---  }[],
@@ -100,7 +100,7 @@ Net.EventEmitter = {}
 ---@field duration? number in seconds
 
 ---@class Net.ActorPropertyKeyframe
----@field property "Animation" | "Animation Speed" | "X" | "Y" | "Z" | "ScaleX" | "ScaleY" | "Rotation" | "Direction" | "Sound Effect" | "Sound Effect Loop"
+---@field property "Animation" | "Animation Loop" | "Animation Speed" | "X" | "Y" | "Z" | "ScaleX" | "ScaleY" | "Rotation" | "Direction" | "Sound Effect" | "Sound Effect Loop"
 ---@field ease? "Linear" | "In" | "Out" | "InOut" | "Floor",
 ---@field value number | string
 
@@ -112,6 +112,8 @@ Net.EventEmitter = {}
 ---@class Net.TextboxOptions
 ---@field mug? Net.TextureAnimationPair
 ---@field text_style? Net.TextStyle
+---@field default_response? string | number
+---@field character_limit? number Used for text inputs
 
 ---Example:
 ---
@@ -211,6 +213,7 @@ Net.EventEmitter = {}
 ---@field health number
 ---@field time number
 ---@field ran boolean
+---@field connection_failed boolean
 ---@field emotion string
 ---@field turns number
 
@@ -848,6 +851,13 @@ function Net.quiz_player(player_id, option_a, option_b, option_c, textbox_option
 ---@param default_text? string
 function Net.prompt_player(player_id, character_limit, default_text) end
 
+--- Displays a textbox that accepts text input.
+---
+--- See [textbox_response](https://docs.hubos.dev/server/lua-api/events#textbox_response) or the [async](https://docs.hubos.dev/server/lua-api/async#asyncprompt_playerplayer_id-textbox_options) version of this function for handling responses.
+---@param player_id Net.ActorId
+---@param textbox_options? Net.TextboxOptions
+function Net.prompt_player(player_id, textbox_options) end
+
 --- - `color`: [Net.Color](https://docs.hubos.dev/server/lua-api/widgets#netcolor)
 --- - `posts`: [Net.BoardPost[]](https://docs.hubos.dev/server/lua-api/widgets#netboardpost)
 ---
@@ -1168,6 +1178,21 @@ function Net.lock_player_input(player_id) end
 ---@param player_id Net.ActorId
 function Net.unlock_player_input(player_id) end
 
+--- Returns true if there's any locks on the player's movement.
+---
+--- Unaffected by input locks.
+---@param player_id Net.ActorId
+---@return boolean
+function Net.is_player_movement_locked(player_id) end
+
+--- Prevents the player from moving. Multiple locks can exist at a time.
+---@param player_id Net.ActorId
+function Net.lock_player_movement(player_id) end
+
+--- Removes a lock on the player's movement.
+---@param player_id Net.ActorId
+function Net.unlock_player_movement(player_id) end
+
 --- Teleports the player to a new position.
 ---@param player_id Net.ActorId
 ---@param warp boolean
@@ -1183,6 +1208,10 @@ function Net.teleport_player(player_id, warp, x, y, z, direction) end
 --- Expecting structure:
 ---
 --- ```toml
+--- [augments]
+--- blocks_enabled = true
+--- drives_enabled = true
+---
 --- [deck]
 ---@param player_id Net.ActorId
 ---@param path string
@@ -1435,6 +1464,14 @@ function Net.player_character_enabled(player_id, package_id) end
 ---@param player_id Net.ActorId
 ---@param package_id string
 function Net.enable_player_character(player_id, package_id) end
+
+--- Restricts access to menu items relevant to equipment.
+---@param player_id Net.ActorId
+function Net.lock_player_equipment(player_id) end
+
+--- Allows the player to access menu items relevant to equipment again.
+---@param player_id Net.ActorId
+function Net.unlock_player_equipment(player_id) end
 
 --- Returns a list of `bot_id`s.
 ---@param area_id string
@@ -1937,6 +1974,12 @@ function Async.quiz_player(player_id, option_a, option_b, option_c, textbox_opti
 ---@return Net.Promise<string|nil>
 function Async.prompt_player(player_id, character_limit, default_text) end
 
+--- Returns a promise that resolves to `string`, or `nil` for disconnected.
+---@param player_id Net.ActorId
+---@param textbox_options? Net.TextboxOptions
+---@return Net.Promise<string|nil>
+function Async.prompt_player(player_id, textbox_options) end
+
 --- - `encounter_data`: anything that could be represented as JSON.
 ---   - Read as second param in encounter_init for the encounter package
 ---
@@ -1987,3 +2030,7 @@ function Net.decode_uri_component(text) end
 --- Returns a number, specifically a cryptographically secure 64 bit random integer using the system's random number generator.
 ---@return number
 function Net.system_random() end
+
+--- Returns a number, used to resolve whether two servers have compatible versions.
+---@return number
+function Net.protocol_version() end

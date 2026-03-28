@@ -370,7 +370,9 @@ Input = {
 ---@field on_battle_start_func fun(self: Entity)
 --- Called when health is 0 or `entity:delete()` is called. `entity:erase()` must be called to truly delete the entity.
 ---
---- This function is pre-set for all entities.
+--- This function is pre-set for all entities, and may be skipped if `entity:erase()` is called.
+---
+--- Use [entity:on_erase()](https://docs.hubos.dev/client/lua-api/entity-api/entity#entityon_erasefunctionentity) if you need a callback that runs in all situations.
 ---@field on_delete_func fun(self: Entity)
 --- Called when an attack using this entity's [context](https://docs.hubos.dev/client/lua-api/attack-api/hit-props#attackcontext) counters another entity.
 ---
@@ -819,6 +821,8 @@ DeckCard = {}
 ---@field status_durations table<Hit, number>
 --- [Hit](https://docs.hubos.dev/client/lua-api/attack-api/hit-props#hit_propsflags), influences generated [HitProps](https://docs.hubos.dev/client/lua-api/attack-api/hit-props)
 ---@field hit_flags Hit | number
+--- Number, used by other mods for conditional behavior, defaults to 0.
+---@field limit number
 --- Any of the values below:
 ---
 --- - `CardClass.Standard`
@@ -1270,6 +1274,14 @@ function Entity:has_actions() end
 ---@return boolean
 function Entity:can_time_freeze_counter() end
 
+--- Returns true if the entity is frozen from time freezing.
+---@return boolean
+function Entity:frozen() end
+
+--- Freezes the entity for time freeze, will unfreeze when time freeze ends.
+---@param bool? boolean
+function Entity:set_frozen(bool) end
+
 --- - `action`: [Action](https://docs.hubos.dev/client/lua-api/attack-api/action)
 ---
 --- Note: During time freeze, Actions that freeze time skip to the front of the line.
@@ -1375,8 +1387,24 @@ function Entity:default_player_delete() end
 function Entity:default_character_delete() end
 
 --- Adds a callback listener for entity deletion.
+---
+--- This callback can be skipped if `entity:erase()` was called before `entity:delete()`
+---
+--- Use [entity:on_erase()](https://docs.hubos.dev/client/lua-api/entity-api/entity#entityon_erasefunctionentity) if you need a callback that runs in all situations.
 ---@param callback fun(entity: Entity)
 function Entity:on_delete(callback) end
+
+--- Removes a callback set by [entity:on_delete()](https://docs.hubos.dev/client/lua-api/entity-api/entity#entityon_deletefunctionentity)
+---@param callback fun(entity: Entity)
+function Entity:remove_on_delete(callback) end
+
+--- Adds a callback listener for entity erasure.
+---@param callback fun(entity: Entity)
+function Entity:on_erase(callback) end
+
+--- Removes a callback set by [entity:on_erase()](https://docs.hubos.dev/client/lua-api/entity-api/entity#entityon_erasefunctionentity)
+---@param callback fun(entity: Entity)
+function Entity:remove_on_erase(callback) end
 
 --- Returns an [Entity](https://docs.hubos.dev/client/lua-api/entity-api/entity)
 ---@return Entity
