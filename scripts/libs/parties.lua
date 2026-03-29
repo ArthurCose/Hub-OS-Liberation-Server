@@ -38,6 +38,8 @@ local parties_by_key = {}
 local pending_invites = {}
 ---@type table<string, string[]>
 local outgoing_invites = {}
+---@type table<table, any> values stored in parties_by_key are keys for this table
+local party_data = {}
 
 local Parties = {}
 
@@ -61,6 +63,31 @@ function Parties.list_members(player_id)
   return ids
 end
 
+---Retrieves data associated with the party
+---@param player_id Net.ActorId
+function Parties.data(player_id)
+  local key = resolve_player_key(player_id)
+  local keys = parties_by_key[key]
+
+  if keys then
+    return party_data[keys]
+  end
+end
+
+---Associates data with the player's party
+---
+---Ignored if the player is not in a party
+---@param player_id Net.ActorId
+function Parties.set_data(player_id, data)
+  local key = resolve_player_key(player_id)
+  local keys = parties_by_key[key]
+
+  if keys then
+    party_data[keys] = data
+  end
+end
+
+---Returns true if the players are partied or if they have a shared identity
 ---@param player_a Net.ActorId
 ---@param player_b Net.ActorId
 function Parties.is_in_same_party(player_a, player_b)
@@ -211,21 +238,21 @@ end
 
 function Parties.leave(player_id)
   local key = resolve_player_key(player_id)
-  local members = parties_by_key[key]
+  local member_keys = parties_by_key[key]
 
-  if members == nil then
+  if member_keys == nil then
     return
   end
 
   parties_by_key[key] = nil
 
   -- remove from party
-  remove_by_value(members, key)
+  remove_by_value(member_keys, key)
 
   -- let everyone know you left
   local name = Net.get_player_name(player_id)
 
-  for _, member_key in ipairs(members) do
+  for _, member_key in ipairs(member_keys) do
     local member_id = resolve_player_id(member_key)
 
     if member_id then
@@ -233,8 +260,8 @@ function Parties.leave(player_id)
     end
   end
 
-  if #members == 1 then
-    local member_key = members[1]
+  if #member_keys == 1 then
+    local member_key = member_keys[1]
     local member_id = resolve_player_id(member_key)
 
     if member_id then
@@ -242,6 +269,7 @@ function Parties.leave(player_id)
     end
 
     parties_by_key[member_key] = nil
+    party_data[member_keys] = nil
   end
 end
 
@@ -317,6 +345,7 @@ Net:on("player_disconnect", function(event)
       parties_by_key[member_key] = nil
     end
 
+    party_data[member_keys] = nil
     return
   end
 
