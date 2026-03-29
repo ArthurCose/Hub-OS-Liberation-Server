@@ -91,7 +91,7 @@ local function transfer_players_to_new_instance(base_area, player_ids)
 end
 
 local function start_game_for_player(map, player_id)
-  local party = Parties.find(player_id)
+  local party = Parties.list_members(player_id)
 
   if party == nil then
     transfer_players_to_new_instance(map, { player_id })
@@ -113,27 +113,6 @@ local function detect_door_interaction(player_id, object_id, button)
   end)
 end
 
-local function leave_party(player_id)
-  local party = Parties.find(player_id)
-
-  if not party then
-    return
-  end
-
-  Parties.leave(player_id)
-
-  -- let everyone know you left
-  local name = Net.get_player_name(player_id)
-
-  for _, member_id in ipairs(party.members) do
-    Net.message_player(member_id, name .. " has left your party.")
-  end
-
-  if #party.members == 1 then
-    Net.message_player(party.members[1], "Party disbanded!")
-  end
-end
-
 -- handlers
 Net:on("tile_interaction", function(event)
   local player_id = event.player_id
@@ -145,7 +124,7 @@ Net:on("tile_interaction", function(event)
 
   Async.quiz_player(player_id, "Leave party", "Close").and_then(function(response)
     if response == 0 then
-      leave_party(player_id)
+      Parties.leave(player_id)
     end
   end)
 end)
@@ -177,8 +156,8 @@ Net:on("actor_interaction", function(event)
   end
 
   -- checking for an invite
-  if Parties.has_request(player_id, other_player_id) then
-    -- other player has a request for us
+  if Parties.has_invite_from(player_id, other_player_id) then
+    -- other player has an invite for us
     Async.question_player(player_id, "Join " .. other_name .. "'s party?", textbox_options).and_then(function(response)
       if response == 1 then
         Parties.accept(player_id, other_player_id)
@@ -188,21 +167,16 @@ Net:on("actor_interaction", function(event)
     return
   end
 
-  -- try making a party request
-  if Parties.has_request(other_player_id, player_id) then
+  -- try inviting
+  if Parties.has_invite_from(other_player_id, player_id) then
     Net.message_player(player_id, "We already asked " .. other_name .. " to join our party.", textbox_options)
     return
   end
 
   Async.question_player(player_id, "Recruit " .. other_name .. "?", textbox_options).and_then(function(response)
     if response == 1 then
-      -- create a request
-      Parties.request(player_id, other_player_id)
+      -- create an invite
+      Parties.invite(player_id, other_player_id)
     end
   end)
-end)
-
-Net:on("player_disconnect", function(event)
-  local player_id = event.player_id
-  leave_party(player_id)
 end)
