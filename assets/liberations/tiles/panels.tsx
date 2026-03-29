@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tileset version="1.10" tiledversion="1.11.2" name="panels" tilewidth="50" tileheight="30" tilecount="70" columns="7" objectalignment="top">
+<tileset version="1.10" tiledversion="1.12.1" name="panels" tilewidth="50" tileheight="30" tilecount="42" columns="7" objectalignment="top">
  <tileoffset x="0" y="1"/>
  <grid orientation="isometric" width="64" height="32"/>
- <image source="panels.png" width="350" height="300"/>
+ <image source="panels.png" width="350" height="180"/>
  <tile id="0">
   <animation>
    <frame tileid="0" duration="1000"/>
@@ -54,16 +54,16 @@
    <object id="1" x="-4" y="3" width="35" height="35"/>
   </objectgroup>
   <animation>
-   <frame tileid="4" duration="180"/>
-   <frame tileid="11" duration="180"/>
-   <frame tileid="18" duration="180"/>
-   <frame tileid="25" duration="180"/>
-   <frame tileid="32" duration="180"/>
-   <frame tileid="39" duration="180"/>
-   <frame tileid="46" duration="180"/>
-   <frame tileid="53" duration="180"/>
-   <frame tileid="60" duration="180"/>
-   <frame tileid="67" duration="180"/>
+   <frame tileid="4" duration="200"/>
+   <frame tileid="11" duration="200"/>
+   <frame tileid="18" duration="200"/>
+   <frame tileid="25" duration="200"/>
+   <frame tileid="32" duration="200"/>
+   <frame tileid="39" duration="133"/>
+   <frame tileid="32" duration="200"/>
+   <frame tileid="25" duration="200"/>
+   <frame tileid="18" duration="200"/>
+   <frame tileid="11" duration="200"/>
   </animation>
  </tile>
  <tile id="5">
