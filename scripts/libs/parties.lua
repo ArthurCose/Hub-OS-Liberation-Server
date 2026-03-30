@@ -186,7 +186,7 @@ function Parties.invite(inviter_id, invited_id)
     return
   end
 
-  if parties_by_key[invited_key] and parties_by_key[invited_key] == parties_by_key[inviter_key] then
+  if inviter_key == invited_key or (parties_by_key[invited_key] and parties_by_key[invited_key] == parties_by_key[inviter_key]) then
     -- already partied
     return
   end

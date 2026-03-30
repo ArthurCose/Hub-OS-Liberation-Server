@@ -51,10 +51,13 @@ function PartiesMenu.view(player_id)
   -- list nearby players
   local nearby_ids = Net.list_players(Net.get_player_area(player_id))
   local nearby_data = {}
+  local player_key = Parties.key_from_player_id(player_id)
 
   for _, id in ipairs(nearby_ids) do
-    if not member_ids[id] then
-      local name = names[Parties.key_from_player_id(player_id)]
+    local nearby_key = Parties.key_from_player_id(id)
+
+    if not member_ids[id] and nearby_key ~= player_key then
+      local name = names[nearby_key]
       local i = #nearby_data + 1
 
       local post = {
@@ -96,6 +99,17 @@ function PartiesMenu.view(player_id)
     -- selected a player to invite
     local i = tonumber(event.post_id:sub(#INVITE_PREFIX + 1))
     local invited = nearby_data[i]
+
+    if Parties.is_in_same_party(player_id, invited.id) then
+      Async.message_player(
+        player_id,
+        invited.name .. " is already in our party.",
+        textbox_options
+      ).and_then(function()
+        PartiesMenu.view(player_id)
+      end)
+      return
+    end
 
     if not Parties.has_invite_from(player_id, invited.id) then
       -- invite this player
