@@ -19,6 +19,8 @@ local active_missions = 0
 --- for players to return to when reconnecting
 ---@type table<any, Liberation.Player>
 local recovery_data = {}
+---@type table<Net.ActorId, boolean>
+local players_in_mission = {}
 
 local function transfer_to_lobby(player_id, warp_out)
   Net.transfer_player(
@@ -60,6 +62,11 @@ local function transfer_players_to_new_instance(base_area, player_ids)
   end
 
   for _, player_id in ipairs(player_ids) do
+    if players_in_mission[player_id] then
+      -- already in a mission
+      goto continue
+    end
+
     -- resolve ability from items
     local ability = Ability.LongSwrd
 
@@ -86,6 +93,9 @@ local function transfer_players_to_new_instance(base_area, player_ids)
     PartiesMenu.set_player_status(player_id, short_name)
 
     recovery_keys[#recovery_keys + 1] = Net.get_player_secret(player_id)
+    players_in_mission[player_id] = true
+
+    ::continue::
   end
 
   mission.events:on("money", function(event)
@@ -124,6 +134,7 @@ local function transfer_players_to_new_instance(base_area, player_ids)
 
     local key = Net.get_player_secret(player_id)
     recovery_data[key] = nil
+    players_in_mission[player_id] = nil
 
     if #mission.players == 0 then
       delete_recovery_data()
@@ -143,6 +154,7 @@ local function transfer_players_to_new_instance(base_area, player_ids)
     local player = event.player
     local key = Net.get_player_secret(player.id)
     recovery_data[key] = player
+    players_in_mission[player.id] = nil
   end)
 
   mission.events:on("destroyed", function()
