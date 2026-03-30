@@ -724,7 +724,15 @@ function MissionInstance:transfer_player(player_id, ability)
   self.player_map[player_id] = player
   self.target_phase.players_joined = self.target_phase.players_joined + 1
 
-  Net.transfer_player(player.id, self.area_id, true, spawn_position.x, spawn_position.y, spawn_position.z)
+  Net.transfer_player(
+    player.id,
+    self.area_id,
+    true,
+    spawn_position.x,
+    spawn_position.y,
+    spawn_position.z,
+    spawn_position.custom_properties.Direction
+  )
 end
 
 ---@alias Liberation.KickReason "success" | "failure" | "abandoned"

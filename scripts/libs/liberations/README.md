@@ -130,6 +130,8 @@ You should have one point object named `Spawn Point` somewhere on the map to dec
 
 You can chain multiple spawn points for the library to cycle through by adding a `Next Point` custom property with type object, pointing to another point (which may also have this property).
 
+Each spawn point can have a `Direction` property to decide the direction players face when spawned.
+
 ## Panels
 
 Panels are Tile Objects, identified by the library using the `Type` field.
