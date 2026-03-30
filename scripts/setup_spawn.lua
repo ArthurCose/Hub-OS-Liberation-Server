@@ -16,8 +16,8 @@ for i, area_id in ipairs(areas) do
 end
 
 Net:on("player_request", function(event)
-  if event.data ~= "?dev" then
+  if event.data == "index" then
     local spawn = Net.get_object_by_name("default", "Index Spawn")
-    Net.transfer_player(event.player_id, "default", true, spawn.x, spawn.y, spawn.z, Direction.DOWN_RIGHT)
+    Net.transfer_player(event.player_id, "default", true, spawn.x, spawn.y, spawn.z, spawn.custom_properties.Direction)
   end
 end)
