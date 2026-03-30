@@ -14,6 +14,11 @@ local randomize_mission = require("scripts/main/randomize_mission")
 local waiting_area = "default"
 local door = Net.get_object_by_name(waiting_area, "Door")
 local return_point = Net.get_object_by_name(waiting_area, "Return Point")
+local active_missions = 0
+
+--- for players to return to when reconnecting
+---@type table<any, Liberation.Player>
+local recovery_data = {}
 
 local function transfer_to_lobby(player_id, warp_out)
   Net.transfer_player(
@@ -28,6 +33,9 @@ local function transfer_to_lobby(player_id, warp_out)
 end
 
 local function transfer_players_to_new_instance(base_area, player_ids)
+  active_missions = active_missions + 1
+  print("Active Missions: " .. active_missions)
+
   -- using the scripts instancer will load script nodes on instanced areas
   local instancer = scripts:instancer()
   local instance_id = instancer:create_instance()
@@ -39,6 +47,18 @@ local function transfer_players_to_new_instance(base_area, player_ids)
   local mission = Mission:new(area_id)
 
   -- load players
+  local recovery_keys = {}
+
+  local function delete_recovery_data()
+    for _, key in ipairs(recovery_keys) do
+      local player = recovery_data[key]
+
+      if player and player.instance == mission then
+        recovery_data[key] = nil
+      end
+    end
+  end
+
   for _, player_id in ipairs(player_ids) do
     -- resolve ability from items
     local ability = Ability.LongSwrd
@@ -64,6 +84,8 @@ local function transfer_players_to_new_instance(base_area, player_ids)
     end
 
     PartiesMenu.set_player_status(player_id, short_name)
+
+    recovery_keys[#recovery_keys + 1] = Net.get_player_secret(player_id)
   end
 
   mission.events:on("money", function(event)
@@ -99,6 +121,36 @@ local function transfer_players_to_new_instance(base_area, player_ids)
     end
 
     PartiesMenu.set_player_status(player_id, "Online")
+
+    local key = Net.get_player_secret(player_id)
+    recovery_data[key] = nil
+
+    if #mission.players == 0 then
+      delete_recovery_data()
+      -- delete after some delay in case a player is viewing a transition
+      Async.sleep(1).and_then(function()
+        mission:destroy()
+      end)
+    end
+  end)
+
+  mission.events:on("player_disconnect", function(event)
+    if #mission.players == 0 then
+      delete_recovery_data()
+      mission:destroy()
+    end
+
+    local player = event.player
+    local key = Net.get_player_secret(player.id)
+    recovery_data[key] = player
+  end)
+
+  mission.events:on("destroyed", function()
+    instancer:remove_instance(instance_id)
+    delete_recovery_data()
+
+    active_missions = active_missions - 1
+    print("Active Missions: " .. active_missions)
   end)
 end
 
@@ -202,4 +254,16 @@ Net:on("actor_interaction", function(event)
       Parties.invite(player_id, other_player_id)
     end
   end)
+end)
+
+Net:on("player_join", function(event)
+  local key = Net.get_player_secret(event.player_id)
+  local player = recovery_data[key]
+
+  if not player then
+    return
+  end
+
+  recovery_data[key] = nil
+  player:try_reconnect(event.player_id)
 end)

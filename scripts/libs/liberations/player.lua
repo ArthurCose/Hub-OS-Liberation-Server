@@ -26,6 +26,7 @@ local Emotes = require("scripts/libs/emotes")
 ---@field viewing_player Net.ActorId?
 ---@field abandoning boolean?
 ---@field disconnected boolean
+---@field disconnected_position Net.Position?
 local Player = {}
 
 ---@param instance Liberation.MissionInstance
@@ -42,7 +43,6 @@ function Player:new(instance, player_id)
     order_points_sprite_id = nil,
     invincible = false,
     completed_turn = false,
-    selection = PlayerSelection:new(instance, player_id),
     ability = nil,
     spectate_next_battle = false,
     movement_locked = false,
@@ -50,6 +50,8 @@ function Player:new(instance, player_id)
     viewing_player = self.id,
     disconnected = false,
   }
+
+  player.selection = PlayerSelection:new(instance, player)
 
   HealthSprites.update_sprite(player.id, player.health)
 
@@ -641,6 +643,9 @@ function Player:cycle_camera_target()
 end
 
 function Player:handle_disconnect()
+  self.disconnected = true
+  self.disconnected_position = self:position()
+
   self.selection:clear()
 
   if self.completed_turn then
@@ -651,19 +656,75 @@ function Player:handle_disconnect()
     self.paralysis_effect:remove()
   end
 
-  self.disconnected = true
-
   if self.order_points_sprite_id then
     Net.remove_sprite(self.order_points_sprite_id)
+    self.order_points_sprite_id = nil
   end
 
   HealthSprites.remove_sprite(self.id)
 
-  self:unlock_movement()
+  if self.movement_locked then
+    Net.unlock_player_movement(self.id)
+  end
 
   for _ = 1, self.stacked_movement_locks do
     Net.unlock_player_movement(self.id)
   end
+end
+
+---@param player_id Net.ActorId
+function Player:try_reconnect(player_id)
+  if not self.disconnected then
+    -- already connected?
+    return false
+  end
+
+  if
+      self.instance.liberated or
+      self.instance:destroying() or
+      not Net.is_area(self.instance.area_id)
+  then
+    return false
+  end
+
+  self.id = player_id
+  self.viewing_player = self.id
+  self.disconnected = false
+  self.spectate_next_battle = false
+
+  -- paralyze for one turn to discourage intentional disconnecting
+  self.paralysis_counter = math.max(self.paralysis_counter, 1)
+  self.completed_turn = true
+  self.movement_locked = true
+
+  if self.completed_turn then
+    self.instance.ready_count = self.instance.ready_count + 1
+  end
+
+  if self.paralysis_counter > 0 then
+    self.paralysis_effect = ParalysisEffect:new(self.id)
+  end
+
+  self:update_order_points_hud()
+
+  HealthSprites.update_sprite(self.id, self.health)
+
+  if self.movement_locked then
+    Net.lock_player_movement(self.id)
+  end
+
+  self.stacked_movement_locks = 0
+
+  -- add this player back to the instance
+  self.instance.player_map[self.id] = self
+  self.instance.players[#self.instance.players + 1] = self
+
+  -- restore client data
+  local position = self.disconnected_position --[[@as Net.Position]]
+  Net.transfer_player(player_id, self.instance.area_id, true, position.x, position.y, position.z)
+  Net.set_player_health(player_id, self.health)
+
+  return true
 end
 
 -- export

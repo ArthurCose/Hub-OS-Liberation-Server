@@ -14,15 +14,15 @@ end
 
 -- public
 ---@class Liberation.PlayerSelection
----@field private player_id Net.ActorId
+---@field private player Liberation.Player
 ---@field private instance Liberation.MissionInstance
 ---@field private selection Liberation._Selection
 local PlayerSelection = {}
 
 ---@return Liberation.PlayerSelection
-function PlayerSelection:new(instance, player_id)
+function PlayerSelection:new(instance, player)
   local player_selection = {
-    player_id = player_id,
+    player = player,
     instance = instance,
     root_panel = nil,
     selection = Selection:new(instance),
@@ -68,7 +68,7 @@ end
 function PlayerSelection:select_panel(panel_object)
   self.root_panel = panel_object
 
-  local player_pos = Net.get_player_position(self.player_id)
+  local player_pos = Net.get_player_position(self.player.id)
   local direction = resolve_selection_direction(player_pos, panel_object)
   self.selection:move(player_pos, direction)
   self.selection:set_shape({ { 1 } })

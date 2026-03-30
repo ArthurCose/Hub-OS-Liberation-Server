@@ -460,7 +460,7 @@ end
 ---@field area_name string
 ---@field default_encounter string
 ---@field package target_phase Liberation._TargetPhase
----@field package liberated boolean
+---@field liberated boolean
 ---@field phase number
 ---@field ready_count number
 ---@field order_points number
@@ -476,13 +476,12 @@ end
 ---@field gate_panels Liberation.PanelObject[]
 ---@field panel_gid_map table<string, number[]>
 ---@field collision_template Net.ObjectOptions
----@field events Net.EventEmitter "money" { player_id, money }, "player_kicked" { player_id, reason }
+---@field events Net.EventEmitter "money" { player_id, money }, "player_kicked" { player_id, reason },  "player_disconnect" { player }, "destroyed" {}
 ---@field package spawn_positions Net.Object[]
 ---@field package abandon_points table<number, table<number, table<number, boolean>>>
 ---@field package net_listeners [string, fun()][]
 ---@field package updating boolean
 ---@field package needs_disposal boolean
----@field package disposal_promise Net.Promise?
 local MissionInstance = {}
 
 ---@param area_id string
@@ -525,8 +524,7 @@ function MissionInstance:new(area_id)
     net_listeners = {},
     events = Net.EventEmitter.new(),
     updating = false,
-    needs_disposal = false,
-    disposal_promise = nil
+    needs_disposal = false
   }
 
   for i = 1, Net.get_layer_count(area_id), 1 do
@@ -698,7 +696,17 @@ function MissionInstance:new(area_id)
   end)
 
   add_event_listener("player_disconnect", function(event)
+    local player = mission.player_map[event.player_id]
+
+    if not player then
+      return
+    end
+
     mission:handle_player_disconnect(event.player_id)
+
+    mission.events:emit("player_disconnect", {
+      player = player
+    })
   end)
 
   return mission
@@ -737,16 +745,10 @@ function MissionInstance:kick_player(player_id, reason)
 end
 
 function MissionInstance:destroy()
-  if not self.disposal_promise then
-    self.disposal_promise = Async.create_promise(function(resolve)
-      self.resolve_disposal = resolve
-    end)
-  end
-
   if self.updating then
     -- mark as needs_disposal to clean up after async functions complete
     self.needs_disposal = true
-    return self.disposal_promise
+    return
   end
 
   for _, id in ipairs(Net.list_bots(self.area_id)) do
@@ -761,9 +763,7 @@ function MissionInstance:destroy()
     Net:remove_listener(name, callback)
   end
 
-  self.resolve_disposal(nil)
-
-  return self.disposal_promise
+  self.events:emit("destroyed", {})
 end
 
 function MissionInstance:destroying()

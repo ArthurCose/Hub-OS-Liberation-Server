@@ -1,5 +1,5 @@
 ---@class Liberation.ParalysisEffect
----@field bot_id Net.ActorId
+---@field sprite_id Net.SpriteId
 local ParalysisEffect = {}
 
 local SFX_PATH = "/server/assets/liberations/sounds/paralyze.ogg"
@@ -29,23 +29,21 @@ function ParalysisEffect:new(actor_id, area_wide_sfx)
     Net.play_sound_for_player(actor_id, SFX_PATH)
   end
 
-  paralyze_effect.bot_id = Net.create_bot({
+  paralyze_effect.sprite_id = Net.create_sprite({
+    parent_id = actor_id,
     texture_path = "/server/assets/liberations/bots/paralyze.png",
     animation_path = "/server/assets/liberations/bots/paralyze.animation",
     animation = "THIN",
     loop_animation = true,
     area_id = area_id,
     warp_in = false,
-    x = position.x + 1 / 32,
-    y = position.y + 1 / 32,
-    z = position.z,
   })
 
   return paralyze_effect
 end
 
 function ParalysisEffect:remove()
-  Net.remove_bot(self.bot_id)
+  Net.remove_sprite(self.sprite_id)
 end
 
 return ParalysisEffect
