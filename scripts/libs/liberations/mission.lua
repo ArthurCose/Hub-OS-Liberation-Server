@@ -476,7 +476,7 @@ end
 ---@field gate_panels Liberation.PanelObject[]
 ---@field panel_gid_map table<string, number[]>
 ---@field collision_template Net.ObjectOptions
----@field events Net.EventEmitter "money" { player_id, money }, "player_kicked" { player_id, reason },  "player_disconnect" { player }, "destroyed" {}
+---@field events Net.EventEmitter "dark_hole_liberated" {}, "money" { player_id, money }, "player_kicked" { player_id, reason }, "player_disconnect" { player }, "destroyed" {}
 ---@field package spawn_positions Net.Object[]
 ---@field package abandon_points table<number, table<number, table<number, boolean>>>
 ---@field package net_listeners [string, fun()][]
@@ -1054,6 +1054,8 @@ function MissionInstance:remove_panel(panel)
         break
       end
     end
+
+    self.events:emit("dark_hole_liberated", {})
   end
 end
 

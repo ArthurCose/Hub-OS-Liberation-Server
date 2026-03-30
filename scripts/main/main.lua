@@ -9,6 +9,7 @@ local Mission = require("scripts/libs/liberations/mission")
 local Ability = require("scripts/libs/liberations/ability")
 local Parties = require("scripts/libs/parties")
 local PartiesMenu = require("scripts/libs/parties_menu")
+local PlayerData = require("scripts/main/player_data")
 local randomize_mission = require("scripts/main/randomize_mission")
 
 local waiting_area = "default"
@@ -98,8 +99,17 @@ local function transfer_players_to_new_instance(base_area, player_ids)
     ::continue::
   end
 
-  mission.events:on("money", function(event)
-    -- todo:
+  mission.events:on("dark_hole_liberated", function(event)
+    -- award 5z to each player for liberating a dark hole
+    for _, player in ipairs(mission.players) do
+      local player_id = player.id
+
+      PlayerData.fetch(player_id).and_then(function(data)
+        data.money = data.money + 5
+        Net.set_player_money(player_id, data.money)
+        data:save(player_id)
+      end)
+    end
   end)
 
   mission.events:on("player_kicked", function(event)
@@ -112,7 +122,12 @@ local function transfer_players_to_new_instance(base_area, player_ids)
     Net.unlock_player_equipment(player_id)
 
     if event.reason == "success" then
-      -- todo: money?
+      -- reward 5z winning
+      PlayerData.fetch(player_id).and_then(function(data)
+        data.money = data.money + 5
+        Net.set_player_money(player_id, data.money)
+        data:save(player_id)
+      end)
     end
 
     -- transfer out
