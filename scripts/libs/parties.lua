@@ -1,8 +1,10 @@
 local Emotes = require("scripts/libs/emotes")
 
--- enabling tracks by actor id instead of secret
--- making it easier to join a party from the same PC
+-- enabling tracks by actor id instead of secret,
+-- making it easier to join a party from the same PC.
+-- this will make restoring parties fail.
 local DEBUG = false
+local DISCONNECT_NOTIFICATIONS = false
 local REQUEST_EMOTE = Emotes.QUESTION
 local ACCEPT_EMOTE = Emotes.HAPPY
 
@@ -374,15 +376,17 @@ Net:on("player_request", function(event)
     return
   end
 
-  -- notify party that you've reconnected
-  local members = Parties.list_online_members(event.player_id)
+  if DISCONNECT_NOTIFICATIONS then
+    -- notify party that you've reconnected
+    local members = Parties.list_online_members(event.player_id)
 
-  local resolved_id = resolve_player_id(key)
-  local message = Net.get_player_name(event.player_id) .. " reconnected!"
+    local resolved_id = resolve_player_id(key)
+    local message = Net.get_player_name(event.player_id) .. " reconnected!"
 
-  for _, member_id in ipairs(members) do
-    if member_id ~= resolved_id then
-      Net.message_player(member_id, message)
+    for _, member_id in ipairs(members) do
+      if member_id ~= resolved_id then
+        Net.message_player(member_id, message)
+      end
     end
   end
 end)
@@ -442,11 +446,13 @@ Net:on("player_disconnect", function(event)
     return
   end
 
-  -- notify the party about the disconnect
-  local message = Net.get_player_name(event.player_id) .. " disconnected!"
+  if DISCONNECT_NOTIFICATIONS then
+    -- notify the party about the disconnect
+    local message = Net.get_player_name(event.player_id) .. " disconnected!"
 
-  for _, member_id in ipairs(members) do
-    Net.message_player(member_id, message)
+    for _, member_id in ipairs(members) do
+      Net.message_player(member_id, message)
+    end
   end
 end)
 
