@@ -9,7 +9,10 @@ local ACCEPT_EMOTE = Emotes.HAPPY
 
 ---@type table<string, Net.ActorId[]>
 local player_ids_by_key = {}
+---@type table<string, boolean>
+local player_tracked = {}
 
+---@return Net.ActorId?
 local function resolve_player_id(key)
   local ids = player_ids_by_key[key]
   return ids and ids[1]
@@ -32,6 +35,15 @@ local function remove_by_value(list, value)
   end
 end
 
+local function includes(list, value)
+  for i = 1, #list do
+    if list[i] == value then
+      return true
+    end
+  end
+  return false
+end
+
 ---@type table<string, string[]>
 local parties_by_key = {}
 ---@type table<string, string[]>
@@ -40,11 +52,21 @@ local pending_invites = {}
 local outgoing_invites = {}
 ---@type table<table, any> values stored in parties_by_key are keys for this table
 local party_data = {}
+local events = Net.EventEmitter.new()
 
 local Parties = {}
 
+---Events:
+--- - "player_dropped", { key }
+---   - Called when all data associated with this player are dropped, and can no longer be recovered
+function Parties.events()
+  return events
+end
+
+---Returns just the passed player_id if the player isn't partied.
 ---@param player_id Net.ActorId
-function Parties.list_members(player_id)
+---@return Net.ActorId[]
+function Parties.list_online_members(player_id)
   local key = resolve_player_key(player_id)
   local keys = parties_by_key[key]
 
@@ -61,6 +83,55 @@ function Parties.list_members(player_id)
   end
 
   return ids
+end
+
+---Lists all members of this player's party, including disconnected players.
+---
+---Returns a list of keys used to store the player's data.
+---This will be the same as the player's identity or "secret" when DEBUG is false.
+---
+---Returns just the passed player's key if the player isn't partied.
+---@param player_id Net.ActorId
+---@return any[]
+function Parties.list_all_members(player_id)
+  local key = resolve_player_key(player_id)
+  local keys = parties_by_key[key]
+
+  local out = {}
+
+  if keys then
+    for i = 1, #keys do
+      out[#out + 1] = keys[i]
+    end
+  end
+
+  if #out == 0 then
+    out[#out + 1] = resolve_player_key(player_id)
+  end
+
+  return out
+end
+
+---@return Net.ActorId?
+function Parties.id_from_player_key(key)
+  return resolve_player_id(key)
+end
+
+---@param id Net.ActorId
+---@return any
+function Parties.key_from_player_id(id)
+  return resolve_player_key(id)
+end
+
+---@param id Net.ActorId
+function Parties.player_dropped(id)
+  local key = resolve_player_key(id)
+
+  if not key then
+    return true
+  end
+
+  return player_tracked[key] ~= true
 end
 
 ---Retrieves data associated with the party
@@ -113,6 +184,11 @@ function Parties.invite(inviter_id, invited_id)
     return
   end
 
+  if parties_by_key[invited_key] and parties_by_key[invited_key] == parties_by_key[inviter_key] then
+    -- already partied
+    return
+  end
+
   Net.exclusive_player_emote(invited_id, inviter_id, REQUEST_EMOTE)
 
   -- create invite
@@ -121,6 +197,9 @@ function Parties.invite(inviter_id, invited_id)
   if not invites then
     invites = {}
     pending_invites[invited_key] = invites
+  elseif includes(invites, inviter_key) then
+    -- already invited
+    return
   end
 
   invites[#invites + 1] = inviter_key
@@ -201,7 +280,7 @@ function Parties.accept(invited_id, inviter_id)
 
   if not invited_key or not inviter_key then
     -- someone disconnected?
-    return
+    return false
   end
 
   local invites = pending_invites[invited_key]
@@ -209,7 +288,7 @@ function Parties.accept(invited_id, inviter_id)
 
   if not invite_index then
     -- no invite or already accepted
-    return
+    return false
   end
 
   -- delete the invite
@@ -234,6 +313,8 @@ function Parties.accept(invited_id, inviter_id)
   end
 
   parties_by_key[invited_key] = members
+
+  return true
 end
 
 function Parties.leave(player_id)
@@ -275,6 +356,9 @@ end
 
 Net:on("player_request", function(event)
   local key = resolve_player_key(event.player_id)
+
+  player_tracked[key] = true
+
   local ids = player_ids_by_key[key]
 
   if not ids then
@@ -291,7 +375,7 @@ Net:on("player_request", function(event)
   end
 
   -- notify party that you've reconnected
-  local members = Parties.list_members(event.player_id)
+  local members = Parties.list_online_members(event.player_id)
 
   local resolved_id = resolve_player_id(key)
   local message = Net.get_player_name(event.player_id) .. " reconnected!"
@@ -332,17 +416,26 @@ Net:on("player_disconnect", function(event)
 
   if not member_keys then
     -- not in a party
+    player_tracked[key] = nil
+    events:emit("player_dropped", {
+      key = key
+    })
     return
   end
 
   -- see if we should drop this party
-  local members = Parties.list_members(event.player_id)
+  local members = Parties.list_online_members(event.player_id)
 
   if members[1] == nil or members[1] == event.player_id then
     -- we were the last member
 
     for _, member_key in ipairs(member_keys) do
       parties_by_key[member_key] = nil
+      player_tracked[member_key] = nil
+
+      events:emit("player_dropped", {
+        key = member_key
+      })
     end
 
     party_data[member_keys] = nil

@@ -8,6 +8,7 @@ end
 local Mission = require("scripts/libs/liberations/mission")
 local Ability = require("scripts/libs/liberations/ability")
 local Parties = require("scripts/libs/parties")
+local PartiesMenu = require("scripts/libs/parties_menu")
 local randomize_mission = require("scripts/main/randomize_mission")
 
 local waiting_area = "default"
@@ -54,6 +55,15 @@ local function transfer_players_to_new_instance(base_area, player_ids)
 
     -- transfer player
     mission:transfer_player(player_id, ability)
+
+    -- update status
+    local short_name = Net.get_area_custom_property(area_id, "Short Name")
+
+    if not short_name then
+      warn(Net.get_area_name(area_id) .. " is missing a short name!")
+    end
+
+    PartiesMenu.set_player_status(player_id, short_name)
   end
 
   mission.events:on("money", function(event)
@@ -87,17 +97,14 @@ local function transfer_players_to_new_instance(base_area, player_ids)
     else
       transfer_to_lobby(player_id, true)
     end
+
+    PartiesMenu.set_player_status(player_id, "Online")
   end)
 end
 
 local function start_game_for_player(map, player_id)
-  local party = Parties.list_members(player_id)
-
-  if party == nil then
-    transfer_players_to_new_instance(map, { player_id })
-  else
-    transfer_players_to_new_instance(map, party.members)
-  end
+  local members = Parties.list_online_members(player_id)
+  transfer_players_to_new_instance(map, members)
 end
 
 local function detect_door_interaction(player_id, object_id, button)
@@ -114,6 +121,8 @@ local function detect_door_interaction(player_id, object_id, button)
 end
 
 -- handlers
+local IMMEDIATE_TOKEN = "\x04"
+
 Net:on("tile_interaction", function(event)
   local player_id = event.player_id
   local area_id = Net.get_player_area(event.player_id)
@@ -122,8 +131,14 @@ Net:on("tile_interaction", function(event)
     return
   end
 
-  Async.quiz_player(player_id, "Leave party", "Close").and_then(function(response)
+  Async.quiz_player(player_id,
+    IMMEDIATE_TOKEN .. "View Party",
+    IMMEDIATE_TOKEN .. "Leave Party",
+    IMMEDIATE_TOKEN .. "Close"
+  ).and_then(function(response)
     if response == 0 then
+      PartiesMenu.view(player_id)
+    elseif response == 1 then
       Parties.leave(player_id)
     end
   end)
@@ -155,25 +170,33 @@ Net:on("actor_interaction", function(event)
     return
   end
 
-  -- checking for an invite
-  if Parties.has_invite_from(player_id, other_player_id) then
-    -- other player has an invite for us
-    Async.question_player(player_id, "Join " .. other_name .. "'s party?", textbox_options).and_then(function(response)
+  Async.create_scope(function()
+    -- checking for an invite or attempting to invite
+    if Parties.has_invite_from(player_id, other_player_id) then
+      -- other player has an invite for us
+      local response = Async.await(
+        Async.question_player(player_id, "Join " .. other_name .. "'s party?", textbox_options)
+      )
+
       if response == 1 then
         Parties.accept(player_id, other_player_id)
+        return
       end
-    end)
 
-    return
-  end
+      if Parties.has_invite_from(other_player_id, player_id) then
+        -- we've already invited the other player, we'll just need to wait
+        return
+      end
+    elseif Parties.has_invite_from(other_player_id, player_id) then
+      -- can't invite
+      Net.message_player(player_id, "We already asked " .. other_name .. " to join our party.", textbox_options)
+      return
+    end
 
-  -- try inviting
-  if Parties.has_invite_from(other_player_id, player_id) then
-    Net.message_player(player_id, "We already asked " .. other_name .. " to join our party.", textbox_options)
-    return
-  end
-
-  Async.question_player(player_id, "Recruit " .. other_name .. "?", textbox_options).and_then(function(response)
+    -- try inviting
+    local response = Async.await(
+      Async.question_player(player_id, "Recruit " .. other_name .. "?", textbox_options)
+    )
     if response == 1 then
       -- create an invite
       Parties.invite(player_id, other_player_id)
