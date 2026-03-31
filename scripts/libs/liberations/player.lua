@@ -531,6 +531,7 @@ end
 
 ---@class Liberation.BattleResults
 ---@field won boolean
+---@field connection_failed boolean
 ---@field turns number
 
 ---@param results Liberation.BattleResults
