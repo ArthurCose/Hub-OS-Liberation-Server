@@ -392,8 +392,12 @@ local function take_enemy_turn(self)
       Async.await(Async.sleep(slide_time))
 
       -- spawn a new enemy
+      local turn_order = dark_hole.enemy.turn_order
       dark_hole.enemy = Enemy.from(Enemy.options_from(self, dark_hole))
+      dark_hole.enemy.turn_order = turn_order
       self.enemies[#self.enemies + 1] = dark_hole.enemy
+
+      self:sort_enemies()
 
       -- Let people admire the enemy
       local admire_time = .5
@@ -544,6 +548,9 @@ function MissionInstance:new(area_id)
   local object_ids = Net.list_objects(mission.area_id)
   local type_gid_seen_map = {}
 
+  -- save boss panel for later
+  local next_turn_object
+
   for _, object_id in ipairs(object_ids) do
     local object = Net.get_object_by_id(mission.area_id, object_id)
 
@@ -589,7 +596,10 @@ function MissionInstance:new(area_id)
         local enemy = Enemy.from(enemy_options)
 
         mission.boss = enemy
-        table.insert(mission.enemies, 1, enemy) -- make the boss the first enemy in the list
+        table.insert(mission.enemies, enemy)
+
+        -- remember boss panel for resolving turn order
+        next_turn_object = object
       elseif object.custom_properties.Spawns then
         -- spawning enemies
         local enemy_options = Enemy.options_from(mission, panel)
@@ -607,6 +617,39 @@ function MissionInstance:new(area_id)
       end
     end
   end
+
+  -- resolve enemy turn order
+  local visited_turns = {}
+  local next_turn_order = 0
+
+  while next_turn_object and not visited_turns[next_turn_object.id] do
+    visited_turns[next_turn_object.id] = true
+
+    local x, y, z = next_turn_object.x, next_turn_object.y, next_turn_object.z
+    local enemy = mission:get_enemy_at(x, y, z)
+
+    if not enemy then
+      -- turn order is pointing to a dark hole
+      local panel = mission:get_panel_at(x, y, z)
+      enemy = panel and panel.enemy
+    end
+
+    if enemy then
+      enemy.turn_order = next_turn_order
+    end
+
+    next_turn_order = next_turn_order + 1
+
+    local next_turn_id = next_turn_object.custom_properties["Next Turn"]
+
+    if next_turn_id then
+      next_turn_object = Net.get_object_by_id(area_id, next_turn_id)
+    else
+      next_turn_object = nil
+    end
+  end
+
+  mission:sort_enemies()
 
   -- resolve spawn positions
   local current_spawn = Net.get_object_by_name(area_id, "Spawn Point")
@@ -1064,6 +1107,24 @@ function MissionInstance:get_enemy_at(x, y, z)
   end
 
   return nil
+end
+
+---Resorts enemies based on their turn order
+function MissionInstance:sort_enemies()
+  table.sort(self.enemies, function(a, b)
+    if not a.turn_order then
+      -- put `a` after `b`
+      return false
+    end
+
+    if not b.turn_order then
+      -- put `b` after `a`
+      return true
+    end
+
+    -- sort based on turn_order
+    return a.turn_order < b.turn_order
+  end)
 end
 
 ---@param object Net.Object

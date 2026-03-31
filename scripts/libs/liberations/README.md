@@ -146,6 +146,8 @@ Supported panel `Type`s and custom properties can be found below.
 
 - `Encounter` a server path to the encounter, uses the map's default when missing.
 - `Boss` the name of the boss to spawn, overrides the `Encounter`
+- `Next Turn` object, point to a dark hole or `Guardian` location, the mission will follow the chain to resolve the final turn order.
+  - Ignored if this panel doesn't contain the boss.
 - `Rank` the rank of the boss, ex: `V1`, `SP`, `Omega`. Passed as `rank` in the encounter's data param.
 
 ### `Dark Hole`
@@ -153,6 +155,8 @@ Supported panel `Type`s and custom properties can be found below.
 - `Direction` the direction the character spawned should face.
 - `Spawns` the name of the enemy to spawn, overrides `Encounter` when this character moves over another panel.
 - `Encounter` the encounter for the dark hole and enemy, uses the map's default when missing.
+- `Next Turn` object, point to another dark hole or `Guardian` location, the mission will follow the chain to resolve the final turn order.
+  - Ignored if this doesn't lead back to the panel that spawned the boss.
 - `Rank` the rank of the spawned enemy, ex: `V1`, `SP`, `Omega`. Passed as `rank` in the encounter's data param.
 
 ### `Trap Panel`

@@ -3,7 +3,8 @@
 ---@class Liberation.Enemy: Net.Position
 ---@field id Net.ActorId
 ---@field battle_name string
----@field name string? reserved, will automatically be set on creation
+---@field name string? reserved, set automatically on creation
+---@field turn_order number? reserved, set automatically on creation
 ---@field rank string the character rank for the encounter
 ---@field health number
 ---@field max_health number
