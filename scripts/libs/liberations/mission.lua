@@ -609,10 +609,11 @@ function MissionInstance:new(area_id)
         -- spawning enemies
         local enemy_options = Enemy.options_from(mission, panel)
 
-        local position_id = panel.custom_properties["Position"]
+        local position_id = panel.custom_properties.Position
         local position_object = position_id and Net.get_object_by_id(area_id, position_id)
 
         if position_object then
+          Net.remove_object(area_id, position_id)
           enemy_options.position.x = math.floor(position_object.x)
           enemy_options.position.y = math.floor(position_object.y)
           enemy_options.position.z = position_object.z
