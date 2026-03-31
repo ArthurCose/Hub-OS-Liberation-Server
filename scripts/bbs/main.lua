@@ -39,6 +39,166 @@ Async.read_file(SAVE_LOCATION).and_then(function(value)
   end
 end)
 
+local function shallow_copy(original)
+  local copy = {}
+
+  for key, value in pairs(original) do
+    copy[key] = value
+  end
+
+  return copy
+end
+
+local function contains_only_whitespace(text)
+  return not string.find(text, "[^ \t\r\n]")
+end
+
+local function sanitize_title(text, limit)
+  text = string.gsub(text, "[\t\r\n]", " ", limit)
+  return string.sub(text, 1, utf8.offset(text, limit))
+end
+
+local function show_post(player_id, board_name, post_id)
+  local posts = save_data[board_name].posts
+  local post
+
+  for _, p in ipairs(posts) do
+    if p.id == post_id then
+      post = p
+      break
+    end
+  end
+
+  if post then
+    Net.message_player(player_id, post.body)
+  end
+end
+
+local function push_post(board_name, new_post)
+  local next_id = nil
+
+  local board_data = save_data[board_name]
+
+  if board_data then
+    -- find the first non pinned post
+    local posts = save_data[board_name].posts
+
+    for i = #posts, 1, -1 do
+      local post = posts[i]
+
+      if not post.pin and post.id ~= new_post.id then
+        next_id = post.id
+        break
+      end
+    end
+  end
+
+  local push_func
+
+  if next_id then
+    push_func = Net.prepend_posts
+  else
+    push_func = Net.append_posts
+  end
+
+  local new_posts = { new_post }
+
+  for player_id, player_state in pairs(player_states) do
+    if player_state.board and player_state.board.custom_properties.Name == board_name then
+      push_func(player_id, new_posts, next_id)
+    end
+  end
+end
+
+local function save()
+  if saving then
+    pending_save = true
+    return
+  end
+
+  saving = true
+
+  Async.write_file(SAVE_LOCATION, json.encode(save_data)).and_then(function()
+    saving = false
+
+    if pending_save then
+      pending_save = false
+      save()
+    end
+  end)
+end
+
+local function create_post(player_id, board, title, text)
+  local board_name = board.custom_properties.Name
+  local board_data = save_data[board_name]
+
+  if not board_data then
+    -- start storing posts for this board if there's no data
+    board_data = {
+      posts = {},
+      next_id = 1
+    }
+  end
+
+  local player_name = Net.get_player_name(player_id)
+  local character_limit = tonumber(board.custom_properties["Character Limit"])
+
+  if contains_only_whitespace(title) then
+    title = text
+  end
+
+  local post = {
+    time = os.time(),
+    author = sanitize_title(player_name, AUTHOR_LIMIT),
+    title = sanitize_title(title, TITLE_LIMIT),
+    id = tostring(board_data.next_id),
+    body = string.sub(text, 1, character_limit)
+  }
+
+  board_data.next_id = board_data.next_id + 1
+
+  local post_limit = board.custom_properties["Post Limit"]
+
+  if post_limit and #board_data.posts >= tonumber(post_limit) then
+    -- remove the oldest non pinned post
+    for i, old_post in ipairs(board_data.posts) do
+      if not old_post.pin then
+        table.remove(board_data.posts, i)
+        break
+      end
+    end
+  end
+
+  board_data.posts[#board_data.posts + 1] = post
+  save_data[board_name] = board_data
+  save()
+
+  push_post(board_name, post)
+end
+
+local send_post_form = Async.create_function(function(player_id, player_state, board)
+  Net.message_player(player_id, "Message:")
+  local text = Async.await(Async.prompt_player(player_id, board.custom_properties["Character Limit"]))
+
+  if not text or contains_only_whitespace(text) then
+    -- blank post, cancel post
+    return
+  end
+
+  local wants_to_submit = Async.await(Async.question_player(player_id, "Do you want to submit?"))
+
+  if wants_to_submit == 0 then
+    -- player decided not to submit
+    return
+  end
+
+  -- player said yes
+  Net.message_player(player_id, "Title:")
+  local title = Async.await(Async.prompt_player(player_id, TITLE_LIMIT, sanitize_title(text, TITLE_LIMIT)))
+
+  create_post(player_id, board, title, text)
+end)
+
 Net:on("player_connect", function(event)
   player_states[event.player_id] = {
     join_time = os.time(),
@@ -137,163 +297,3 @@ Net:on("object_interaction", function(event)
   -- track what board the player is looking at
   player_state.board = object
 end)
-
-function shallow_copy(original)
-  local copy = {}
-
-  for key, value in pairs(original) do
-    copy[key] = value
-  end
-
-  return copy
-end
-
-function show_post(player_id, board_name, post_id)
-  local posts = save_data[board_name].posts
-  local post
-
-  for _, p in ipairs(posts) do
-    if p.id == post_id then
-      post = p
-      break
-    end
-  end
-
-  if post then
-    Net.message_player(player_id, post.body)
-  end
-end
-
-send_post_form = Async.create_function(function(player_id, player_state, board)
-  Net.message_player(player_id, "Message:")
-  local text = Async.await(Async.prompt_player(player_id, board.custom_properties["Character Limit"]))
-
-  if not text or contains_only_whitespace(text) then
-    -- blank post, cancel post
-    return
-  end
-
-  local wants_to_submit = Async.await(Async.question_player(player_id, "Do you want to submit?"))
-
-  if wants_to_submit == 0 then
-    -- player decided not to submit
-    return
-  end
-
-  -- player said yes
-  Net.message_player(player_id, "Title:")
-  local title = Async.await(Async.prompt_player(player_id, TITLE_LIMIT, sanitize_title(text, TITLE_LIMIT)))
-
-  create_post(player_id, board, title, text)
-end)
-
-function create_post(player_id, board, title, text)
-  local board_name = board.custom_properties.Name
-  local board_data = save_data[board_name]
-
-  if not board_data then
-    -- start storing posts for this board if there's no data
-    board_data = {
-      posts = {},
-      next_id = 1
-    }
-  end
-
-  local player_name = Net.get_player_name(player_id)
-  local character_limit = tonumber(board.custom_properties["Character Limit"])
-
-  if contains_only_whitespace(title) then
-    title = text
-  end
-
-  local post = {
-    time = os.time(),
-    author = sanitize_title(player_name, AUTHOR_LIMIT),
-    title = sanitize_title(title, TITLE_LIMIT),
-    id = tostring(board_data.next_id),
-    body = string.sub(text, 1, character_limit)
-  }
-
-  board_data.next_id = board_data.next_id + 1
-
-  local post_limit = board.custom_properties["Post Limit"]
-
-  if post_limit and #board_data.posts >= tonumber(post_limit) then
-    -- remove the oldest non pinned post
-    for i, old_post in ipairs(board_data.posts) do
-      if not old_post.pin then
-        table.remove(board_data.posts, i)
-        break
-      end
-    end
-  end
-
-  board_data.posts[#board_data.posts + 1] = post
-  save_data[board_name] = board_data
-  save()
-
-  push_post(board_name, post)
-end
-
-function contains_only_whitespace(text)
-  return not string.find(text, "[^ \t\r\n]")
-end
-
-function sanitize_title(text, limit)
-  text = string.gsub(text, "[\t\r\n]", " ", limit)
-  return string.sub(text, 1, utf8.offset(text, limit))
-end
-
-function push_post(board_name, post)
-  local next_id = nil
-
-  local board_data = save_data[board_name]
-
-  if board_data then
-    -- find the first non pinned post
-    local posts = save_data[board_name].posts
-
-    for i = #posts, 1, -1 do
-      local post = posts[i]
-
-      if not post.pin then
-        next_id = post.id
-        break
-      end
-    end
-  end
-
-  local push_func
-
-  if next_id then
-    push_func = Net.prepend_posts
-  else
-    push_func = Net.append_posts
-  end
-
-  local new_posts = { post }
-
-  for player_id, player_state in pairs(player_states) do
-    if player_state.board and player_state.board.custom_properties.Name == board_name then
-      push_func(player_id, new_posts, next_id)
-    end
-  end
-end
-
-function save()
-  if saving then
-    pending_save = true
-    return
-  end
-
-  saving = true
-
-  Async.write_file(SAVE_LOCATION, json.encode(save_data)).and_then(function()
-    saving = false
-
-    if pending_save then
-      pending_save = false
-      save()
-    end
-  end)
-end
