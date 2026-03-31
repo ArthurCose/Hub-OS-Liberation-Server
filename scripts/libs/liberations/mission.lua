@@ -570,6 +570,11 @@ function MissionInstance:new(area_id)
         math.floor(object.z),
         true
       )
+    elseif object.type == "Guardian" then
+      -- spawning enemies
+      local enemy_options = Enemy.options_from(mission, object)
+      local enemy = Enemy.from(enemy_options)
+      table.insert(mission.enemies, enemy)
     elseif PanelType.ALL[object.type] then
       -- track gid
       local type_map = mission.panel_gid_map[object.type]

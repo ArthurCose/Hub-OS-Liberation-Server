@@ -43,7 +43,7 @@ local name_to_enemy = {
 ---@field encounter string
 
 ---@param instance Liberation.MissionInstance
----@param panel Liberation.PanelObject
+---@param panel Net.Object
 function Enemy.options_from(instance, panel)
   ---@type Liberation.EnemyOptions
   return {
