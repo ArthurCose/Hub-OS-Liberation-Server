@@ -6,8 +6,20 @@ end
 
 ---@param instance Liberation.MissionInstance
 ---@param player Liberation.Player
----@param results Liberation.BattleResults
+---@param results Liberation.BattleResults?
 local function liberate_and_loot(instance, player, results)
+  if not results then
+    results = {
+      won = true,
+      turns = 3,
+      connection_failed = false
+    }
+  end
+
+  if results and results.turns == 1 then
+    player.selection:merge_bonus_shape()
+  end
+
   local remove_traps, destroy_items = player.ability.remove_traps, player.ability.destroy_items
   local panels = player.selection:get_panels()
 

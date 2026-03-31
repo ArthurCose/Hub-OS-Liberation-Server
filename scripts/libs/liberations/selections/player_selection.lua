@@ -90,6 +90,16 @@ function PlayerSelection:merge_shape(shape, shape_offset_x, shape_offset_y)
   self.selection:indicate()
 end
 
+local BONUS_SHAPE = {
+  { 1, 1, 1 },
+  { 1, 0, 1 },
+  { 1, 1, 1 }
+}
+
+function PlayerSelection:merge_bonus_shape()
+  self:merge_shape(BONUS_SHAPE, 0, -2)
+end
+
 function PlayerSelection:get_panels()
   local panels = {}
 

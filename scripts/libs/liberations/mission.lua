@@ -255,13 +255,7 @@ local function liberate_panel(self, player)
       if not results.won then
         selection:clear()
       elseif results.turns == 1 then
-        local shape = {
-          { 1, 1, 1 },
-          { 1, 0, 1 },
-          { 1, 1, 1 }
-        }
-
-        selection:merge_shape(shape, 0, -2)
+        selection:merge_bonus_shape()
       end
 
       local panels = selection:get_panels()
