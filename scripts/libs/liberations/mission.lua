@@ -449,6 +449,7 @@ end
 
 ---@class Liberation.PanelObject: Net.Object
 ---@field collision_id number?
+---@field marker_id number?
 ---@field enemy Liberation.Enemy
 ---@field loot Liberation.Loot?
 
@@ -474,6 +475,7 @@ end
 ---@field gate_panels Liberation.PanelObject[]
 ---@field panel_gid_map table<string, number[]>
 ---@field collision_template Net.ObjectOptions
+---@field marker_template Net.ObjectOptions
 ---@field events Net.EventEmitter "dark_hole_liberated" {}, "money" { player_id, money }, "player_kicked" { player_id, reason }, "player_disconnect" { player }, "destroyed" {}
 ---@field package spawn_positions Net.Object[]
 ---@field package abandon_points table<number, table<number, table<number, boolean>>>
@@ -517,6 +519,19 @@ function MissionInstance:new(area_id)
         gid = Net.get_tileset(area_id, "/server/assets/liberations/tiles/collision.tsx").first_gid
       },
     },
+    marker_template = {
+      class = "Marker",
+      x = 0,
+      y = 0,
+      z = 0,
+      custom_properties = {
+        ["Texture"] = "/server/assets/liberations/ui/markers.png",
+        ["Animation"] = "/server/assets/liberations/ui/markers.animation"
+      },
+      data = {
+        type = "point",
+      },
+    },
     spawn_positions = {},
     abandon_points = {},
     net_listeners = {},
@@ -553,6 +568,11 @@ function MissionInstance:new(area_id)
 
   for _, object_id in ipairs(object_ids) do
     local object = Net.get_object_by_id(mission.area_id, object_id)
+
+    if not object then
+      -- deleted in a prior pass
+      goto continue
+    end
 
     if object.name == "Point of Interest" then
       -- track points of interest for the camera
@@ -631,6 +651,8 @@ function MissionInstance:new(area_id)
         table.insert(mission.enemies, enemy)
       end
     end
+
+    ::continue::
   end
 
   -- resolve enemy turn order
@@ -1095,6 +1117,10 @@ function MissionInstance:remove_panel(panel)
     Net.remove_object(self.area_id, panel.collision_id)
   end
 
+  if panel.marker_id then
+    Net.remove_object(self.area_id, panel.marker_id)
+  end
+
   Net.remove_object(self.area_id, panel.id)
 
   row[x] = nil
@@ -1142,6 +1168,14 @@ function MissionInstance:sort_enemies()
   end)
 end
 
+local MARKED_PANEL_STATES = {
+  [PanelType.ITEM] = "ITEM",
+  [PanelType.TRAP] = "ITEM",
+  [PanelType.BONUS] = "BONUS",
+  [PanelType.DARK_HOLE] = "DARK_HOLE",
+  [PanelType.GATE] = "GATE",
+}
+
 ---@param object Net.Object
 ---@return Liberation.PanelObject
 function MissionInstance:create_panel(object)
@@ -1160,6 +1194,25 @@ function MissionInstance:create_panel(object)
         Net.exclude_object_for_player(player.id, new_panel.collision_id)
       end
     end
+  end
+
+  local marker_state = MARKED_PANEL_STATES[object.type]
+
+  if marker_state then
+    if object.type == PanelType.GATE then
+      -- special numbered gate case
+      local key = object.custom_properties["Gate Key"]
+
+      if key == "1" or key == "2" then
+        marker_state = "GATE_" .. key
+      end
+    end
+
+    self.marker_template.x = object.x + 0.5
+    self.marker_template.y = object.y + 0.5
+    self.marker_template.z = object.z
+    self.marker_template.custom_properties.State = marker_state
+    new_panel.marker_id = Net.create_object(self.area_id, self.marker_template)
   end
 
   -- insert the panel before spawning enemies

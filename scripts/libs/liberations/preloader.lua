@@ -18,6 +18,8 @@ local asset_paths = {
   "/server/assets/liberations/sounds/recover.ogg",
   "/server/assets/liberations/ui/order_points.png",
   "/server/assets/liberations/ui/order_points.animation",
+  "/server/assets/liberations/ui/markers.png",
+  "/server/assets/liberations/ui/markers.animation",
 }
 
 function Preloader.add_asset(asset_path)

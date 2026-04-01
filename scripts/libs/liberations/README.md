@@ -179,6 +179,7 @@ Supported panel `Type`s and custom properties can be found below.
 ### `Gate Panel`
 
 - `Gate Key` unlocks when a `KEY` with a matching property is looted
+  - If this is set to `1` or `2` a numbered marker will display in the minimap.
 
 ### `Indestructible Panel`
 
