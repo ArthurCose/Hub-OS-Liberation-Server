@@ -35,7 +35,7 @@ local function randomize_mission(area_id)
       -- specify bonus loot
       local loot = BONUS_LOOT_POOL[math.random(#BONUS_LOOT_POOL)]
       Net.set_object_custom_property(area_id, object_id, "Specific Loot", loot)
-    elseif object.class == "Dark Hole" then
+    elseif object.class == "Dark Hole" or object.class == "Guardian" then
       -- randomize guardians
       local boss, encounter_path, rank = table.unpack(GUARDIANS[math.random(#GUARDIANS)])
       Net.set_object_custom_property(area_id, object_id, "Spawns", boss)
