@@ -91,6 +91,7 @@
     <property name="Boss" value="BlizzardMan"/>
     <property name="Direction" value="Down Left"/>
     <property name="Encounter" value="/server/mods/BlizzardMan"/>
+    <property name="Rank" value="Beta"/>
    </properties>
   </object>
   <object id="57" name="Spawn Point" x="653" y="559">
