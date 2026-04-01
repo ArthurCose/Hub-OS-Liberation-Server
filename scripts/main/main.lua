@@ -292,5 +292,17 @@ Net:on("player_join", function(event)
   end
 
   recovery_data[key] = nil
-  player:try_reconnect(event.player_id)
+
+  if not player:try_reconnect(event.player_id) then
+    return
+  end
+
+  local area_id = player.instance.area_id
+  local short_name = Net.get_area_custom_property(area_id, "Short Name")
+
+  if not short_name then
+    warn(Net.get_area_name(area_id) .. " is missing a short name!")
+  end
+
+  PartiesMenu.set_player_status(event.player_id, short_name)
 end)
