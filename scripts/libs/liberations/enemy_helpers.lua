@@ -3,8 +3,8 @@ local HealthSprites = require("scripts/libs/liberations/effects/health_sprites")
 local Direction = require("scripts/libs/direction")
 
 local EnemyHelpers = {
-  GUARDIAN_MINIMAP_MARKER = { r = 230, g = 50, b = 40 },
-  BOSS_MINIMAP_COLOR = { r = 170, g = 50, b = 170 }
+  GUARDIAN_MINIMAP_MARKER = { 104, 28, 255 },
+  BOSS_MINIMAP_COLOR = { 200, 15, 67 }
 }
 
 local direction_suffix_map = {
