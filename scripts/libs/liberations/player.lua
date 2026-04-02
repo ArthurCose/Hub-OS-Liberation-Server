@@ -593,7 +593,9 @@ function Player:loot_panels(panels, remove_traps, destroy_items)
           else
             Async.await(self:message_with_mug("Ah! A damage trap!"))
           end
+          Async.await(Async.sleep(0.25))
           self:hurt(tonumber(panel.custom_properties["Damage"]))
+          Async.await(Async.sleep(1))
         else
           if panel.custom_properties["Message"] ~= nil then
             Async.await(self:message_with_mug(panel.custom_properties["Message"]))
@@ -601,6 +603,7 @@ function Player:loot_panels(panels, remove_traps, destroy_items)
             Async.await(self:message_with_mug("Ah! A paralysis trap!"))
           end
           self:paralyze()
+          Async.await(Async.sleep(1))
         end
       end
     end
