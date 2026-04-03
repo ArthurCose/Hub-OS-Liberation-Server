@@ -227,6 +227,9 @@ local function liberate_panel(self, player)
       end
 
       if not results or not results.won then
+        -- delay to allow the return transition to end
+        Async.await(Async.sleep(1))
+
         if enemy then
           enemy.health = final_enemy_health
 

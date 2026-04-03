@@ -66,7 +66,9 @@ local function battle_to_liberate_and_loot(instance, player)
     elseif battle_results.won then
       liberate_and_loot(instance, player, battle_results)
     else
-      player:complete_turn()
+      Async.sleep(1).and_then(function()
+        player:complete_turn()
+      end)
     end
   end)
 end
