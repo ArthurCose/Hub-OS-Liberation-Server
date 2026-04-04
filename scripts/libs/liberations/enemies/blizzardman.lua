@@ -26,7 +26,6 @@ local rank_to_index = {
 
 local mob_health = { 400, 1200, 1600, 2000 }
 local mob_damage = { 40, 80, 120, 160 }
-local mob_ranks = { "V1", "V2", "V3", "SP" }
 
 ---@param options Liberation.EnemyOptions
 ---@return Liberation.Enemies.BlizzardMan
@@ -39,7 +38,7 @@ function BlizzardMan:new(options)
     health = mob_health[rank_index],
     max_health = mob_health[rank_index],
     damage = mob_damage[rank_index],
-    rank = mob_ranks[rank_index],
+    rank = options.rank,
     x = math.floor(options.position.x),
     y = math.floor(options.position.y),
     z = math.floor(options.position.z),

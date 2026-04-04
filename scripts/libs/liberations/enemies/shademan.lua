@@ -23,7 +23,6 @@ local rank_to_index = {
 
 local mob_health = { 600, 1000, 1200, 1500 }
 local mob_damage = { 60, 90, 120, 200 }
-local mob_ranks = { "V1", "Alpha", "Beta", "V1" }
 
 ---@param options Liberation.EnemyOptions
 ---@return Liberation.Enemies.ShadeMan
@@ -36,7 +35,7 @@ function ShadeMan:new(options)
     health = mob_health[rank_index],
     max_health = mob_health[rank_index],
     damage = mob_damage[rank_index],
-    rank = mob_ranks[rank_index],
+    rank = options.rank,
     x = math.floor(options.position.x),
     y = math.floor(options.position.y),
     z = math.floor(options.position.z),
