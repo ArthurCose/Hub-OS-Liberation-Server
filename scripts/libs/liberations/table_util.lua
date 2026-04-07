@@ -1,6 +1,7 @@
 local Lib = {}
 
 ---@param t table?
+---@return any
 function Lib.get(t, ...)
   local len = select("#", ...)
 
