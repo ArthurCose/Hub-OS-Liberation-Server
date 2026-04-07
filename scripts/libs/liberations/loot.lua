@@ -77,7 +77,7 @@ Loot.ORDER_POINT = {
       local previous_points = instance.order_points
       instance:add_order_points(3)
 
-      Resources.play_audio("/server/assets/liberations/sounds/recover_points.ogg")
+      Net.play_sound(instance.area_id, "/server/assets/liberations/sounds/recover_points.ogg")
 
       local recovered_points = instance.order_points - previous_points
       Async.await(player:message(recovered_points .. "\nOrder Pts Recovered!"))
