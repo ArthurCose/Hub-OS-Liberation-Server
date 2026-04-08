@@ -94,13 +94,9 @@ function EnemyHelpers.move(instance, enemy, x, y, z, direction)
     local slide_time = .5
     local hold_time = .25
     local startup_time = .25
-    local animation_time = .042
+    local blur_time = 4 / 60
 
     Async.await(Async.sleep(hold_time))
-
-    for _, player in ipairs(instance.players) do
-      Net.slide_player_camera(player.id, x + .5, y + .5, z, slide_time)
-    end
 
     local area_id = Net.get_bot_area(enemy.id)
 
@@ -110,19 +106,25 @@ function EnemyHelpers.move(instance, enemy, x, y, z, direction)
       animation_path = "/server/assets/liberations/bots/blur.animation",
       area_id = area_id,
       warp_in = false,
-      x = enemy.x + .5 + (1 / 32),
-      y = enemy.y + .5 + (1 / 32),
+      x = enemy.x + .5,
+      y = enemy.y + .5,
       z = enemy.z + 1
     })
 
     -- animate blur
     Net.animate_bot(blur_bot_id, "DISAPPEAR")
 
-    Async.await(Async.sleep(animation_time))
+    Async.await(Async.sleep(blur_time))
 
     -- move this bot off screen
     local area_width = Net.get_layer_width(area_id)
     Net.transfer_bot(enemy.id, area_id, false, area_width + 100, 0, 0)
+
+    Async.await(Async.sleep(16 / 60))
+
+    for _, player in ipairs(instance.players) do
+      Net.slide_player_camera(player.id, x + .5, y + .5, z, slide_time)
+    end
 
     Async.await(Async.sleep(slide_time + startup_time))
 
@@ -131,13 +133,13 @@ function EnemyHelpers.move(instance, enemy, x, y, z, direction)
       blur_bot_id,
       area_id,
       false,
-      x + .5 + (1 / 32),
-      y + .5 + (1 / 32),
+      x + .5,
+      y + .5,
       z + 1
     )
     Net.animate_bot(blur_bot_id, "APPEAR")
 
-    Async.await(Async.sleep(animation_time))
+    Async.await(Async.sleep(blur_time))
 
     -- move the enemy
     if direction then
@@ -147,10 +149,10 @@ function EnemyHelpers.move(instance, enemy, x, y, z, direction)
 
     Net.transfer_bot(enemy.id, area_id, false, x + .5, y + .5, z)
 
+    Async.await(Async.sleep(hold_time))
+
     -- delete the blur bot
     Net.remove_bot(blur_bot_id)
-
-    Async.await(Async.sleep(hold_time))
 
     enemy.x = x
     enemy.y = y
