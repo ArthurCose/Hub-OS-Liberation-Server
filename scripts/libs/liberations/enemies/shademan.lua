@@ -96,55 +96,65 @@ end
 function ShadeMan:take_turn()
   return Async.create_scope(function()
     if self.instance.phase == 1 then
+      Async.await(Async.sleep(0.5))
+
       for _, player in ipairs(self.instance.players) do
         player:message_auto(
           "Heh heh...let's party!",
-          2,
+          1.5,
           self.mug.texture_path,
           self.mug.animation_path
         )
       end
 
-      -- Allow time for the players to read this message
+      -- allow time for the players to read this message
       Async.await(Async.sleep(3))
+
+      return
     end
 
-    local player = EnemyHelpers.find_closest_player(self.instance, self, 10)
+    local player = EnemyHelpers.find_closest_player(self.instance, self, 27)
 
     if not player then
-      --No player. Don't bother.
       return
     end
 
     local player_position = player:position()
 
-    -- local distance = EnemyHelpers.chebyshev_tile_distance(self, player_position.x, player_position.y, player_position.z)
-    -- if distance > 10 then return end --Player too far. Don't bother.
-    self.selection:move(player_position, Direction.None)
+    Async.await(Async.sleep(0.5))
 
-    --Message all players.
+    -- message all players.
     for _, players in ipairs(self.instance.players) do
-      Async.message_player(players.id,
+      Async.message_player_auto(players.id,
         "Don't underestimate\nthe Darkloids!",
+        0.8,
         self.mug.texture_path,
         self.mug.animation_path
       )
     end
 
-    Async.await(Async.sleep(0.7))
+    Async.await(Async.sleep(2))
 
-
+    -- resolve movement
     local warp_back_pos = { x = self.x, y = self.y, z = self.z }
     local warp_back_direction = self.direction
-    local targetx = player_position.x
-    local targety = player_position.y - 1
+    local target_x, target_y = player_position.x, player_position.y
+
+    if math.random(2) == 1 then
+      target_x = target_x - 1
+    else
+      target_y = target_y - 1
+    end
+
     local target_direction = Direction.diagonal_from_offset(
-      player_position.x - (targetx + .5),
-      player_position.y - (targety + .5)
+      player_position.x - target_x,
+      player_position.y - target_y
     )
 
-    Async.await(EnemyHelpers.move(self.instance, self, targetx, targety, player_position.z, target_direction))
+    Async.await(EnemyHelpers.move(self.instance, self, target_x, target_y, player_position.z, target_direction))
 
+    -- indicate and attack
+    self.selection:move(player_position, Direction.None)
     self.selection:indicate()
 
     EnemyHelpers.play_attack_animation(self)
@@ -152,6 +162,7 @@ function ShadeMan:take_turn()
 
     Async.await(Async.sleep(.7))
 
+    -- warp back
     Async.await(EnemyHelpers.move(self.instance, self, warp_back_pos.x, warp_back_pos.y, warp_back_pos.z,
       warp_back_direction))
 
