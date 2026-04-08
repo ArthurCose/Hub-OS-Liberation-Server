@@ -53,8 +53,7 @@ function BigBrute:new(options)
     y = math.floor(options.position.y),
     z = math.floor(options.position.z),
     selection = EnemySelection:new(options.instance),
-    encounter = options.encounter,
-    is_engaged = false
+    encounter = options.encounter
   }
 
   setmetatable(bigbrute, self)
@@ -195,9 +194,17 @@ local function attempt_attack(self)
       EnemyHelpers.face_position(self, x, y)
     end
 
+    Async.await(Async.sleep(0.5))
+
     self.selection:indicate()
 
     Async.await(Async.sleep(1))
+
+    for _, player in ipairs(self.instance.players) do
+      Net.message_player_auto(player.id, "Grrrowl!\nBeastBreath!", 0.8)
+    end
+
+    Async.await(Async.sleep(2))
 
     local spawned_bots = {}
 
