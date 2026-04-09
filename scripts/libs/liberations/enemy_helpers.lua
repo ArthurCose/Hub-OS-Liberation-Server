@@ -2,6 +2,10 @@ local RecoverEffect = require("scripts/libs/liberations/effects/recover_effect")
 local HealthSprites = require("scripts/libs/liberations/effects/health_sprites")
 local PanelType = require("scripts/libs/liberations/panel_type")
 local Direction = require("scripts/libs/direction")
+local Preloader = require("scripts/libs/liberations/preloader")
+
+local BLUR_TEXTURE_PATH = Preloader.add_asset("/server/assets/liberations/bots/blur.png")
+local BLUR_ANIMATION_PATH = Preloader.add_asset("/server/assets/liberations/bots/blur.animation")
 
 local EnemyHelpers = {
   GUARDIAN_MINIMAP_MARKER = { 104, 28, 255 },
@@ -104,8 +108,8 @@ function EnemyHelpers.move(instance, enemy, x, y, z, direction)
 
     -- create blur
     local blur_bot_id = Net.create_bot({
-      texture_path = "/server/assets/liberations/bots/blur.png",
-      animation_path = "/server/assets/liberations/bots/blur.animation",
+      texture_path = BLUR_TEXTURE_PATH,
+      animation_path = BLUR_ANIMATION_PATH,
       area_id = area_id,
       warp_in = false,
       x = enemy.x + .5,

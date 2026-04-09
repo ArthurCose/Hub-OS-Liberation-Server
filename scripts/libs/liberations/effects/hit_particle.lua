@@ -1,10 +1,7 @@
 local Preloader = require("scripts/libs/liberations/preloader")
 
-local TEXTURE_PATH = "/server/assets/liberations/bots/hit_particles.png"
-local ANIMATION_PATH = "/server/assets/liberations/bots/hit_particles.animation"
-
-Preloader.add_asset(TEXTURE_PATH)
-Preloader.add_asset(ANIMATION_PATH)
+local TEXTURE_PATH = Preloader.add_asset("/server/assets/liberations/bots/hit_particles.png")
+local ANIMATION_PATH = Preloader.add_asset("/server/assets/liberations/bots/hit_particles.animation")
 
 local HitParticle = {}
 

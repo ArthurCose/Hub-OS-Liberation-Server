@@ -3,8 +3,9 @@ local EnemySelection = require("scripts/libs/liberations/selections/enemy_select
 local Preloader = require("scripts/libs/liberations/preloader")
 local Direction = require("scripts/libs/direction")
 
-Preloader.add_asset("/server/assets/liberations/bots/beast_breath.png")
-Preloader.add_asset("/server/assets/liberations/bots/beast_breath.animation")
+local BEAST_BREATH_TEXTURE_PATH = Preloader.add_asset("/server/assets/liberations/bots/beast_breath.png")
+local BEAST_BREATH_ANIMATION_PATH = Preloader.add_asset("/server/assets/liberations/bots/beast_breath.animation")
+local BEAST_BREATH_SFX = Preloader.add_asset("/server/assets/liberations/sounds/beast_breath.ogg")
 
 ---@class Liberation.Enemies.BigBrute: Liberation.Enemy
 ---@field package instance Liberation.MissionInstance
@@ -215,8 +216,8 @@ local function attempt_attack(self)
         local player_x, player_y, player_z = player:position_multi()
 
         table.insert(spawned_bots, Net.create_bot({
-          texture_path = "/server/assets/liberations/bots/beast_breath.png",
-          animation_path = "/server/assets/liberations/bots/beast_breath.animation",
+          texture_path = BEAST_BREATH_TEXTURE_PATH,
+          animation_path = BEAST_BREATH_ANIMATION_PATH,
           animation = "ANIMATE",
           area_id = self.instance.area_id,
           warp_in = false,
@@ -226,7 +227,7 @@ local function attempt_attack(self)
         }))
       end
 
-      Net.play_sound(self.instance.area_id, "/server/assets/liberations/sounds/beast_breath.ogg")
+      Net.play_sound(self.instance.area_id, BEAST_BREATH_SFX)
     end)
 
     Async.await(Async.sleep(.5))

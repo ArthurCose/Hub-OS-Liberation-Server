@@ -1,6 +1,10 @@
-local RecoverEffect = {}
+local Preloader = require("scripts/libs/liberations/preloader")
 
+local TEXTURE_PATH = Preloader.add_asset("/server/assets/liberations/bots/recover.png")
+local ANIMATION_PATH = Preloader.add_asset("/server/assets/liberations/bots/recover.animation")
 local SFX_PATH = "/server/assets/liberations/sounds/recover.ogg"
+
+local RecoverEffect = {}
 
 function RecoverEffect:new(actor_id, area_wide_sfx)
   local recover_effect = {
@@ -27,8 +31,8 @@ function RecoverEffect:new(actor_id, area_wide_sfx)
   end
 
   local recover_bot_id = Net.create_bot({
-    texture_path = "/server/assets/liberations/bots/recover.png",
-    animation_path = "/server/assets/liberations/bots/recover.animation",
+    texture_path = TEXTURE_PATH,
+    animation_path = ANIMATION_PATH,
     area_id = area_id,
     warp_in = false,
     x = position.x + 1 / 32,

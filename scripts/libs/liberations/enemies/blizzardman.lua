@@ -2,8 +2,8 @@ local EnemySelection = require("scripts/libs/liberations/selections/enemy_select
 local EnemyHelpers = require("scripts/libs/liberations/enemy_helpers")
 local Preloader = require("scripts/libs/liberations/preloader")
 
-Preloader.add_asset("/server/assets/liberations/bots/snowball.png")
-Preloader.add_asset("/server/assets/liberations/bots/snowball.animation")
+local SNOWBALL_TEXTURE_PATH = Preloader.add_asset("/server/assets/liberations/bots/snowball.png")
+local SNOWBALL_ANIMATION_PATH = Preloader.add_asset("/server/assets/liberations/bots/snowball.animation")
 
 ---@class Liberation.Enemies.BlizzardMan: Liberation.Enemy
 ---@field instance Liberation.MissionInstance
@@ -152,8 +152,8 @@ function BlizzardMan:take_turn()
       for _, player in ipairs(caught_players) do
         local player_x, player_y, player_z = player:position_multi()
         local snowball_bot_id = Net.create_bot({
-          texture_path = "/server/assets/liberations/bots/snowball.png",
-          animation_path = "/server/assets/liberations/bots/snowball.animation",
+          texture_path = SNOWBALL_TEXTURE_PATH,
+          animation_path = SNOWBALL_ANIMATION_PATH,
           area_id = self.instance.area_id,
           warp_in = false,
           x = player_x + 1 / 32,

@@ -2,9 +2,13 @@ local Enemy = require("scripts/libs/liberations/enemy")
 local HealthSprites = require("scripts/libs/liberations/effects/health_sprites")
 local HitParticle = require("scripts/libs/liberations/effects/hit_particle")
 local DamageNumbers = require("scripts/libs/liberations/effects/damage_numbers")
+local Preloader = require("scripts/libs/liberations/preloader")
 
-local ITEM_ASSET_PATH = "/server/assets/liberations/bots/item.png"
-local ITEM_ANIMATION_PATH = "/server/assets/liberations/bots/item.animation"
+local ITEM_ASSET_PATH = Preloader.add_asset("/server/assets/liberations/bots/item.png")
+local ITEM_ANIMATION_PATH = Preloader.add_asset("/server/assets/liberations/bots/item.animation")
+
+local RECOVER_POINTS_SFX = Preloader.add_asset("/server/assets/liberations/sounds/recover_points.ogg")
+local HIT_ENEMY_SFX = Preloader.add_asset("/server/assets/liberations/sounds/hit_impact.ogg")
 
 ---@class Liberation.Loot
 ---@field animation string
@@ -77,7 +81,7 @@ Loot.ORDER_POINT = {
       local previous_points = instance.order_points
       instance:add_order_points(3)
 
-      Net.play_sound(instance.area_id, "/server/assets/liberations/sounds/recover_points.ogg")
+      Net.play_sound(instance.area_id, RECOVER_POINTS_SFX)
 
       local recovered_points = instance.order_points - previous_points
       Async.await(player:message(recovered_points .. "\nOrder Pts Recovered!"))
@@ -123,7 +127,7 @@ Loot.MAJOR_HIT = {
             enemy.z + 1
           )
 
-          Net.play_sound(instance.area_id, "/server/assets/liberations/sounds/hit_impact.ogg")
+          Net.play_sound(instance.area_id, HIT_ENEMY_SFX)
         end)
 
         if enemy == instance.boss then

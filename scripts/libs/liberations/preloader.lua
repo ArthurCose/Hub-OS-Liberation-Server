@@ -1,35 +1,21 @@
 local Preloader = {}
 
-local asset_paths = {
-  "/server/assets/liberations/bots/blur.png",
-  "/server/assets/liberations/bots/blur.animation",
-  "/server/assets/liberations/bots/explosion.png",
-  "/server/assets/liberations/bots/explosion.animation",
-  "/server/assets/liberations/bots/paralyze.png",
-  "/server/assets/liberations/bots/paralyze.animation",
-  "/server/assets/liberations/bots/recover.png",
-  "/server/assets/liberations/bots/recover.animation",
-  "/server/assets/liberations/bots/item.png",
-  "/server/assets/liberations/bots/item.animation",
-  "/server/assets/liberations/sounds/hit_impact.ogg",
-  "/server/assets/liberations/sounds/hurt.ogg",
-  "/server/assets/liberations/sounds/explosion.ogg",
-  "/server/assets/liberations/sounds/paralyze.ogg",
-  -- "/server/assets/liberations/sounds/points_appear.ogg",
-  "/server/assets/liberations/sounds/recover.ogg",
-  "/server/assets/liberations/sounds/recover_points.ogg",
-  "/server/assets/liberations/ui/order_points.png",
-  "/server/assets/liberations/ui/order_points.animation",
-  "/server/assets/liberations/ui/markers.png",
-  "/server/assets/liberations/ui/markers.animation",
-}
+local path_list = {}
+local preloaded = {}
 
 function Preloader.add_asset(asset_path)
-  asset_paths[#asset_paths + 1] = asset_path
+  if preloaded[asset_path] then
+    return asset_path
+  end
+
+  preloaded[asset_path] = true
+  path_list[#path_list + 1] = asset_path
+
+  return asset_path
 end
 
 function Preloader.update(area_id)
-  for _, asset_path in ipairs(asset_paths) do
+  for _, asset_path in ipairs(path_list) do
     Net.provide_asset(area_id, asset_path)
   end
 end

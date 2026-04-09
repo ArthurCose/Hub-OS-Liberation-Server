@@ -7,6 +7,12 @@ local RecoverEffect = require("scripts/libs/liberations/effects/recover_effect")
 local DamageNumbers = require("scripts/libs/liberations/effects/damage_numbers")
 local PanelType = require("scripts/libs/liberations/panel_type")
 local Emotes = require("scripts/libs/emotes")
+local Preloader = require("scripts/libs/liberations/preloader")
+
+local ORDER_POINTS_TEXTURE_PATH = Preloader.add_asset("/server/assets/liberations/ui/order_points.png")
+local ORDER_POINTS_ANIMATION_PATH = Preloader.add_asset("/server/assets/liberations/ui/order_points.animation")
+
+local HURT_SFX = Preloader.add_asset("/server/assets/liberations/sounds/hurt.ogg")
 
 ---@class Liberation.Player
 ---@field instance Liberation.MissionInstance
@@ -88,8 +94,8 @@ function Player:update_order_points_hud()
     self.order_points_sprite_id = Net.create_sprite({
       player_id = self.id,
       parent_id = "hud",
-      texture_path = "/server/assets/liberations/ui/order_points.png",
-      animation_path = "/server/assets/liberations/ui/order_points.animation",
+      texture_path = ORDER_POINTS_TEXTURE_PATH,
+      animation_path = ORDER_POINTS_ANIMATION_PATH,
       animation = tostring(self.instance.order_points)
     })
   end
@@ -413,7 +419,7 @@ function Player:hurt(amount)
     return
   end
 
-  Net.play_sound_for_player(self.id, "/server/assets/liberations/sounds/hurt.ogg")
+  Net.play_sound_for_player(self.id, HURT_SFX)
 
   local prev_health = self.health
   self.health = math.max(math.ceil(self.health - amount), 0)

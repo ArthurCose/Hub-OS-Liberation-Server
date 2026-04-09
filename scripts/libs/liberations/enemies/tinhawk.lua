@@ -3,8 +3,7 @@ local EnemySelection = require("scripts/libs/liberations/selections/enemy_select
 local Preloader = require("scripts/libs/liberations/preloader")
 local Direction = require("scripts/libs/direction")
 
-Preloader.add_asset("/server/assets/liberations/bots/beast_breath.png")
-Preloader.add_asset("/server/assets/liberations/bots/beast_breath.animation")
+local ATTACK_SFX = Preloader.add_asset("/server/assets/liberations/sounds/tinhawk_attack.ogg")
 
 ---@class Liberation.Enemies.TinHawk: Liberation.Enemy
 ---@field package instance Liberation.MissionInstance
@@ -262,12 +261,13 @@ local function attempt_attack(self)
 
     -- attack
     EnemyHelpers.play_attack_animation(self)
+    Net.play_sound(self.instance.area_id, ATTACK_SFX)
 
-    Async.await(Async.sleep(.2))
+    Async.await(Async.sleep(.4))
 
     player:hurt(self.damage)
 
-    Async.await(Async.sleep(.5))
+    Async.await(Async.sleep(.2))
 
     -- warp back
     Async.await(EnemyHelpers.move(self.instance, self, warp_back_pos.x, warp_back_pos.y, warp_back_pos.z,

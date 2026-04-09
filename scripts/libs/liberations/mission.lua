@@ -8,6 +8,9 @@ local TargetPhase = require("scripts/libs/liberations/target_phase")
 local Preloader = require("scripts/libs/liberations/preloader")
 local HealthSprites = require("scripts/libs/liberations/effects/health_sprites")
 
+local MARKERS_TEXTURE_PATH = Preloader.add_asset("/server/assets/liberations/ui/markers.png")
+local MARKERS_ANIMATION_PATH = Preloader.add_asset("/server/assets/liberations/ui/markers.animation")
+
 local DEBUG_AUTO_WIN = false
 
 -- private functions
@@ -528,8 +531,8 @@ function MissionInstance:new(area_id)
       y = 0,
       z = 0,
       custom_properties = {
-        ["Texture"] = "/server/assets/liberations/ui/markers.png",
-        ["Animation"] = "/server/assets/liberations/ui/markers.animation"
+        ["Texture"] = MARKERS_TEXTURE_PATH,
+        ["Animation"] = MARKERS_ANIMATION_PATH,
       },
       data = {
         type = "point",
