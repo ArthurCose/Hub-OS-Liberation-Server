@@ -11,6 +11,8 @@ local HealthSprites = require("scripts/libs/liberations/effects/health_sprites")
 local MARKERS_TEXTURE_PATH = Preloader.add_asset("/server/assets/liberations/ui/markers.png")
 local MARKERS_ANIMATION_PATH = Preloader.add_asset("/server/assets/liberations/ui/markers.animation")
 
+local ENEMY_TURN_SFX = Preloader.add_asset("/server/assets/liberations/sounds/enemy_turn.ogg")
+
 local DEBUG_AUTO_WIN = false
 
 -- private functions
@@ -328,7 +330,7 @@ local function take_enemy_turn(self)
       return
     end
 
-    for _, enemy in ipairs(self.enemies) do
+    for i, enemy in ipairs(self.enemies) do
       for _, player in ipairs(self.players) do
         Net.slide_player_camera(player.id, enemy.x + .5, enemy.y + .5, enemy.z, slide_time)
       end
@@ -345,6 +347,10 @@ local function take_enemy_turn(self)
 
       -- wait a short amount of time to look nicer if there was no action taken
       Async.await(Async.sleep(hold_time))
+
+      if i ~= #self.enemies then
+        Net.play_sound(self.area_id, ENEMY_TURN_SFX)
+      end
     end
 
     -- dark holes!

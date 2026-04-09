@@ -6,6 +6,7 @@ local Preloader = require("scripts/libs/liberations/preloader")
 
 local BLUR_TEXTURE_PATH = Preloader.add_asset("/server/assets/liberations/bots/blur.png")
 local BLUR_ANIMATION_PATH = Preloader.add_asset("/server/assets/liberations/bots/blur.animation")
+local BLUR_SFX = Preloader.add_asset("/server/assets/liberations/sounds/move.ogg")
 
 local EnemyHelpers = {
   GUARDIAN_MINIMAP_MARKER = { 104, 28, 255 },
@@ -120,6 +121,8 @@ function EnemyHelpers.move(instance, enemy, x, y, z, direction)
     -- animate blur
     Net.animate_bot(blur_bot_id, "DISAPPEAR")
 
+    Net.play_sound(area_id, BLUR_SFX)
+
     Async.await(Async.sleep(blur_time))
 
     -- move this bot off screen
@@ -144,6 +147,8 @@ function EnemyHelpers.move(instance, enemy, x, y, z, direction)
       z + 1
     )
     Net.animate_bot(blur_bot_id, "APPEAR")
+
+    Net.play_sound(area_id, BLUR_SFX)
 
     Async.await(Async.sleep(blur_time))
 
