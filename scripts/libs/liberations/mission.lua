@@ -317,9 +317,11 @@ local function take_enemy_turn(self)
 
           Net.slide_player_camera(player.id, self.boss.x + .5, self.boss.y + .5, self.boss.z, slide_time)
 
-          Async.await(Async.sleep(slide_time))
+          Async.await(Async.sleep(slide_time + 0.5))
 
           Async.await(player:message_with_mug("Is this the power of " .. self.boss.name .. "...?"))
+
+          Async.await(Async.sleep(0.5))
 
           Net.unlock_player_camera(player.id)
 
