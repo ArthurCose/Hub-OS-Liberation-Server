@@ -262,12 +262,9 @@ local function attempt_attack(self)
     -- attack
     EnemyHelpers.play_attack_animation(self)
     Net.play_sound(self.instance.area_id, ATTACK_SFX)
-
-    Async.await(Async.sleep(.4))
-
     player:hurt(self.damage)
 
-    Async.await(Async.sleep(.2))
+    Async.await(Async.sleep(.5))
 
     -- warp back
     Async.await(EnemyHelpers.move(self.instance, self, warp_back_pos.x, warp_back_pos.y, warp_back_pos.z,
