@@ -72,5 +72,14 @@ function EnemySelection:remove_indicators()
   self.selection:remove_indicators()
 end
 
+function EnemySelection:is_within(x, y, z)
+  return self.selection:is_within(x, y, z)
+end
+
+---@param callback fun(x: number, y: number, z: number)
+function EnemySelection:for_each_tile(callback)
+  self.selection:for_each_tile(callback)
+end
+
 -- exports
 return EnemySelection

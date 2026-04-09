@@ -1,0 +1,39 @@
+animation state="IDLE_UR"
+frame x="57" y="42" w="48" h="49" originx="28" originy="45" duration="0.167"
+frame x="57" y="1" w="61" h="39" originx="30" originy="35" duration="0.167"
+frame x="168" y="1" w="36" h="40" originx="14" originy="36" duration="0.167"
+frame x="57" y="1" w="61" h="39" originx="30" originy="35" duration="0.167"
+
+animation state="IDLE_DR"
+frame x="120" y="1" w="46" h="51" originx="24" originy="47" duration="0.167"
+frame x="1" y="110" w="50" h="36" originx="27" originy="32" duration="0.167"
+frame x="120" y="54" w="39" h="37" originx="15" originy="32" duration="0.167"
+frame x="1" y="110" w="50" h="36" originx="27" originy="32" duration="0.167"
+
+animation state="IDLE_DL"
+frame x="120" y="1" w="46" h="51" originx="24" originy="47" flipx="1" duration="0.167"
+frame x="1" y="110" w="50" h="36" originx="27" originy="32" flipx="1" duration="0.167"
+frame x="120" y="54" w="39" h="37" originx="15" originy="32" flipx="1" duration="0.167"
+frame x="1" y="110" w="50" h="36" originx="27" originy="32" flipx="1" duration="0.167"
+
+animation state="IDLE_UL"
+frame x="57" y="42" w="48" h="49" originx="28" originy="45" flipx="1" duration="0.167"
+frame x="57" y="1" w="61" h="39" originx="30" originy="35" flipx="1" duration="0.167"
+frame x="168" y="1" w="36" h="40" originx="14" originy="36" flipx="1" duration="0.167"
+frame x="57" y="1" w="61" h="39" originx="30" originy="35" flipx="1" duration="0.167"
+
+animation state="ATTACK_DL"
+frame x="1" y="55" w="46" h="53" originx="25" originy="49" flipx="1" duration="0.167"
+frame x="1" y="1" w="54" h="52" originx="31" originy="48" flipx="1" duration="0.167"
+
+animation state="ATTACK_UL"
+frame x="1" y="55" w="46" h="53" originx="25" originy="49" flipx="1" duration="0.167"
+frame x="1" y="1" w="54" h="52" originx="31" originy="48" flipx="1" duration="0.167"
+
+animation state="ATTACK_DR"
+frame x="1" y="55" w="46" h="53" originx="25" originy="49" duration="0.167"
+frame x="1" y="1" w="54" h="52" originx="31" originy="48" duration="0.167"
+
+animation state="ATTACK_UR"
+frame x="1" y="55" w="46" h="53" originx="25" originy="49" duration="0.167"
+frame x="1" y="1" w="54" h="52" originx="31" originy="48" duration="0.167"

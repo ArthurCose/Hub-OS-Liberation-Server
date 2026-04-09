@@ -153,7 +153,7 @@ Supported panel `Type`s and custom properties can be found below.
 ### `Dark Hole`
 
 - `Direction` the direction the character spawned should face.
-- `Spawns` the name of the enemy to spawn, overrides `Encounter` when this character moves over another panel.
+- `Spawns` the name of the enemy to spawn, panels containing this enemy will this panel's `Encounter` value.
 - `Position` object, used as the initial spawn position for the enemy.
 - `Encounter` the encounter for the dark hole and enemy, uses the map's default when missing.
 - `Next Turn` object, point to another dark hole or `Guardian` location, the mission will follow the chain to resolve the final turn order.

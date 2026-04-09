@@ -1,5 +1,6 @@
 local RecoverEffect = require("scripts/libs/liberations/effects/recover_effect")
 local HealthSprites = require("scripts/libs/liberations/effects/health_sprites")
+local PanelType = require("scripts/libs/liberations/panel_type")
 local Direction = require("scripts/libs/direction")
 
 local EnemyHelpers = {
@@ -68,14 +69,15 @@ end
 function EnemyHelpers.can_move_to(instance, x, y, z)
   local panel = instance:get_panel_at(x, y, z)
 
-  if instance:get_enemy_at(x, y, z) ~= nil then return false end --Cannot move to a tile an enemy already exists on.
+  if not panel or not PanelType.ENEMY_WALKABLE[panel.type] then
+    return false
+  end
 
-  --Can only move to certain tile types and if panel exists.
-  return panel and (
-    panel.type == "Dark Panel" or
-    panel.type == "Item Panel" or
-    panel.type == "Trap Panel"
-  )
+  if instance:get_enemy_at(x, y, z) ~= nil then
+    return false
+  end
+
+  return true
 end
 
 -- takes instance to move player cameras

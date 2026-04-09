@@ -41,8 +41,7 @@ function Bladia:new(options)
     y = math.floor(options.position.y),
     z = math.floor(options.position.z),
     encounter = options.encounter,
-    selection = EnemySelection:new(options.instance),
-    is_engaged = false
+    selection = EnemySelection:new(options.instance)
   }
 
   setmetatable(bladia, self)

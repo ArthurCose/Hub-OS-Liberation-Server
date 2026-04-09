@@ -22,6 +22,7 @@ local BlizzardMan = require("scripts/libs/liberations/enemies/blizzardman")
 local BigBrute = require("scripts/libs/liberations/enemies/bigbrute")
 local ShadeMan = require("scripts/libs/liberations/enemies/shademan")
 local Bladia = require("scripts/libs/liberations/enemies/bladia")
+local TinHawk = require("scripts/libs/liberations/enemies/tinhawk")
 local ExplodingEffect = require("scripts/libs/liberations/effects/exploding_effect")
 local HealthSprites = require("scripts/libs/liberations/effects/health_sprites")
 
@@ -31,7 +32,8 @@ local name_to_enemy = {
   BlizzardMan = BlizzardMan,
   BigBrute = BigBrute,
   ShadeMan = ShadeMan,
-  Bladia = Bladia
+  Bladia = Bladia,
+  TinHawk = TinHawk
 }
 
 ---@class Liberation.EnemyOptions
