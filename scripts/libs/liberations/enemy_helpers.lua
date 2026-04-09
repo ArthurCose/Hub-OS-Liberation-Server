@@ -41,19 +41,19 @@ end
 ---@param enemy Liberation.Enemy
 ---@param amount number
 function EnemyHelpers.heal(enemy, amount)
-  local previous_health = enemy.health
+  return Async.create_scope(function()
+    local previous_health = enemy.health
 
-  enemy.health = math.min(math.ceil(enemy.health + amount), enemy.max_health)
+    enemy.health = math.min(math.ceil(enemy.health + amount), enemy.max_health)
 
-  HealthSprites.update_sprite(enemy.id, enemy.health)
+    HealthSprites.update_sprite(enemy.id, enemy.health)
 
-  if previous_health < enemy.health then
-    RecoverEffect:new(enemy.id)
-    return Async.sleep(1)
-  else
-    return Async.create_function(function()
-    end)
-  end
+    if previous_health < enemy.health then
+      Async.await(Async.sleep(0.2))
+      RecoverEffect:new_dark(enemy.id)
+      Async.await(Async.sleep(1))
+    end
+  end)
 end
 
 ---@param enemy Liberation.Enemy

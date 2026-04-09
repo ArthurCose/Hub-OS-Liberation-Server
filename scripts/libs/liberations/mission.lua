@@ -348,6 +348,9 @@ local function take_enemy_turn(self)
       if enemy == self.boss then
         -- darkloids heal up to 50% of health during their turn
         Async.await(EnemyHelpers.heal(enemy, enemy.max_health / 2))
+      else
+        -- regular enemies heal only 30%?
+        Async.await(EnemyHelpers.heal(enemy, math.floor(enemy.max_health * .3)))
       end
 
       Async.await(enemy:take_turn())
