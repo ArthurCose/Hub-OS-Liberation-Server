@@ -158,9 +158,12 @@ function ShadeMan:take_turn()
     self.selection:indicate()
 
     EnemyHelpers.play_attack_animation(self)
+
+    Async.await(Async.sleep(.2))
+
     player:hurt(self.damage)
 
-    Async.await(Async.sleep(.7))
+    Async.await(Async.sleep(.5))
 
     -- warp back
     Async.await(EnemyHelpers.move(self.instance, self, warp_back_pos.x, warp_back_pos.y, warp_back_pos.z,
