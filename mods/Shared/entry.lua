@@ -127,6 +127,38 @@ function Lib.spawn_viruses(encounter, data, pool)
     end)
 end
 
+---@param encounter Encounter
+---@param id string
+---@param rank Rank
+function Lib.shuffle_dark_hole_guardians(encounter, id, rank)
+    local demoted_rank_map = {
+        [Rank.V3] = Rank.V1,
+        [Rank.V4] = Rank.V2,
+        [Rank.V5] = Rank.V3,
+        [Rank.V6] = Rank.V4,
+    }
+
+    local rank_b = demoted_rank_map[rank] or Rank.V1
+
+    if math.random(2) == 1 then
+        rank_b, rank = rank, rank_b
+    end
+
+    if math.random(2) == 1 then
+        encounter:create_spawner(id, rank)
+            :spawn_at(1, 1)
+
+        encounter:create_spawner(id, rank_b)
+            :spawn_at(6, 3)
+    else
+        encounter:create_spawner(id, rank)
+            :spawn_at(1, 3)
+
+        encounter:create_spawner(id, rank_b)
+            :spawn_at(6, 1)
+    end
+end
+
 function Lib.generate_ice_field()
     require("generate_ice_field")()
 end

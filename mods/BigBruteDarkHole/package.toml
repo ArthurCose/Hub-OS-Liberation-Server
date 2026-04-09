@@ -1,0 +1,12 @@
+[package]
+category = "encounter"
+id = "dev.konstinople.LiberationServer.BigBruteDarkHole"
+name = "BigBrute DarkHole"
+
+[dependencies]
+encounters = ["BattleNetwork5.Virus.BigBrute"]
+characters = ["BattleNetwork5.Character.BigBrute"]
+libraries = [
+  "dev.konstinople.library.liberation",
+  "dev.konstinople.LiberationServer.Shared"
+]

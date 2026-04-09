@@ -156,6 +156,7 @@ Supported panel `Type`s and custom properties can be found below.
 - `Spawns` the name of the enemy to spawn, panels containing this enemy will this panel's `Encounter` value.
 - `Position` object, used as the initial spawn position for the enemy.
 - `Encounter` the encounter for the dark hole and enemy, uses the map's default when missing.
+- `Direct Encounter` overrides `Encounter` when the dark hole is directly selected.
 - `Next Turn` object, point to another dark hole or `Guardian` location, the mission will follow the chain to resolve the final turn order.
   - Ignored if this doesn't lead back to the panel that spawned the boss.
 - `Rank` the rank of the spawned enemy, ex: `V1`, `SP`, `Omega`. Passed as `rank` in the encounter's data param.

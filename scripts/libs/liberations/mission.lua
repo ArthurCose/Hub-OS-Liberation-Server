@@ -201,7 +201,7 @@ local function liberate_panel(self, player)
         data.health = hidden_enemy.max_health
         data.rank = hidden_enemy.rank
         -- override encounter
-        encounter_path = hidden_enemy.encounter
+        encounter_path = panel.custom_properties["Direct Encounter"] or hidden_enemy.encounter
       end
 
       ---@type (Net.BattleResults | { success: boolean })?
