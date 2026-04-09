@@ -119,6 +119,10 @@ function ShadeMan:take_turn()
 
     -- filter out players that we can't reach
     for _, possible_target in ipairs(self.instance.players) do
+      if possible_target.health <= 0 then
+        goto continue
+      end
+
       local player_x, player_y, player_z = possible_target:position_multi()
 
       -- chebyshev distance
