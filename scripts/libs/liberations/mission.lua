@@ -231,24 +231,29 @@ local function liberate_panel(self, player)
         return
       end
 
+      -- update enemy health before transitions end
+      if enemy and Enemy.is_alive(enemy) then
+        enemy.health = final_enemy_health
+
+        if enemy.health == 0 then
+          HealthSprites.remove_sprite(enemy.id)
+        else
+          HealthSprites.update_sprite(enemy.id, enemy.health)
+        end
+      end
+
       if not results or not results.won then
         -- delay to allow the return transition to end
         Async.await(Async.sleep(1))
 
-        if enemy then
-          enemy.health = final_enemy_health
+        if enemy and enemy.health <= 0 then
+          Async.await(Enemy.destroy(self, enemy))
 
-          HealthSprites.update_sprite(enemy.id, enemy.health)
-
-          if enemy.health <= 0 then
-            Async.await(Enemy.destroy(self, enemy))
-
-            if enemy == self.boss then
-              -- we saw the delete animation,
-              -- so we'll allow the players to complete the mission
-              liberate(self)
-              return
-            end
+          if enemy == self.boss then
+            -- we saw the delete animation,
+            -- so we'll allow the players to complete the mission
+            liberate(self)
+            return
           end
         end
 
