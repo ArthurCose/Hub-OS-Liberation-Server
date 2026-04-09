@@ -1152,6 +1152,7 @@ end
 function MissionInstance:get_enemy_at(x, y, z)
   x = math.floor(x)
   y = math.floor(y)
+  z = math.floor(z)
 
   for _, enemy in ipairs(self.enemies) do
     if enemy.x == x and enemy.y == y and enemy.z == z then

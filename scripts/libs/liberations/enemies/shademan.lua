@@ -113,7 +113,32 @@ function ShadeMan:take_turn()
       return
     end
 
-    local player = EnemyHelpers.find_closest_player(self.instance, self, 27)
+    ---@type Liberation.Player?
+    local player
+    local closest_distance = 28
+
+    -- filter out players that we can't reach
+    for _, possible_target in ipairs(self.instance.players) do
+      local player_x, player_y, player_z = possible_target:position_multi()
+
+      -- chebyshev distance
+      local distance = EnemyHelpers.chebyshev_tile_distance(self, player_x, player_y, player_z)
+
+      if distance >= closest_distance then
+        goto continue
+      end
+
+      local x_enemy = self.instance:get_enemy_at(player_x - 1, player_y, player_z)
+      local y_enemy = self.instance:get_enemy_at(player_x, player_y - 1, player_z)
+
+      if x_enemy and x_enemy ~= self and y_enemy and y_enemy ~= self then
+        goto continue
+      end
+
+      player = possible_target
+
+      ::continue::
+    end
 
     if not player then
       return
@@ -138,20 +163,29 @@ function ShadeMan:take_turn()
     -- resolve movement
     local warp_back_pos = { x = self.x, y = self.y, z = self.z }
     local warp_back_direction = self.direction
-    local target_x, target_y = player_position.x, player_position.y
+    local target_x, target_y = math.floor(player_position.x), math.floor(player_position.y)
 
-    if math.random(2) == 1 then
+    local x_enemy = self.instance:get_enemy_at(target_x - 1, target_y, player_position.z)
+    local y_enemy = self.instance:get_enemy_at(target_x, target_y - 1, player_position.z)
+
+    if not (x_enemy and x_enemy ~= self) and ((y_enemy and y_enemy ~= self) or math.random(2) == 1) then
       target_x = target_x - 1
     else
       target_y = target_y - 1
     end
 
-    local target_direction = Direction.diagonal_from_offset(
-      player_position.x - target_x,
-      player_position.y - target_y
-    )
+    local moving = target_x ~= self.x or target_y ~= self.y
 
-    Async.await(EnemyHelpers.move(self.instance, self, target_x, target_y, player_position.z, target_direction))
+    if moving then
+      local target_direction = Direction.diagonal_from_offset(
+        player_position.x - target_x,
+        player_position.y - target_y
+      )
+
+      Async.await(EnemyHelpers.move(self.instance, self, target_x, target_y, player_position.z, target_direction))
+    else
+      EnemyHelpers.face_position(self, player_position.x, player_position.y)
+    end
 
     -- indicate and attack
     self.selection:move(player_position, Direction.None)
@@ -165,9 +199,22 @@ function ShadeMan:take_turn()
 
     Async.await(Async.sleep(.5))
 
-    -- warp back
-    Async.await(EnemyHelpers.move(self.instance, self, warp_back_pos.x, warp_back_pos.y, warp_back_pos.z,
-      warp_back_direction))
+    if moving then
+      -- warp back
+      Async.await(
+        EnemyHelpers.move(
+          self.instance,
+          self,
+          warp_back_pos.x,
+          warp_back_pos.y,
+          warp_back_pos.z,
+          warp_back_direction
+        )
+      )
+    else
+      Net.set_bot_direction(self.id, self.direction)
+      EnemyHelpers.play_idle_animation(self)
+    end
 
     self.selection:remove_indicators()
   end)

@@ -8,7 +8,6 @@ local ATTACK_SFX = Preloader.add_asset("/server/assets/liberations/sounds/tinhaw
 ---@class Liberation.Enemies.TinHawk: Liberation.Enemy
 ---@field package instance Liberation.MissionInstance
 ---@field package selection Liberation.EnemySelection
----@field package direction string
 ---@field package damage number
 local TinHawk = {}
 
@@ -72,7 +71,6 @@ function TinHawk:new(options)
     x = math.floor(options.position.x),
     y = math.floor(options.position.y),
     z = math.floor(options.position.z),
-    direction = options.direction,
     selection = EnemySelection:new(options.instance),
     encounter = options.encounter
   }
@@ -165,7 +163,7 @@ local function attempt_move(self)
       test_position.y = panel.y
       test_position.z = panel.z
 
-      self.selection:move(test_position, self.direction)
+      self.selection:move(test_position, Direction.DOWN_LEFT)
       tuple[1] = self.selection:is_within(player_x, player_y, self.z)
     end
 
@@ -216,6 +214,22 @@ local function attempt_attack(self)
     -- find target
     local caught_players = self.selection:detect_players()
 
+    -- filter out players that we can't reach
+    for i = #caught_players, 1, -1 do
+      local player = caught_players[i]
+
+      local player_x, player_y, player_z = player:position_multi()
+
+      local x_enemy = self.instance:get_enemy_at(player_x - 1, player_y, player_z)
+      local y_enemy = self.instance:get_enemy_at(player_x, player_y - 1, player_z)
+
+      if x_enemy and x_enemy ~= self and y_enemy and y_enemy ~= self then
+        -- swap remove
+        caught_players[i] = caught_players[#caught_players]
+        caught_players[#caught_players] = nil
+      end
+    end
+
     if #caught_players == 0 then
       return false
     end
@@ -243,21 +257,29 @@ local function attempt_attack(self)
 
     -- resolve movement
     local warp_back_pos = { x = self.x, y = self.y, z = self.z }
-    local warp_back_direction = self.direction
-    local target_x, target_y = player_position.x, player_position.y
+    local target_x, target_y = math.floor(player_position.x), math.floor(player_position.y)
 
-    if math.random(2) == 1 then
+    local x_enemy = self.instance:get_enemy_at(target_x - 1, target_y, player_position.z)
+    local y_enemy = self.instance:get_enemy_at(target_x, target_y - 1, player_position.z)
+
+    if not (x_enemy and x_enemy ~= self) and ((y_enemy and y_enemy ~= self) or math.random(2) == 1) then
       target_x = target_x - 1
     else
       target_y = target_y - 1
     end
 
-    local target_direction = Direction.diagonal_from_offset(
-      player_position.x - target_x,
-      player_position.y - target_y
-    )
+    local moving = target_x ~= self.x or target_y ~= self.y
 
-    Async.await(EnemyHelpers.move(self.instance, self, target_x, target_y, player_position.z, target_direction))
+    if moving then
+      local target_direction = Direction.diagonal_from_offset(
+        player_position.x - target_x,
+        player_position.y - target_y
+      )
+
+      Async.await(EnemyHelpers.move(self.instance, self, target_x, target_y, player_position.z, target_direction))
+    else
+      EnemyHelpers.face_position(self, player_position.x, player_position.y)
+    end
 
     -- attack
     EnemyHelpers.play_attack_animation(self)
@@ -266,9 +288,26 @@ local function attempt_attack(self)
 
     Async.await(Async.sleep(.5))
 
-    -- warp back
-    Async.await(EnemyHelpers.move(self.instance, self, warp_back_pos.x, warp_back_pos.y, warp_back_pos.z,
-      warp_back_direction))
+    if moving then
+      -- warp back
+      local final_direction = Direction.diagonal_from_offset(
+        player_position.x - warp_back_pos.x,
+        player_position.y - warp_back_pos.y
+      )
+
+      Async.await(
+        EnemyHelpers.move(
+          self.instance,
+          self,
+          warp_back_pos.x,
+          warp_back_pos.y,
+          warp_back_pos.z,
+          final_direction
+        )
+      )
+    else
+      EnemyHelpers.face_position(self, player_position.x, player_position.y)
+    end
 
     self.selection:remove_indicators()
 
