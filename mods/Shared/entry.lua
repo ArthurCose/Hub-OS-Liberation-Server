@@ -131,4 +131,8 @@ function Lib.generate_ice_field()
     require("generate_ice_field")()
 end
 
+function Lib.generate_poison_field()
+    require("generate_poison_field")()
+end
+
 return Lib

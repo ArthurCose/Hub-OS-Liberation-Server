@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.10" tiledversion="1.12.1" orientation="isometric" renderorder="right-down" width="23" height="34" tilewidth="64" tileheight="32" infinite="0" nextlayerid="3" nextobjectid="150">
+ <properties>
+  <property name="Background Animation" value="/server/assets/backgrounds/ACDC.animation"/>
+  <property name="Background Texture" value="/server/assets/backgrounds/ACDC Unliberated.png"/>
+  <property name="Liberation Encounter" value="/server/mods/ShadeManViruses"/>
+  <property name="Music" value="/server/assets/music/mission.ogg"/>
+  <property name="Name" value="Oran Area3"/>
+  <property name="Short Name" value="Oran3"/>
+  <property name="Target Phase" type="int" value="27"/>
+  <property name="Victory Music" value="/server/assets/music/mission_success.ogg"/>
+ </properties>
+ <tileset firstgid="1" source="../assets/tiles/acdc3 unliberated paths.tsx"/>
+ <tileset firstgid="2" source="../assets/tiles/panel base.tsx"/>
+ <tileset firstgid="5" source="../assets/liberations/tiles/panels.tsx"/>
+ <tileset firstgid="47" source="../assets/tiles/walkable space.tsx"/>
+ <tileset firstgid="53" source="../assets/liberations/tiles/collision.tsx"/>
+ <tileset firstgid="54" source="../assets/tiles/oran3 unliberated paths.tsx"/>
+ <layer id="1" name="Tile Layer 1" width="23" height="34">
+  <data encoding="csv">
+0,0,0,0,0,0,0,51,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,4,2147483652,3,0,0,0,2147483697,0,0,0,0,0,0,0,0,0,0,
+0,0,0,2,2,3,2147483652,4,2,49,49,49,2147483697,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,4,2147483652,2147483651,0,0,0,2147483697,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,2147483652,2,2147483652,0,0,0,47,47,47,47,0,0,0,0,0,0,0,
+0,0,0,0,0,0,2147483651,4,2147483650,0,0,0,47,47,47,47,0,0,0,0,0,0,0,
+0,0,0,0,0,0,3,4,3,2147483652,0,0,47,47,47,47,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,4,3,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,4,2147483652,2147483652,2147483651,2147483652,4,2147483650,0,0,0,0,0,0,0,0,0,0,0,0,
+4,2,3,4,2,4,4,4,4,2147483652,3,3,4,2,3,0,0,3,3,2147483652,0,0,0,
+0,0,0,0,2,3,2147483651,2147483652,2,3,4,0,0,0,0,0,0,2147483651,2147483651,3,0,0,0,
+0,0,0,0,0,0,4,3,0,0,0,0,0,0,0,0,0,3,3,4,0,0,0,
+0,0,0,0,0,0,4,4,0,0,0,0,0,0,0,0,0,0,3,0,0,0,0,
+0,0,0,0,0,0,4,4,2147483652,2147483652,3,2147483652,3,3,2147483652,2,3,4,2,0,0,0,0,
+0,0,0,0,0,0,4,2,3,4,2,3,4,3,2147483651,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,2147483652,2147483652,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,4,2147483650,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,2147483651,2147483651,4,4,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,3,2,3,2,2147483652,2147483650,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,2147483650,4,2147483652,3,2147483651,2147483652,2147483652,3,4,2,3,4,2,
+0,0,0,0,0,0,4,4,3,4,2,3,2147483652,2147483651,2147483652,2147483651,3,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,3,4,2147483652,2,4,2147483652,2,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,2147483652,4,2147483652,4,2147483652,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,2147483652,2147483652,4,2147483652,3,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,4,2147483652,2147483652,4,4,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,4,3,4,3,4,2147483652,2,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,2147483651,3,3,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,4,2147483652,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,2147483652,2147483650,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,4,4,4,3,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,4,2147483650,3,4,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,2147483697,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,3221225523,0,0,0,0,0,0,0,0,0,0
+</data>
+ </layer>
+ <objectgroup id="2" name="Object Layer 1">
+  <object id="13" type="Dark Panel" gid="5" x="448" y="704" width="50" height="30"/>
+  <object id="15" type="Dark Panel" gid="5" x="416" y="736" width="50" height="30"/>
+  <object id="16" type="Dark Panel" gid="5" x="480" y="800" width="50" height="30"/>
+  <object id="18" type="Dark Panel" gid="5" x="416" y="768" width="50" height="30"/>
+  <object id="19" type="Dark Panel" gid="5" x="384" y="736" width="50" height="30"/>
+  <object id="20" type="Dark Panel" gid="5" x="480" y="768" width="50" height="30"/>
+  <object id="21" type="Dark Panel" gid="5" x="448" y="768" width="50" height="30"/>
+  <object id="22" type="Item Panel" gid="6" x="448" y="736" width="50" height="30"/>
+  <object id="23" type="Item Panel" gid="6" x="288" y="672" width="50" height="30"/>
+  <object id="24" type="Dark Panel" gid="5" x="384" y="800" width="50" height="30"/>
+  <object id="25" type="Dark Panel" gid="5" x="352" y="928" width="50" height="30"/>
+  <object id="26" type="Dark Panel" gid="5" x="352" y="768" width="50" height="30"/>
+  <object id="27" type="Dark Panel" gid="5" x="320" y="704" width="50" height="30"/>
+  <object id="28" type="Item Panel" gid="6" x="416" y="544" width="50" height="30"/>
+  <object id="29" type="Dark Panel" gid="5" x="320" y="672" width="50" height="30"/>
+  <object id="30" type="Dark Panel" gid="5" x="320" y="640" width="50" height="30"/>
+  <object id="31" type="Item Panel" gid="6" x="416" y="864" width="50" height="30"/>
+  <object id="33" type="Item Panel" gid="6" x="704" y="640" width="50" height="30"/>
+  <object id="34" type="Dark Panel" gid="5" x="352" y="704" width="50" height="30"/>
+  <object id="35" type="Dark Panel" gid="5" x="352" y="672" width="50" height="30"/>
+  <object id="36" type="Dark Panel" gid="5" x="352" y="736" width="50" height="30"/>
+  <object id="37" type="Item Panel" gid="6" x="192" y="160" width="50" height="30"/>
+  <object id="38" type="Dark Panel" gid="5" x="512" y="704" width="50" height="30"/>
+  <object id="39" type="Dark Panel" gid="5" x="384" y="672" width="50" height="30"/>
+  <object id="40" type="Dark Panel" gid="5" x="448" y="672" width="50" height="30"/>
+  <object id="41" type="Dark Panel" gid="5" x="384" y="640" width="50" height="30"/>
+  <object id="42" type="Dark Panel" gid="5" x="512" y="672" width="50" height="30"/>
+  <object id="43" type="Dark Hole" gid="7" x="416" y="608" width="50" height="30">
+   <properties>
+    <property name="Direction" value="Down Left"/>
+    <property name="Encounter" value="/server/mods/BigBrute"/>
+    <property name="Next Turn" type="object" value="147"/>
+    <property name="Spawns" value="BigBrute"/>
+   </properties>
+  </object>
+  <object id="44" type="Dark Panel" gid="5" x="416" y="640" width="50" height="30"/>
+  <object id="45" type="Item Panel" gid="6" x="384" y="320" width="50" height="30"/>
+  <object id="47" type="Dark Panel" gid="5" x="448" y="640" width="50" height="30"/>
+  <object id="48" type="Dark Panel" gid="5" x="480" y="608" width="50" height="30"/>
+  <object id="49" type="Dark Panel" gid="5" x="512" y="640" width="50" height="30"/>
+  <object id="50" type="Dark Panel" gid="5" x="448" y="608" width="50" height="30"/>
+  <object id="51" type="Dark Panel" gid="5" x="224" y="64" width="50" height="30">
+   <properties>
+    <property name="Boss" value="ShadeMan"/>
+    <property name="Direction" value="Down Left"/>
+    <property name="Encounter" value="/server/mods/ShadeMan"/>
+    <property name="Next Turn" type="object" value="85"/>
+    <property name="Rank" value="Omega"/>
+   </properties>
+  </object>
+  <object id="57" name="Spawn Point" x="392" y="976">
+   <properties>
+    <property name="Direction" value="Up Right"/>
+    <property name="Next Point" type="object" value="86"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="72" type="Bonus Panel" gid="9" x="0" y="320" width="50" height="30"/>
+  <object id="73" type="Indestructible Panel" gid="8" x="256" y="32" width="50" height="30"/>
+  <object id="74" type="Indestructible Panel" gid="8" x="256" y="64" width="50" height="30"/>
+  <object id="75" type="Indestructible Panel" gid="8" x="256" y="96" width="50" height="30"/>
+  <object id="76" type="Indestructible Panel" gid="8" x="224" y="96" width="50" height="30"/>
+  <object id="77" type="Indestructible Panel" gid="8" x="192" y="96" width="50" height="30"/>
+  <object id="78" type="Indestructible Panel" gid="8" x="192" y="64" width="50" height="30"/>
+  <object id="79" type="Indestructible Panel" gid="8" x="224" y="32" width="50" height="30"/>
+  <object id="81" type="Indestructible Panel" gid="8" x="192" y="32" width="50" height="30"/>
+  <object id="82" type="Bonus Panel" gid="9" x="480" y="704" width="50" height="30"/>
+  <object id="85" type="Dark Hole" gid="7" x="160" y="320" width="50" height="30">
+   <properties>
+    <property name="Direction" value="Down Left"/>
+    <property name="Encounter" value="/server/mods/BigBrute"/>
+    <property name="Next Turn" type="object" value="114"/>
+    <property name="Position" type="object" value="149"/>
+    <property name="Spawns" value="BigBrute"/>
+   </properties>
+  </object>
+  <object id="86" x="384" y="1008">
+   <properties>
+    <property name="Direction" value="Up Right"/>
+    <property name="Next Point" type="object" value="87"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="87" x="416" y="1008">
+   <properties>
+    <property name="Direction" value="Up Right"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="92" name="Abandon Point" x="400" y="1072">
+   <point/>
+  </object>
+  <object id="93" gid="54" x="-320" y="448" width="1165" height="731"/>
+  <object id="95" type="Dark Panel" gid="5" x="384" y="896" width="50" height="30"/>
+  <object id="96" type="Dark Panel" gid="5" x="352" y="864" width="50" height="30"/>
+  <object id="97" type="Dark Panel" gid="5" x="384" y="864" width="50" height="30"/>
+  <object id="98" type="Dark Panel" gid="5" x="384" y="832" width="50" height="30"/>
+  <object id="101" type="Dark Panel" gid="5" x="384" y="608" width="50" height="30"/>
+  <object id="102" type="Dark Panel" gid="5" x="384" y="576" width="50" height="30"/>
+  <object id="103" type="Dark Panel" gid="5" x="416" y="576" width="50" height="30"/>
+  <object id="104" type="Dark Panel" gid="5" x="448" y="576" width="50" height="30"/>
+  <object id="105" type="Dark Panel" gid="5" x="256" y="480" width="50" height="30"/>
+  <object id="106" type="Dark Panel" gid="5" x="448" y="544" width="50" height="30"/>
+  <object id="107" type="Dark Panel" gid="5" x="384" y="448" width="50" height="30"/>
+  <object id="108" type="Dark Panel" gid="5" x="352" y="480" width="50" height="30"/>
+  <object id="109" type="Dark Panel" gid="5" x="288" y="448" width="50" height="30"/>
+  <object id="110" type="Dark Panel" gid="5" x="672" y="640" width="50" height="30"/>
+  <object id="113" type="Item Panel" gid="6" x="320" y="480" width="50" height="30"/>
+  <object id="114" type="Dark Hole" gid="7" x="288" y="320" width="50" height="30">
+   <properties>
+    <property name="Direction" value="Down Left"/>
+    <property name="Encounter" value="/server/mods/TinHawk"/>
+    <property name="Next Turn" type="object" value="43"/>
+    <property name="Position" type="object" value="148"/>
+    <property name="Spawns" value="TinHawk"/>
+   </properties>
+  </object>
+  <object id="115" type="Dark Panel" gid="5" x="256" y="352" width="50" height="30"/>
+  <object id="116" type="Dark Panel" gid="5" x="288" y="352" width="50" height="30"/>
+  <object id="117" type="Dark Panel" gid="5" x="320" y="352" width="50" height="30"/>
+  <object id="118" type="Dark Panel" gid="5" x="160" y="352" width="50" height="30"/>
+  <object id="119" type="Dark Panel" gid="5" x="192" y="352" width="50" height="30"/>
+  <object id="120" type="Dark Panel" gid="5" x="224" y="352" width="50" height="30"/>
+  <object id="121" type="Dark Panel" gid="5" x="192" y="320" width="50" height="30"/>
+  <object id="122" type="Dark Panel" gid="5" x="224" y="320" width="50" height="30"/>
+  <object id="123" type="Dark Panel" gid="5" x="256" y="320" width="50" height="30"/>
+  <object id="124" type="Dark Panel" gid="5" x="256" y="288" width="50" height="30"/>
+  <object id="125" type="Dark Panel" gid="5" x="288" y="288" width="50" height="30"/>
+  <object id="126" type="Dark Panel" gid="5" x="320" y="288" width="50" height="30"/>
+  <object id="127" type="Dark Panel" gid="5" x="160" y="288" width="50" height="30"/>
+  <object id="128" type="Dark Panel" gid="5" x="192" y="288" width="50" height="30"/>
+  <object id="129" type="Dark Panel" gid="5" x="224" y="288" width="50" height="30"/>
+  <object id="130" type="Dark Panel" gid="5" x="128" y="288" width="50" height="30"/>
+  <object id="131" type="Dark Panel" gid="5" x="320" y="320" width="50" height="30"/>
+  <object id="132" type="Dark Panel" gid="5" x="128" y="352" width="50" height="30"/>
+  <object id="133" type="Dark Panel" gid="5" x="352" y="320" width="50" height="30"/>
+  <object id="134" type="Dark Panel" gid="5" x="256" y="224" width="50" height="30"/>
+  <object id="135" type="Dark Panel" gid="5" x="288" y="224" width="50" height="30"/>
+  <object id="136" type="Dark Panel" gid="5" x="224" y="160" width="50" height="30"/>
+  <object id="137" type="Dark Panel" gid="5" x="192" y="192" width="50" height="30"/>
+  <object id="138" type="Dark Panel" gid="5" x="256" y="160" width="50" height="30"/>
+  <object id="139" type="Dark Panel" gid="5" x="544" y="448" width="50" height="30"/>
+  <object id="141" type="Dark Panel" gid="5" x="192" y="384" width="50" height="30"/>
+  <object id="142" type="Dark Panel" gid="5" x="224" y="384" width="50" height="30"/>
+  <object id="143" type="Bonus Panel" gid="9" x="576" y="352" width="50" height="30"/>
+  <object id="146" type="Dark Panel" gid="5" x="384" y="704" width="50" height="30"/>
+  <object id="147" type="Guardian" x="368" y="720">
+   <properties>
+    <property name="Direction" value="Down Left"/>
+    <property name="Encounter" value="/server/mods/TinHawk"/>
+    <property name="Spawns" value="TinHawk"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="148" x="272" y="336">
+   <point/>
+  </object>
+  <object id="149" x="208" y="368">
+   <point/>
+  </object>
+ </objectgroup>
+</map>

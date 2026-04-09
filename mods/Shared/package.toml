@@ -4,4 +4,7 @@ id = "dev.konstinople.LiberationServer.Shared"
 name = "Default Liberation"
 
 [dependencies]
-tile_states = ["BattleNetwork6.TileStates.Ice"]
+tile_states = [
+  "BattleNetwork6.TileStates.Ice",
+  "BattleNetwork6.TileStates.Poison"
+]

@@ -1,0 +1,24 @@
+[package]
+category = "encounter"
+id = "dev.konstinople.LiberationServer.BlizzardManViruses"
+name = "Default Liberation"
+
+[dependencies]
+encounters = [
+  "BattleNetwork5.Batty",
+  "BattleNetwork6.Mettaur",
+  "BattleNetwork5.Cactikil",
+  "BattleNetwork5.Bugtank",
+  "BattleNetwork5.Drixol",
+]
+characters = [
+  "BattleNetwork5.Batty.Enemy",
+  "BattleNetwork6.Mettaur.Enemy",
+  "BattleNetwork5.Cacter.Enemy",
+  "BattleNetwork5.Bugtank.Enemy",
+  "BattleNetwork5.Drixa.Enemy"
+]
+libraries = [
+  "dev.konstinople.library.liberation",
+  "dev.konstinople.LiberationServer.Shared"
+]

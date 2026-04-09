@@ -3,12 +3,17 @@ local ModDownloader = require("scripts/libs/mod_downloader")
 local package_ids = {
   -- bosses
   "BattleNetwork5.BlizzardMan",
+  "BattleNetwork5.ShadeMan",
   "BattleNetwork5.Virus.BigBrute",
+  "BattleNetwork5.TinHawk",
   -- viruses
   "BattleNetwork6.Swordy",
   "BattleNetwork6.Mettaur",
   "BattleNetwork5.Cactikil",
   "BattleNetwork3.Virus.Boomer",
+  "BattleNetwork5.Batty",
+  "BattleNetwork5.Bugtank",
+  "BattleNetwork5.Drixol",
   -- "BattleNetwork5.Powie",
   -- libraries
   "BattleNetwork.Assets",
@@ -17,6 +22,8 @@ local package_ids = {
   "dev.konstinople.library.iterator",
   "dev.konstinople.library.turn_based",
   "BattleNetwork6.TileStates.Ice",
+  "BattleNetwork6.TileStates.Poison",
+  "BattleNetwork6.Statuses.Uninstall",
   -- minimal libraries necessary for liberations:
   "dev.konstinople.library.liberation",
   "BattleNetwork6.Statuses.Invincible",

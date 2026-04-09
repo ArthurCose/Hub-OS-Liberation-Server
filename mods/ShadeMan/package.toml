@@ -1,0 +1,12 @@
+[package]
+category = "encounter"
+id = "dev.konstinople.LiberationServer.ShadeMan"
+name = "ShadeMan"
+
+[dependencies]
+encounters = ["BattleNetwork5.ShadeMan"]
+characters = ["BattleNetwork5.ShadeMan.Enemy"]
+libraries = [
+  "dev.konstinople.library.liberation",
+  "dev.konstinople.LiberationServer.Shared"
+]

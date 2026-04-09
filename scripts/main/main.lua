@@ -12,9 +12,15 @@ local PartiesMenu = require("scripts/libs/parties_menu")
 local PlayerData = require("scripts/main/player_data")
 local randomize_mission = require("scripts/main/randomize_mission")
 
-local waiting_area = "default"
-local door = Net.get_object_by_name(waiting_area, "Door")
-local return_point = Net.get_object_by_name(waiting_area, "Return Point")
+local MISSION_BOARD_COLOR = { r = 168, g = 128, b = 200 }
+local MISSION_AREAS = {
+  "acdc3",
+  "oran_area_3",
+}
+
+local LOBBY_AREA = "default"
+local door = Net.get_object_by_name(LOBBY_AREA, "Door")
+local return_point = Net.get_object_by_name(LOBBY_AREA, "Return Point")
 local active_missions = 0
 
 --- for players to return to when reconnecting
@@ -26,7 +32,7 @@ local players_in_mission = {}
 local function transfer_to_lobby(player_id, warp_out)
   Net.transfer_player(
     player_id,
-    waiting_area,
+    LOBBY_AREA,
     warp_out,
     return_point.x,
     return_point.y,
@@ -45,7 +51,7 @@ local function transfer_players_to_new_instance(base_area, player_ids)
   local area_id = instancer:clone_area_to_instance(instance_id, base_area) --[[@as string]]
 
   -- randomize before loading
-  randomize_mission(area_id)
+  randomize_mission(base_area, area_id)
 
   local mission = Mission:new(area_id)
 
@@ -68,6 +74,9 @@ local function transfer_players_to_new_instance(base_area, player_ids)
       goto continue
     end
 
+    -- kick players out of the party list or mission menu if that's open
+    Net.close_board(player_id)
+
     -- resolve ability from items
     local ability = Ability.LongSwrd
 
@@ -87,7 +96,7 @@ local function transfer_players_to_new_instance(base_area, player_ids)
     -- update status
     local short_name = Net.get_area_custom_property(area_id, "Short Name")
 
-    if not short_name then
+    if short_name == "" then
       warn(Net.get_area_name(area_id) .. " is missing a short name!")
     end
 
@@ -122,10 +131,15 @@ local function transfer_players_to_new_instance(base_area, player_ids)
     Net.unlock_player_equipment(player_id)
 
     if event.reason == "success" then
-      -- reward 5z winning
+      ---@param data LiberationServer.PlayerSaveData
       PlayerData.fetch(player_id).and_then(function(data)
+        -- mark as completed
+        data.hidden_inventory["completed:" .. base_area] = 1
+
+        -- reward 5z for winning
         data.money = data.money + 5
         Net.set_player_money(player_id, data.money)
+
         data:save(player_id)
       end)
     end
@@ -181,20 +195,66 @@ local function transfer_players_to_new_instance(base_area, player_ids)
   end)
 end
 
-local function start_game_for_player(map, player_id)
-  local members = Parties.list_online_members(player_id)
-  transfer_players_to_new_instance(map, members)
+local function pad_left(s, n)
+  return (" "):rep(math.max(n - #s, 0)) .. s
+end
+
+local function estimate_mins_from_target(target)
+  -- we're guessing each player will spend 45s per turn
+  return math.ceil(target * 45 / 60)
 end
 
 local function detect_door_interaction(player_id, object_id, button)
   if button ~= 0 then return end
   if object_id ~= door.id then return end
 
-  local textbox_options = { mug = Net.get_player_mugshot(player_id) }
+  Async.create_scope(function()
+    ---@type LiberationServer.PlayerSaveData
+    local data = Async.await(PlayerData.fetch(player_id))
 
-  Async.question_player(player_id, "Start mission?", textbox_options).and_then(function(response)
-    if response == 1 then
-      start_game_for_player("acdc3", player_id)
+    ---@type Net.BoardPost[]
+    local posts = {}
+
+    local party_size = #Parties.list_online_members(player_id)
+
+    for _, area_id in ipairs(MISSION_AREAS) do
+      local solo_target = tonumber(Net.get_area_custom_property(area_id, "Target Phase"))
+
+      ---@type number|string
+      local estimated_time
+
+      if party_size > 1 then
+        -- we're guessing playing as a party will be at best 30% faster from bottlenecked design
+        estimated_time = estimate_mins_from_target(solo_target * 0.7) .. "-" .. estimate_mins_from_target(solo_target)
+      else
+        estimated_time = estimate_mins_from_target(solo_target)
+      end
+
+      posts[#posts + 1] = {
+        id = area_id,
+        title = Net.get_area_name(area_id),
+        author = pad_left("~" .. estimated_time .. "m", 7),
+        read = data.hidden_inventory["completed:" .. area_id] == 1
+      }
+    end
+
+    local emitter = Net.open_board(player_id, "Missions", MISSION_BOARD_COLOR, posts)
+
+    for event in Async.await(emitter:async_iter("post_selection")) do
+      local textbox_options = { mug = Net.get_player_mugshot(player_id) }
+      local response = Async.await(
+        Async.question_player(player_id, "Start mission?", textbox_options)
+      )
+
+      if response ~= 1 then
+        goto continue
+      end
+
+      local area_id = event.post_id
+      local members = Parties.list_online_members(player_id)
+      transfer_players_to_new_instance(area_id, members)
+
+      ::continue::
     end
   end)
 end
@@ -206,7 +266,7 @@ Net:on("tile_interaction", function(event)
   local player_id = event.player_id
   local area_id = Net.get_player_area(event.player_id)
 
-  if area_id ~= waiting_area or event.button ~= 0 then
+  if area_id ~= LOBBY_AREA or event.button ~= 0 then
     return
   end
 
@@ -227,7 +287,7 @@ Net:on("object_interaction", function(event)
   local player_id = event.player_id
   local area_id = Net.get_player_area(player_id)
 
-  if area_id == waiting_area then
+  if area_id == LOBBY_AREA then
     detect_door_interaction(player_id, event.object_id, event.button)
   end
 end)
@@ -237,7 +297,7 @@ Net:on("actor_interaction", function(event)
   local other_player_id = event.actor_id
   local area_id = Net.get_player_area(player_id)
 
-  if area_id ~= waiting_area or event.button ~= 0 then return end
+  if area_id ~= LOBBY_AREA or event.button ~= 0 then return end
 
   if Net.is_bot(other_player_id) then return end
 
