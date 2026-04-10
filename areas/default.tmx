@@ -64,7 +64,6 @@
   <object id="17" type="Server Warp" gid="15" x="352" y="352" width="64" height="32">
    <properties>
     <property name="Address" value="servers.hubos.dev"/>
-    <property name="Port" type="int" value="8765"/>
    </properties>
   </object>
   <object id="22" name="Penguin Spawn" x="502" y="369">
