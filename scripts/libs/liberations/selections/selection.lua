@@ -50,6 +50,9 @@ function Selection:set_indicator(indicator)
 end
 
 -- shape = [m][n] bool array, n being odd, just below bottom center is actor position
+---@param shape number[][]
+---@param shape_offset_x? number
+---@param shape_offset_y? number
 function Selection:set_shape(shape, shape_offset_x, shape_offset_y)
   self.shape = shape
   self.shape_offset_x = shape_offset_x or 0
@@ -106,6 +109,9 @@ local function clone_shape(shape)
   return clone
 end
 
+---@param shape number[][]
+---@param shape_offset_x number
+---@param shape_offset_y number
 function Selection:merge_shape(shape, shape_offset_x, shape_offset_y)
   if shape_offset_x ~= 0 then
     warn("Selection:merge_shape() does not support shape_offset_x yet")

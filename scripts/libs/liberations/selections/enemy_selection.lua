@@ -36,7 +36,9 @@ function EnemySelection:new(instance)
   return enemy_selection
 end
 
--- shape = [m][n] bool array, n being odd, just below bottom center is enemy position
+---@param shape number[][] [m][n] bool array, n being odd, just below bottom center is the enemy position
+---@param shape_offset_x number
+---@param shape_offset_y number
 function EnemySelection:set_shape(shape, shape_offset_x, shape_offset_y)
   self.selection:set_shape(shape, shape_offset_x, shape_offset_y)
 end

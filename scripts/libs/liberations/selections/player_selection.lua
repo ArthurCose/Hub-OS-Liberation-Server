@@ -76,14 +76,18 @@ function PlayerSelection:select_panel(panel_object)
   self.selection:indicate()
 end
 
--- shape = [m][n] bool array, n being odd, just below bottom center is player position
+---@param shape number[][] [m][n] bool array, n being odd, just below bottom center is player position
+---@param shape_offset_x? number
+---@param shape_offset_y? number
 function PlayerSelection:set_shape(shape, shape_offset_x, shape_offset_y)
   self.selection:set_shape(shape, shape_offset_x, shape_offset_y)
   self.selection:remove_indicators()
   self.selection:indicate()
 end
 
--- shape = [m][n] bool array, n being odd, just below bottom center is player position
+---@param shape number[][] [m][n] bool array, n being odd, just below bottom center is player position
+---@param shape_offset_x number
+---@param shape_offset_y number
 function PlayerSelection:merge_shape(shape, shape_offset_x, shape_offset_y)
   self.selection:merge_shape(shape, shape_offset_x, shape_offset_y)
   self.selection:remove_indicators()

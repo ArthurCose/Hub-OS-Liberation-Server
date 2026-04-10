@@ -85,7 +85,7 @@ end
 ---@field shadow_step? boolean
 ---@field remove_traps? boolean
 ---@field destroy_items? boolean
----@field generate_shape fun(instance: Liberation.MissionInstance, player: Liberation.Player): boolean[][], number, number
+---@field generate_shape fun(instance: Liberation.MissionInstance, player: Liberation.Player): number[][], number, number
 ---@field activate fun(instance: Liberation.MissionInstance, player: Liberation.Player)
 
 local Ability = {
