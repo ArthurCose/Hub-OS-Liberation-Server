@@ -29,6 +29,7 @@ local function send_register(address)
   local response = "index_register:name=" .. Net.encode_uri_component(NAME) ..
       "&message=" .. Net.encode_uri_component(MESSAGE) ..
       "&address=" .. Net.encode_uri_component(WARP_ADDRESS) ..
+      "&protocol=" .. Net.protocol_version() ..
       "&data=" .. Net.encode_uri_component(WARP_DATA)
 
   Async.message_server(address, response)
