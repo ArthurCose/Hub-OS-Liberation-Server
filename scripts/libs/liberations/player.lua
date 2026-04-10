@@ -273,8 +273,22 @@ function Player:resolve_terrain()
   return "advantage"
 end
 
+---@class Liberation.InitiateEncounterData
+---@field health number? HP for a synced enemy
+---@field rank string? Rank for a synced enemy
+
+---@param encounter_path string
+---@param data Liberation.InitiateEncounterData
 ---@return Net.Promise<Liberation.BattleResults>, Net.EventEmitter
 function Player:initiate_encounter(encounter_path, data)
+  -- erase type so we can add more properties
+  ---@type table
+  local data = data
+
+  data.terrain = self:resolve_terrain()
+  data.spectators = {}
+  data.start_invincible = self.invincible
+
   -- rally teammates
   local x, y, z = self:position_multi()
   x, y, z = math.floor(x), math.floor(y), math.floor(z)

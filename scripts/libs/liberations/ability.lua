@@ -44,22 +44,10 @@ end
 
 ---@param instance Liberation.MissionInstance
 ---@param player Liberation.Player
-local function initiate_encounter(instance, player)
-  local data = {
-    terrain = player:resolve_terrain(),
-    start_invincible = player.invincible,
-    spectators = {}
-  }
-
+local function battle_to_liberate_and_loot(instance, player)
   local encounter_path = instance.default_encounter
 
-  return player:initiate_encounter(encounter_path, data)
-end
-
----@param instance Liberation.MissionInstance
----@param player Liberation.Player
-local function battle_to_liberate_and_loot(instance, player)
-  initiate_encounter(instance, player).and_then(function(battle_results)
+  player:initiate_encounter(encounter_path, {}).and_then(function(battle_results)
     if battle_results.connection_failed then
       -- avoid ending this player's turn to allow them to retry
       player:unlock_movement()

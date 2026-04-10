@@ -175,11 +175,7 @@ local function liberate_panel(self, player)
       end
 
       local encounter_path = panel.custom_properties["Encounter"] or self.default_encounter
-      local data = {
-        terrain = player:resolve_terrain(),
-        start_invincible = player.invincible,
-        spectators = {}
-      }
+      local data = {}
 
       -- Obtain enemy
       local enemy = self:get_enemy_at(panel.x, panel.y, panel.z)
