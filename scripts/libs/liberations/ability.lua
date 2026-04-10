@@ -88,103 +88,75 @@ end
 ---@field generate_shape fun(instance: Liberation.MissionInstance, player: Liberation.Player): number[][], number, number
 ---@field activate fun(instance: Liberation.MissionInstance, player: Liberation.Player)
 
+---@type table<string, Liberation.Ability>
 local Ability = {
-  -- passive, knightman's ability:
-  Guard = { name = "Guard" },
-  -- passive, Shadowman's ability:
-  ShadowStep = {
-    name = "ShadowStep",
-    shadow_step = true
-  },
-  LongSwrd = {
-    name = "LongSwrd",
-    question = "Use LongSwrd?",
-    cost = 1,
-    generate_shape = static_shape_generator(0, 0, {
-      { 1 },
-      { 1 }
-    }),
-    activate = battle_to_liberate_and_loot
-  },
-  WideSwrd = {
-    name = "WideSwrd",
-    question = "Use WideSwrd?",
-    cost = 1,
-    generate_shape = static_shape_generator(0, 0, {
-      { 1, 1, 1 },
-    }),
-    activate = battle_to_liberate_and_loot
-  },
-  GutsWave = {
-    name = "GutsWave",
-    question = "Destroy with GutsWave?",
-    cost = 2,
-    destroy_items = true,
-    generate_shape = static_shape_generator(0, 0, {
-      { 1 },
-      { 1 },
-      { 1 },
-      { 1 },
-      { 1 }
-    }),
-    activate = liberate_and_loot
-  },
-  ScrenDiv = {
-    name = "ScrenDiv",
-    question = "Use ScrenDiv to liberate?",
-    cost = 3,
-    generate_shape = static_shape_generator(0, 0, {
-      { 1, 0, 1 },
-      { 0, 1, 0 },
-      { 1, 0, 1 }
-    }),
-    activate = battle_to_liberate_and_loot
-  },
-  PanelSearch = {
-    name = "PanelSearch",
-    question = "Search in this area?",
-    cost = 1,
-    remove_traps = true,
-    -- todo: this should stretch to select all item panels in a line with dark panels between?
-    generate_shape = static_shape_generator(0, 0, {
-      { 0, 1, 0 },
-      { 0, 1, 0 },
-      { 1, 1, 1 },
-      { 0, 1, 0 },
-    }),
-    activate = panel_search
-  },
-  NumberSearch = {
-    name = "NumberSearch",
-    question = "Remove traps & get items?",
-    cost = 1,
-    remove_traps = true,
-    generate_shape = static_shape_generator(0, 0, {
-      { 1, 1, 1 },
-      { 1, 1, 1 },
-    }),
-    activate = panel_search
-  },
-  -- Extra
-  HexSickle = {
-    name = "HexSickle",
-    question = "Should I cut panels with HexSickle?",
-    cost = 1,
-    remove_traps = true,
-    generate_shape = static_shape_generator(0, 1, {
-      { 1, 1, 1 }
-    }),
-    activate = battle_to_liberate_and_loot
-  },
+  ---@type Liberation.Ability[]
+  ALL = {}
 }
 
-local ALL = {}
-
-for _, ability in pairs(Ability) do
-  ALL[#ALL + 1] = ability
+---@type fun(ability: Liberation.Ability)
+Ability.register = function(ability)
+  Ability.ALL[#Ability.ALL + 1] = ability
+  Ability[ability.name] = ability
 end
 
----@type Liberation.Ability[]
-Ability.ALL = ALL
+-- passive, knightman's ability
+Ability.register({
+  name = "Guard"
+})
+
+Ability.register({
+  name = "ShadowStep",
+  shadow_step = true
+})
+
+Ability.register({
+  name = "LongSwrd",
+  question = "Use LongSwrd?",
+  cost = 1,
+  generate_shape = static_shape_generator(0, 0, {
+    { 1 },
+    { 1 }
+  }),
+  activate = battle_to_liberate_and_loot
+})
+
+Ability.register({
+  name = "WideSwrd",
+  question = "Use WideSwrd?",
+  cost = 1,
+  generate_shape = static_shape_generator(0, 0, {
+    { 1, 1, 1 },
+  }),
+  activate = battle_to_liberate_and_loot
+})
+
+Ability.register({
+  name = "PanelSearch",
+  question = "Search in this area?",
+  cost = 1,
+  remove_traps = true,
+  -- todo: this should stretch to select all item panels in a line with dark panels between?
+  generate_shape = static_shape_generator(0, 0, {
+    { 1 },
+    { 1 },
+    { 1 },
+    { 1 },
+    { 1 },
+  }),
+  activate = panel_search
+})
+
+Ability.register({
+  name = "NumberSearch",
+  question = "Remove traps & get items?",
+  cost = 1,
+  remove_traps = true,
+  generate_shape = static_shape_generator(0, 0, {
+    { 1, 1, 1 },
+    { 1, 1, 1 },
+  }),
+  activate = panel_search
+})
 
 return Ability
