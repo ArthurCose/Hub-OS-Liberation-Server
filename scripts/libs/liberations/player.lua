@@ -243,7 +243,8 @@ local corner_offsets = {
   { -1, 1 },
 }
 
-function Player:resolve_terrain()
+---Resolves the terrain without accounting for selection
+function Player:resolve_surrounding_terrain()
   local function has_dark_panel(x, y, z)
     local panel = self.instance:get_panel_at(x, y, z)
 
@@ -271,6 +272,23 @@ function Player:resolve_terrain()
   end
 
   return "advantage"
+end
+
+local TERRAIN_BOOST = {
+  advantage = "even",
+  even = "disadvantage",
+  disadvantage = "surrounded",
+  surrounded = "surrounded",
+}
+
+function Player:resolve_terrain()
+  local terrain = self:resolve_surrounding_terrain()
+
+  if #self.selection:get_panels() > 1 then
+    terrain = TERRAIN_BOOST[terrain]
+  end
+
+  return terrain
 end
 
 ---@class Liberation.InitiateEncounterData
