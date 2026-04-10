@@ -113,22 +113,23 @@ function ShadeMan:take_turn()
       return
     end
 
-    ---@type Liberation.Player?
-    local player
-    local closest_distance = 28
+    local possible_targets = {}
 
     -- filter out players that we can't reach
-    for _, possible_target in ipairs(self.instance.players) do
-      if possible_target.health <= 0 then
+    for _, player in ipairs(self.instance.players) do
+      if player.health <= 0 then
         goto continue
       end
 
-      local player_x, player_y, player_z = possible_target:position_multi()
+      local player_x, player_y, player_z = player:position_multi()
 
-      -- chebyshev distance
-      local distance = EnemyHelpers.chebyshev_tile_distance(self, player_x, player_y, player_z)
-
-      if distance >= closest_distance then
+      if
+          not self.instance:get_panel_at(player_x - 1, player_y, player_z) and
+          not self.instance:get_panel_at(player_x + 1, player_y, player_z) and
+          not self.instance:get_panel_at(player_x, player_y - 1, player_z) and
+          not self.instance:get_panel_at(player_x, player_y + 1, player_z)
+      then
+        -- no dark panels nearby
         goto continue
       end
 
@@ -136,17 +137,20 @@ function ShadeMan:take_turn()
       local y_enemy = self.instance:get_enemy_at(player_x, player_y - 1, player_z)
 
       if x_enemy and x_enemy ~= self and y_enemy and y_enemy ~= self then
+        -- enemy in the way
         goto continue
       end
 
-      player = possible_target
+      possible_targets[#possible_targets + 1] = player
 
       ::continue::
     end
 
-    if not player then
+    if #possible_targets == 0 then
       return
     end
+
+    local player = possible_targets[math.random(#possible_targets)]
 
     local player_position = player:position()
 
