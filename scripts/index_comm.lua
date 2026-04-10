@@ -1,10 +1,13 @@
 --- Custom Data:
 
-local NAME =
-"ACDC2"                                      -- This server's name (currently unused, but may be used in the future)
-local MESSAGE = "Liberation Missions - WIP"  -- Dialog for the ampstr
-local WARP_ADDRESS = "hubos.konstinople.dev" -- What address should the warp link to (port is ignored)
-local WARP_DATA = "index"                    -- What data should the warp from the index contain
+-- This server's name (currently unused, but may be used in the future)
+local NAME = "ACDC2"
+-- Dialog for the ampstr
+local MESSAGE = "Liberation Missions - WIP"
+-- The address the warp links to, only include the port if it's not the default port
+local WARP_ADDRESS = "hubos.konstinople.dev:5555"
+-- Data included in the player_request event
+local WARP_DATA = "index"
 
 --- Script (do not modify):
 
