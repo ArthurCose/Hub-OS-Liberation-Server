@@ -149,7 +149,7 @@ end
 local function liberate_panel(self, player)
   return Async.create_scope(function()
     local selection = player.selection
-    local panel = selection.root_panel
+    local panel = selection:root_panel()
 
     if panel.type == PanelType.BONUS then
       if panel.custom_properties["Message"] ~= nil then
@@ -929,7 +929,7 @@ function MissionInstance:handle_tile_interaction(player_id, x, y, z, button)
 
   if panel then
     for _, p in ipairs(self.players) do
-      if p.selection.root_panel == panel then
+      if p.selection:root_panel() == panel then
         panel_already_selected = true
         break
       end

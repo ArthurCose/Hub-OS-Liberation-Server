@@ -1,3 +1,6 @@
+local PanelType = require("scripts/libs/liberations/panel_type")
+local Direction = require("scripts/libs/direction")
+
 local function static_shape_generator(offset_x, offset_y, shape)
   return function()
     return shape, offset_x, offset_y
@@ -136,14 +139,47 @@ Ability.register({
   question = "Search in this area?",
   cost = 1,
   remove_traps = true,
-  -- todo: this should stretch to select all item panels in a line with dark panels between?
-  generate_shape = static_shape_generator(0, 0, {
-    { 1 },
-    { 1 },
-    { 1 },
-    { 1 },
-    { 1 },
-  }),
+  generate_shape = function(instance, player)
+    local shape = {}
+
+    local root_panel = player.selection:root_panel()
+    local player_x, player_y = player:position_multi()
+
+    local direction = Direction.diagonal_from_offset(
+      root_panel.x - math.floor(player_x),
+      root_panel.y - math.floor(player_y)
+    )
+
+    local x_step, y_step = Direction.vector_multi(direction)
+
+    if x_step == 0 and y_step == 0 then
+      warn("Failed to resolve direction for PanelSearch")
+      return shape, 0, 0
+    end
+
+    local x = root_panel.x
+    local y = root_panel.y
+    local z = root_panel.z
+
+    while true do
+      local panel = instance:get_panel_at(x, y, z)
+
+      if not panel or panel.type == PanelType.DARK_HOLE then
+        break
+      end
+
+      if instance:get_enemy_at(x, y, z) then
+        break
+      end
+
+      shape[#shape + 1] = { 1 }
+
+      x = x + x_step
+      y = y + y_step
+    end
+
+    return shape, 0, 0
+  end,
   activate = panel_search
 })
 

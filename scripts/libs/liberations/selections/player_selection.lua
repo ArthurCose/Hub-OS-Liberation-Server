@@ -17,6 +17,7 @@ end
 ---@field private player Liberation.Player
 ---@field private instance Liberation.MissionInstance
 ---@field private selection Liberation._Selection
+---@field private _root_panel Liberation.PanelObject
 local PlayerSelection = {}
 
 ---@return Liberation.PlayerSelection
@@ -24,7 +25,7 @@ function PlayerSelection:new(instance, player)
   local player_selection = {
     player = player,
     instance = instance,
-    root_panel = nil,
+    _root_panel = nil,
     selection = Selection:new(instance),
   }
 
@@ -38,14 +39,14 @@ function PlayerSelection:new(instance, player)
       return false
     end
 
-    if panel == player_selection.root_panel then
+    if panel == player_selection._root_panel then
       return true
     end
 
     for _, enemy in ipairs(instance.enemies) do
       if x == enemy.x and y == enemy.y and z == enemy.z then
         -- can't liberate a panel with an enemy standing on it
-        -- unless it is the root_panel
+        -- unless it is the _root_panel
         return false
       end
     end
@@ -66,7 +67,7 @@ function PlayerSelection:new(instance, player)
 end
 
 function PlayerSelection:select_panel(panel_object)
-  self.root_panel = panel_object
+  self._root_panel = panel_object
 
   local player_pos = Net.get_player_position(self.player.id)
   local direction = resolve_selection_direction(player_pos, panel_object)
@@ -74,6 +75,10 @@ function PlayerSelection:select_panel(panel_object)
   self.selection:set_shape({ { 1 } })
   self.selection:remove_indicators()
   self.selection:indicate()
+end
+
+function PlayerSelection:root_panel()
+  return self._root_panel
 end
 
 ---@param shape number[][] [m][n] bool array, n being odd, just below bottom center is player position
@@ -107,7 +112,7 @@ end
 function PlayerSelection:get_panels()
   local panels = {}
 
-  if not self.root_panel then
+  if not self._root_panel then
     return panels
   end
 
@@ -120,7 +125,7 @@ end
 
 function PlayerSelection:clear()
   self.selection:remove_indicators()
-  self.root_panel = nil
+  self._root_panel = nil
 end
 
 -- todo: add an update function that is called when a player liberates a panel? may fix issues with overlapped panels
