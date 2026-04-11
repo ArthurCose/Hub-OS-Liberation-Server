@@ -1,6 +1,6 @@
 local Selection = require("scripts/libs/liberations/selections/selection")
 local Direction = require("scripts/libs/direction")
-local PanelType = require("scripts/libs/liberations/panel_type")
+local PanelClass = require("scripts/libs/liberations/panel_class")
 
 local TEXTURE_PATH = "/server/assets/liberations/bots/selection.png"
 local ANIMATION_PATH = "/server/assets/liberations/bots/selection.animation"
@@ -51,7 +51,7 @@ function PlayerSelection:new(instance, player)
       end
     end
 
-    return PanelType.ABILITY_ACTIONABLE[panel.type] ~= nil
+    return PanelClass.ABILITY_ACTIONABLE[panel.class] ~= nil
   end
 
   player_selection.selection:set_filter(filter)

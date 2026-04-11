@@ -25,8 +25,8 @@ Net.EventEmitter = {}
 ---@class Net.Object
 ---@field id number
 ---@field name string
----@field class string deprecated
----@field type string
+---@field class string
+---@field type string deprecated
 ---@field visible boolean
 ---@field x number
 ---@field y number
@@ -39,8 +39,8 @@ Net.EventEmitter = {}
 
 ---@class Net.ObjectOptions
 ---@field name? string
----@field class? string deprecated
----@field type? string
+---@field class? string
+---@field type? string deprecated
 ---@field visible? boolean
 ---@field privacy? boolean
 ---@field x? number
@@ -176,11 +176,7 @@ Net.EventEmitter = {}
 ---@field unless_installed? boolean
 
 --- All fields are in the range: [0, 255]
----@class Net.Color
----@field r number
----@field g number
----@field b number
----@field a? number
+---@alias Net.Color { r: number, g: number, b: number, a?: number } | [number, number, number, number?]
 
 ---@class Net.TextureAnimationPair
 ---@field texture_path string

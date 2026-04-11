@@ -1,6 +1,6 @@
 local EnemySelection = require("scripts/libs/liberations/selections/enemy_selection")
 local EnemyHelpers = require("scripts/libs/liberations/enemy_helpers")
-local PanelType = require("scripts/libs/liberations/panel_type")
+local PanelClass = require("scripts/libs/liberations/panel_class")
 local Direction = require("scripts/libs/direction")
 
 ---@class Liberation.Enemies.Bladia: Liberation.Enemy
@@ -161,7 +161,7 @@ function Bladia:take_turn()
       local y = math.floor(targety)
       local z = math.floor(player_z)
 
-      self.instance:generate_panel(PanelType.DARK, x, y, z)
+      self.instance:generate_panel(PanelClass.DARK, x, y, z)
 
       --Hold for half a second to spawn the tile.
       Async.await(Async.sleep(.5))

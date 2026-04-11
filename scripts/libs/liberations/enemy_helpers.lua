@@ -1,6 +1,6 @@
 local RecoverEffect = require("scripts/libs/liberations/effects/recover_effect")
 local HealthSprites = require("scripts/libs/liberations/effects/health_sprites")
-local PanelType = require("scripts/libs/liberations/panel_type")
+local PanelClass = require("scripts/libs/liberations/panel_class")
 local Direction = require("scripts/libs/direction")
 local Preloader = require("scripts/libs/liberations/preloader")
 
@@ -74,7 +74,7 @@ end
 function EnemyHelpers.can_move_to(instance, x, y, z)
   local panel = instance:get_panel_at(x, y, z)
 
-  if not panel or not PanelType.ENEMY_WALKABLE[panel.type] then
+  if not panel or not PanelClass.ENEMY_WALKABLE[panel.class] then
     return false
   end
 

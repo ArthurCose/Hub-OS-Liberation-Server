@@ -48,7 +48,7 @@ local function randomize_mission(base_area_id, area_id)
       -- specify loot
       if math.random(3) == 1 then
         -- 100 damage trap
-        Net.set_object_type(area_id, object_id, "Trap Panel")
+        Net.set_object_class(area_id, object_id, "Trap Panel")
         Net.set_object_custom_property(area_id, object_id, "Damage", "150")
       else
         local loot = LOOT_POOL[math.random(#LOOT_POOL)]

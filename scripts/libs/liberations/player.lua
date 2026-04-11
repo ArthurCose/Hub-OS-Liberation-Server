@@ -5,7 +5,7 @@ local HealthSprites = require("scripts/libs/liberations/effects/health_sprites")
 local ParalysisEffect = require("scripts/libs/liberations/effects/paralysis_effect")
 local RecoverEffect = require("scripts/libs/liberations/effects/recover_effect")
 local DamageNumbers = require("scripts/libs/liberations/effects/damage_numbers")
-local PanelType = require("scripts/libs/liberations/panel_type")
+local PanelClass = require("scripts/libs/liberations/panel_class")
 local Emotes = require("scripts/libs/emotes")
 local Preloader = require("scripts/libs/liberations/preloader")
 
@@ -248,7 +248,7 @@ function Player:resolve_surrounding_terrain()
   local function has_dark_panel(x, y, z)
     local panel = self.instance:get_panel_at(x, y, z)
 
-    return panel and PanelType.TERRAIN[panel.type]
+    return panel and PanelClass.TERRAIN[panel.class]
   end
 
   local x, y, z = self:position_multi()
@@ -663,7 +663,7 @@ local function convert_loot_panel(instance, panel)
   -- we only convert if the panel been liberated already
   if instance:get_panel_at(panel.x, panel.y, panel.z) == panel then
     instance:remove_panel(panel)
-    instance:generate_panel(PanelType.DARK, panel.x, panel.y, panel.z)
+    instance:generate_panel(PanelClass.DARK, panel.x, panel.y, panel.z)
   end
 end
 
@@ -681,7 +681,7 @@ function Player:loot_panels(panels, options)
       -- prevent other players from looting this panel again
       panel.loot = nil
 
-      if not loot and panel.type ~= PanelType.TRAP then
+      if not loot and panel.class ~= PanelClass.TRAP then
         goto continue
       end
 
@@ -715,7 +715,7 @@ function Player:loot_panels(panels, options)
         end
 
         remove_item_bot()
-      elseif panel.type == PanelType.TRAP then
+      elseif panel.class == PanelClass.TRAP then
         if options.remove_traps then
           Async.await(self:message_with_mug("A trap panel! I'll remove it."))
 

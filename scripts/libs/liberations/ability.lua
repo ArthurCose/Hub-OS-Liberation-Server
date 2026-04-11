@@ -1,4 +1,4 @@
-local PanelType = require("scripts/libs/liberations/panel_type")
+local PanelClass = require("scripts/libs/liberations/panel_class")
 local Direction = require("scripts/libs/direction")
 
 local function static_shape_generator(offset_x, offset_y, shape)
@@ -161,7 +161,7 @@ Ability.register({
     while true do
       local panel = instance:get_panel_at(x, y, z)
 
-      if not panel or panel.type == PanelType.DARK_HOLE then
+      if not panel or panel.class == PanelClass.DARK_HOLE then
         break
       end
 
