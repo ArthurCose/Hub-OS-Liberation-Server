@@ -1,6 +1,6 @@
 local Direction = require("scripts/libs/direction")
 
----@class Liberation._Selection
+---@class Liberation.Selection
 ---@field private area_id string
 ---@field private position Net.Position
 ---@field private shape_offset_x number
@@ -8,11 +8,11 @@ local Direction = require("scripts/libs/direction")
 ---@field private direction string?
 ---@field private bots Net.ActorId[]
 ---@field private filter? fun(x: number, y: number, z: number): boolean
----@field private indicator? Liberation._Selection.IndicatorOptions
+---@field private indicator? Liberation.Selection.IndicatorOptions
 local Selection = {}
 
 ---@param instance Liberation.MissionInstance
----@return Liberation._Selection
+---@return Liberation.Selection
 function Selection:new(instance)
   local attack_collider = {
     area_id = instance.area_id,
@@ -37,16 +37,20 @@ function Selection:set_filter(filter)
   self.filter = filter
 end
 
----@class Liberation._Selection.IndicatorOptions
+---@class Liberation.Selection.IndicatorOptions
 ---@field texture_path string
 ---@field animation_path string
 ---@field state string
 ---@field offset_x number
 ---@field offset_y number
 
----@param indicator Liberation._Selection.IndicatorOptions
+---@param indicator Liberation.Selection.IndicatorOptions
 function Selection:set_indicator(indicator)
   self.indicator = indicator
+end
+
+function Selection:indicator_template()
+  return self.indicator
 end
 
 -- shape = [m][n] bool array, n being odd, just below bottom center is actor position

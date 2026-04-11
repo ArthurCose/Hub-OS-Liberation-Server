@@ -5,7 +5,7 @@ local ANIMATION_PATH = "/server/assets/liberations/bots/selection.animation"
 
 ---@class Liberation.EnemySelection
 ---@field instance Liberation.MissionInstance
----@field package selection Liberation._Selection
+---@field package selection Liberation.Selection
 local EnemySelection = {}
 
 ---@return Liberation.EnemySelection

@@ -600,6 +600,56 @@ function Player:liberate_panels(panels, results)
   end)
 end
 
+---@param panels Liberation.PanelObject[]
+function Player:animate_search(panels)
+  return Async.create_scope(function()
+    local indicator_template = self.selection:indicator_template()
+
+    local bot_id = Net.create_bot({
+      area_id = self.instance.area_id,
+      x = -10000,
+      texture_path = indicator_template.texture_path,
+      animation_path = indicator_template.animation_path,
+      animation = "SEARCHING",
+      loop_animation = true,
+      warp_in = false
+    })
+
+    local KEY_FRAME_DURATION = 8 / 60
+    ---@type Net.ActorKeyframe[]
+    local keyframes = {}
+
+    for _ = 1, 3 do
+      for _, panel in ipairs(panels) do
+        keyframes[#keyframes + 1] = {
+          properties = {
+            { property = "X", value = panel.x + 1 / 32, ease = "Floor" },
+            { property = "Y", value = panel.y + 1 / 32, ease = "Floor" },
+            { property = "Z", value = panel.z,          ease = "Floor" },
+          },
+          duration = KEY_FRAME_DURATION,
+        }
+      end
+    end
+
+    -- todo: this should be unnecessary as the client should use the final value of the last keyframe
+    keyframes[#keyframes + 1] = keyframes[#keyframes]
+
+    keyframes[#keyframes + 1] = {
+      properties = {
+        { property = "Animation", value = "HIDDEN" },
+        duration = KEY_FRAME_DURATION,
+      },
+    }
+
+    Net.animate_bot_properties(bot_id, keyframes)
+
+    -- wait for the animation to finish before
+    Async.await(Async.sleep(3 * #panels * KEY_FRAME_DURATION + 0.5))
+    Net.remove_bot(bot_id)
+  end)
+end
+
 ---@class Liberation.Player.LootPanelsOptions
 ---@field remove_traps boolean?
 ---@field destroy_items boolean?

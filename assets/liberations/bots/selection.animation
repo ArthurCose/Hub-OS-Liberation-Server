@@ -1,3 +1,9 @@
+animation state="HIDDEN"
+frame
+
+animation state="SEARCHING"
+frame x="64" w="64" h="32" originx="32" originy="1" duration="25f"
+
 animation state="LIBERATING"
 frame x="0" w="64" h="32" originx="32" originy="1" duration="25f"
 frame x="64" w="64" h="32" originx="32" originy="1" duration="25f"

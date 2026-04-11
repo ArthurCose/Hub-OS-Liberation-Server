@@ -31,15 +31,20 @@ local function liberate_and_loot(instance, player, results)
   end)
 end
 
+---@type Liberation.Player.LootPanelsOptions
+local PANEL_SEARCH_LOOT_OPTIONS = {
+  remove_traps = true
+}
+
 ---@param instance Liberation.MissionInstance
 ---@param player Liberation.Player
 local function panel_search(instance, player)
   local panels = player.selection:get_panels()
-  local loot_options = {
-    remove_traps = true
-  }
 
-  player:loot_panels(panels, loot_options).and_then(function()
+  Async.create_scope(function()
+    player.selection:clear()
+    Async.await(player:animate_search(panels))
+    Async.await(player:loot_panels(panels, PANEL_SEARCH_LOOT_OPTIONS))
     player:complete_turn()
   end)
 end

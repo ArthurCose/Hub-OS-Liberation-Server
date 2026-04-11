@@ -16,7 +16,7 @@ end
 ---@class Liberation.PlayerSelection
 ---@field private player Liberation.Player
 ---@field private instance Liberation.MissionInstance
----@field private selection Liberation._Selection
+---@field private selection Liberation.Selection
 ---@field private _root_panel Liberation.PanelObject
 local PlayerSelection = {}
 
@@ -64,6 +64,10 @@ function PlayerSelection:new(instance, player)
   })
 
   return player_selection
+end
+
+function PlayerSelection:indicator_template()
+  return self.selection:indicator_template()
 end
 
 function PlayerSelection:select_panel(panel_object)
