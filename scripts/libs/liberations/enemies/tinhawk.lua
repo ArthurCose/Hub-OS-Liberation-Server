@@ -63,7 +63,6 @@ function TinHawk:new(options)
   local tinhawk = {
     instance = options.instance,
     id = nil,
-    battle_name = "TinHawk",
     health = mob_health[rank_index],
     max_health = mob_health[rank_index],
     damage = mob_damage[rank_index],
@@ -89,6 +88,7 @@ function TinHawk:spawn(direction)
   local rank_index = rank_to_index[self.rank]
 
   self.id = Net.create_bot({
+    name = "TinHawk",
     texture_path = "/server/assets/liberations/bots/" .. textures[rank_index],
     animation_path = "/server/assets/liberations/bots/tinhawk.animation",
     area_id = self.instance.area_id,

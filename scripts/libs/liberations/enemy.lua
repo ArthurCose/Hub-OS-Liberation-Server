@@ -2,8 +2,6 @@
 
 ---@class Liberation.Enemy: Net.Position
 ---@field id Net.ActorId
----@field battle_name string
----@field name string? reserved, set automatically on creation
 ---@field turn_order number? reserved, set automatically on creation
 ---@field rank string the character rank for the encounter
 ---@field health number
@@ -18,27 +16,21 @@
 ---@field get_death_message fun(self: Liberation.Enemy): string
 ---@field banter fun(self: Liberation.Enemy, player_id: Net.ActorId): Net.Promise
 
-local BlizzardMan = require("scripts/libs/liberations/enemies/blizzardman")
-local BigBrute = require("scripts/libs/liberations/enemies/bigbrute")
-local ShadeMan = require("scripts/libs/liberations/enemies/shademan")
-local Bladia = require("scripts/libs/liberations/enemies/bladia")
-local TinHawk = require("scripts/libs/liberations/enemies/tinhawk")
+local built_in_enemies = {
+  BigBrute = require("scripts/libs/liberations/enemies/bigbrute"),
+  TinHawk = require("scripts/libs/liberations/enemies/tinhawk"),
+  Bladia = require("scripts/libs/liberations/enemies/bladia"),
+  BlizzardMan = require("scripts/libs/liberations/enemies/blizzardman"),
+  ShadeMan = require("scripts/libs/liberations/enemies/shademan"),
+}
 local ExplodingEffect = require("scripts/libs/liberations/effects/exploding_effect")
 local HealthSprites = require("scripts/libs/liberations/effects/health_sprites")
 
 local Enemy = {}
 
-local name_to_enemy = {
-  BlizzardMan = BlizzardMan,
-  BigBrute = BigBrute,
-  ShadeMan = ShadeMan,
-  Bladia = Bladia,
-  TinHawk = TinHawk
-}
-
 ---@class Liberation.EnemyOptions
 ---@field instance Liberation.MissionInstance
----@field name string
+---@field require_name_or_path string
 ---@field position Net.Position
 ---@field direction string
 ---@field rank string
@@ -50,7 +42,7 @@ function Enemy.options_from(instance, panel)
   ---@type Liberation.EnemyOptions
   return {
     instance = instance,
-    name = panel.custom_properties.Boss or panel.custom_properties.Spawns,
+    require_name_or_path = panel.custom_properties.Boss or panel.custom_properties.Spawns,
     position = { x = panel.x, y = panel.y, z = panel.z },
     direction = panel.custom_properties.Direction:upper(),
     rank = panel.custom_properties.Rank or "V1",
@@ -61,11 +53,8 @@ end
 ---@param options Liberation.EnemyOptions
 ---@return Liberation.Enemy
 function Enemy.from(options)
-  local enemy = name_to_enemy[options.name]:new(options)
-
-  -- set name
-  enemy.name = enemy.name or options.name
-  Net.set_bot_name(enemy.id, enemy.name)
+  local ResolvedEnemy = built_in_enemies[options.require_name_or_path] or require(options.require_name_or_path)
+  local enemy = ResolvedEnemy:new(options)
 
   -- display health
   HealthSprites.update_sprite(enemy.id, enemy.health)

@@ -84,6 +84,7 @@ end
 
 function BlizzardMan:spawn(direction)
   self.id = Net.create_bot({
+    name = "BlizzardMan",
     texture_path = "/server/assets/liberations/bots/blizzardman.png",
     animation_path = "/server/assets/liberations/bots/blizzardman.animation",
     area_id = self.instance.area_id,

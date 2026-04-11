@@ -320,7 +320,8 @@ local function take_enemy_turn(self)
 
           Async.await(Async.sleep(slide_time + 0.5))
 
-          Async.await(player:message_with_mug("Is this the power of " .. self.boss.name .. "...?"))
+          local boss_name = Net.get_bot_name(self.boss.id) or "Nebula"
+          Async.await(player:message_with_mug("Is this the power of " .. boss_name .. "...?"))
 
           Async.await(Async.sleep(0.5))
 

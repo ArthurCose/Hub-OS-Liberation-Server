@@ -64,6 +64,7 @@ end
 
 function ShadeMan:spawn(direction)
   self.id = Net.create_bot({
+    name = "ShadeMan",
     texture_path = "/server/assets/liberations/bots/shademan.png",
     animation_path = "/server/assets/liberations/bots/shademan.animation",
     area_id = self.instance.area_id,

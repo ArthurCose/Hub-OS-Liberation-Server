@@ -45,7 +45,6 @@ function BigBrute:new(options)
   local bigbrute = {
     instance = options.instance,
     id = nil,
-    battle_name = "BigBrute",
     health = mob_health[rank_index],
     max_health = mob_health[rank_index],
     damage = mob_damage[rank_index],
@@ -76,6 +75,7 @@ function BigBrute:spawn(direction)
   local rank_index = rank_to_index[self.rank]
 
   self.id = Net.create_bot({
+    name = "BigBrute",
     texture_path = "/server/assets/liberations/bots/" .. textures[rank_index],
     animation_path = "/server/assets/liberations/bots/bigbrute.animation",
     area_id = self.instance.area_id,

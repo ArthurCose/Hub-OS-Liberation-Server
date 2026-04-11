@@ -11,15 +11,7 @@ You can find the Lua library in `scripts/libs/liberations`, it must always be at
 As for client side dependencies, the following list of IDs should be added to the `mod_downloader_entry.lua` file to keep dependencies up to date.
 
 ```lua
--- boss dependencies:
-"BattleNetwork5.Virus.BigBrute", -- defines BattleNetwork5.Character.BigBrute for use in encounters
-"BattleNetwork5.BlizzardMan", -- defines BattleNetwork5.BlizzardMan.Enemy for use in encounters
-"com.Dawn.Shademan", -- defines com.Dawn.Enemy.Shademan[Alpha/Beta] for use in encounters
-"BattleNetwork.Assets",
-"BattleNetwork.SmokePoof",
-"BattleNetwork6.TileStates.Ice",
-"dev.konstinople.library.ai"
--- custom liberation encounter dependencies:
+-- minimal libraries necessary for liberations:
 "dev.konstinople.library.liberation",
 "BattleNetwork6.Statuses.Invincible",
 ```
@@ -145,7 +137,7 @@ Supported panel `Type`s and custom properties can be found below.
 ### `Dark Panel`
 
 - `Encounter` a server path to the encounter, uses the map's default when missing.
-- `Boss` the name of the boss to spawn, overrides the `Encounter`
+- `Boss` the name or require path of the boss to spawn, overrides the `Encounter`
 - `Next Turn` object, point to a dark hole or `Guardian` location, the mission will follow the chain to resolve the final turn order.
   - Ignored if this panel doesn't contain the boss.
 - `Rank` the rank of the boss, ex: `V1`, `SP`, `Omega`. Passed as `rank` in the encounter's data param.
@@ -153,7 +145,7 @@ Supported panel `Type`s and custom properties can be found below.
 ### `Dark Hole`
 
 - `Direction` the direction the character spawned should face.
-- `Spawns` the name of the enemy to spawn, panels containing this enemy will this panel's `Encounter` value.
+- `Spawns` the name or require path of the enemy to spawn, panels containing this enemy will this panel's `Encounter` value.
 - `Position` object, used as the initial spawn position for the enemy.
 - `Encounter` the encounter for the dark hole and enemy, uses the map's default when missing.
 - `Direct Encounter` overrides `Encounter` when the dark hole is directly selected.
@@ -186,6 +178,16 @@ Supported panel `Type`s and custom properties can be found below.
 
 Converts into a Dark Panel when every `Dark Hole` is destroyed
 
+## Enemy Names
+
+- `BigBrute`
+- `TinHawk`
+- `Bladia`
+- `BlizzardMan`
+- `ShadeMan`
+
+Custom enemies can be utilized by entering the require path of the enemy rather than the name, ex: `scripts/custom_enemies/custom_enemy`
+
 ## Specific Loot
 
 Additional custom properties are supported by loot.
@@ -208,7 +210,7 @@ Additional custom properties are supported by loot.
 Spawns a guardian without a dark hole.
 
 - `Direction` the direction the character spawned should face.
-- `Spawns` the name of the enemy to spawn, overrides `Encounter` when this character moves over another panel.
+- `Spawns` the name or require path of the enemy to spawn, panels containing this enemy will this panel's `Encounter` value.
 - `Encounter` the encounter for the dark hole and enemy, uses the map's default when missing.
 - `Next Turn` object, point to another dark hole or `Guardian` location, the mission will follow the chain to resolve the final turn order.
   - Ignored if this doesn't lead back to the panel that spawned the boss.
