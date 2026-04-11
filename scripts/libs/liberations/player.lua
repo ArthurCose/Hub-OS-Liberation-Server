@@ -5,6 +5,7 @@ local HealthSprites = require("scripts/libs/liberations/effects/health_sprites")
 local ParalysisEffect = require("scripts/libs/liberations/effects/paralysis_effect")
 local RecoverEffect = require("scripts/libs/liberations/effects/recover_effect")
 local DamageNumbers = require("scripts/libs/liberations/effects/damage_numbers")
+local Poof = require("scripts/libs/liberations/effects/poof")
 local PanelClass = require("scripts/libs/liberations/panel_class")
 local Emotes = require("scripts/libs/emotes")
 local Preloader = require("scripts/libs/liberations/preloader")
@@ -717,9 +718,12 @@ function Player:loot_panels(panels, options)
         remove_item_bot()
       elseif panel.class == PanelClass.TRAP then
         if options.remove_traps then
-          Async.await(self:message_with_mug("A trap panel! I'll remove it."))
+          Async.await(self:message_with_mug("A trap panel!\nI'll remove it!"))
 
+          Poof.spawn(self.instance.area_id, "LARGE", panel.x + 0.5, panel.y + 0.5, panel.z + 0.5)
           convert_loot_panel(self.instance, panel)
+
+          Async.await(Async.sleep(1))
         elseif panel.custom_properties["Damage"] then
           if panel.custom_properties["Message"] ~= nil then
             Async.await(self:message_with_mug(panel.custom_properties["Message"]))
