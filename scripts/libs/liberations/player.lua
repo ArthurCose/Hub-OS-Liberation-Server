@@ -655,6 +655,17 @@ end
 ---@field destroy_items boolean?
 
 local default_loot_options = {}
+local loot_slide_time = .1
+
+---@param instance Liberation.MissionInstance
+---@param panel Liberation.PanelObject
+local function convert_loot_panel(instance, panel)
+  -- we only convert if the panel been liberated already
+  if instance:get_panel_at(panel.x, panel.y, panel.z) == panel then
+    instance:remove_panel(panel)
+    instance:generate_panel(PanelType.DARK, panel.x, panel.y, panel.z)
+  end
+end
 
 ---@param panels Liberation.PanelObject[]
 ---@param options Liberation.Player.LootPanelsOptions?
@@ -662,36 +673,65 @@ function Player:loot_panels(panels, options)
   options = options or default_loot_options
 
   return Async.create_scope(function()
+    local total_looted = 0
+
     for _, panel in ipairs(panels) do
-      if panel.loot then
-        -- loot the panel if it has loot
-        Async.await(Loot.loot_item_panel(self.instance, self, panel, options.destroy_items))
-      elseif panel.type == "Trap Panel" then
-        local slide_time = .1
-        local spawn_x = math.floor(panel.x) + .5
-        local spawn_y = math.floor(panel.y) + .5
-        local spawn_z = panel.z
+      local loot = panel.loot
 
-        Net.slide_player_camera(
-          self.id,
-          spawn_x,
-          spawn_y,
-          spawn_z,
-          slide_time
-        )
+      -- prevent other players from looting this panel again
+      panel.loot = nil
 
-        Async.await(Async.sleep(slide_time))
+      if not loot and panel.type ~= PanelType.TRAP then
+        goto continue
+      end
 
+      total_looted = total_looted + 1
+
+      local spawn_x = math.floor(panel.x) + .5
+      local spawn_y = math.floor(panel.y) + .5
+      local spawn_z = panel.z
+
+      Net.slide_player_camera(
+        self.id,
+        spawn_x,
+        spawn_y,
+        spawn_z,
+        loot_slide_time
+      )
+
+      Async.await(Async.sleep(loot_slide_time))
+
+      if loot then
+        -- replace with a regular dark panel
+        convert_loot_panel(self.instance, panel)
+
+        -- spawn loot item
+        local remove_item_bot = Async.await(Loot.spawn_item_bot(loot, self.instance.area_id, spawn_x, spawn_y, spawn_z))
+
+        if loot.breakable and options.destroy_items then
+          Async.await(self:message_with_mug("Ah!! The item was destroyed!"))
+        else
+          Async.await(loot.activate(self.instance, self, panel))
+        end
+
+        remove_item_bot()
+      elseif panel.type == PanelType.TRAP then
         if options.remove_traps then
           Async.await(self:message_with_mug("A trap panel! I'll remove it."))
+
+          convert_loot_panel(self.instance, panel)
         elseif panel.custom_properties["Damage"] then
           if panel.custom_properties["Message"] ~= nil then
             Async.await(self:message_with_mug(panel.custom_properties["Message"]))
           else
             Async.await(self:message_with_mug("Ah! A damage trap!"))
           end
+
           Async.await(Async.sleep(0.25))
+
           self:hurt(tonumber(panel.custom_properties["Damage"]))
+          convert_loot_panel(self.instance, panel)
+
           Async.await(Async.sleep(1))
         else
           if panel.custom_properties["Message"] ~= nil then
@@ -699,16 +739,21 @@ function Player:loot_panels(panels, options)
           else
             Async.await(self:message_with_mug("Ah! A paralysis trap!"))
           end
+
           self:paralyze()
+          convert_loot_panel(self.instance, panel)
+
           Async.await(Async.sleep(1))
         end
       end
+
+      ::continue::
     end
 
     -- Clear the selection so that it can be used again later.
     self.selection:clear()
 
-    return true
+    return total_looted
   end)
 end
 

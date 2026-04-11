@@ -155,38 +155,13 @@ function Bladia:take_turn()
     --Get the direction to face.
     local target_direction = Direction.diagonal_from_offset((player_x - targetx), (player_y - targety))
 
-    --Grab example tiles from which to generate a new dark panel.
-    local example_panel = self.instance:get_panel_at(self.x, self.y, self.z)
-
-    if not example_panel then
-      return
-    end
-
-    if not example_panel then return end --If they don't exist (SOMEHOW) then return.
-
     Async.await(EnemyHelpers.move(self.instance, self, targetx, targety, player_z, target_direction))
     if not self.instance:get_panel_at(targetx, targety, player_z) then
-      local x = math.floor(targetx) + 1
-      local y = math.floor(targety) + 1
-      local z = math.floor(player_z) + 1
+      local x = math.floor(targetx)
+      local y = math.floor(targety)
+      local z = math.floor(player_z)
 
-      local dark_gids = self.instance.panel_gid_map[PanelType.DARK]
-      local gid = dark_gids[math.random(#dark_gids)]
-
-      local new_panel = {
-        name = "",
-        type = "Dark Panel",
-        visible = true,
-        x = x - 1,
-        y = y - 1,
-        z = z - 1,
-        width = example_panel.width,
-        height = example_panel.height,
-        data = { type = "tile", gid = gid },
-        custom_properties = {}
-      }
-
-      self.instance:create_panel(new_panel)
+      self.instance:generate_panel(PanelType.DARK, x, y, z)
 
       --Hold for half a second to spawn the tile.
       Async.await(Async.sleep(.5))

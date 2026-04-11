@@ -113,6 +113,7 @@ function PlayerSelection:merge_bonus_shape()
   self:merge_shape(BONUS_SHAPE, 0, -2)
 end
 
+---@return Liberation.PanelObject[]
 function PlayerSelection:get_panels()
   local panels = {}
 

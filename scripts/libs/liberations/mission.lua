@@ -121,9 +121,9 @@ local function convert_indestructible_panels(self)
     panel.type = PanelType.DARK
 
     -- update visual
-    local dark_gids = self.panel_gid_map[PanelType.DARK]
+    local dark_templates = self.panel_template_map[PanelType.DARK]
 
-    panel.data.gid = dark_gids[math.random(#dark_gids)]
+    panel.data = dark_templates[math.random(#dark_templates)].data
     Net.set_object_data(self.area_id, panel.id, panel.data)
 
     -- add collision since base dark panels don't have collision for shadow step
@@ -472,6 +472,11 @@ end
 ---@field enemy Liberation.Enemy
 ---@field loot Liberation.Loot?
 
+---@class Liberation.PanelTemplate
+---@field width number
+---@field height number
+---@field data { type: "Tile", gid: number }
+
 -- public
 ---@class Liberation.MissionInstance
 ---@field area_id string
@@ -492,7 +497,7 @@ end
 ---@field dark_holes Liberation.PanelObject[]
 ---@field indestructible_panels Liberation.PanelObject[]
 ---@field gate_panels Liberation.PanelObject[]
----@field panel_gid_map table<string, number[]>
+---@field panel_template_map table<string, Liberation.PanelTemplate[]>
 ---@field collision_template Net.ObjectOptions
 ---@field marker_template Net.ObjectOptions
 ---@field events Net.EventEmitter "dark_hole_liberated" {}, "money" { player_id, money }, "player_kicked" { player_id, reason }, "player_disconnect" { player }, "destroyed" {}
@@ -525,7 +530,7 @@ function MissionInstance:new(area_id)
     dark_holes = {},
     indestructible_panels = {},
     gate_panels = {},
-    panel_gid_map = {},
+    panel_template_map = {},
     collision_template = {
       visible = false,
       x = 0,
@@ -616,11 +621,11 @@ function MissionInstance:new(area_id)
       table.insert(mission.enemies, enemy)
     elseif PanelType.ALL[object.type] then
       -- track gid
-      local type_map = mission.panel_gid_map[object.type]
+      local type_map = mission.panel_template_map[object.type]
 
       if not type_map then
         type_map = {}
-        mission.panel_gid_map[object.type] = type_map
+        mission.panel_template_map[object.type] = type_map
         type_gid_seen_map[object.type] = {}
       end
 
@@ -628,11 +633,15 @@ function MissionInstance:new(area_id)
 
       if not gid_seen_map[object.data.gid] then
         gid_seen_map[object.data.gid] = true
-        type_map[#type_map + 1] = object.data.gid
+        type_map[#type_map + 1] = {
+          width = object.width,
+          height = object.height,
+          data = object.data
+        }
       end
 
       -- create panel
-      local panel = mission:create_panel(object)
+      local panel = mission:load_panel(object)
 
       if object.custom_properties.Boss then
         -- spawning bosses
@@ -1196,9 +1205,36 @@ local MARKED_PANEL_STATES = {
   [PanelType.GATE] = "GATE",
 }
 
+---@param class string
+---@param x number
+---@param y number
+---@param z number
+---@param custom_properties Net.CustomProperties?
+function MissionInstance:generate_panel(class, x, y, z, custom_properties)
+  x = math.floor(x)
+  y = math.floor(y)
+  z = math.floor(z)
+
+  local templates = self.panel_template_map[class]
+  local template = templates[math.random(#templates)]
+
+  local object_id = Net.create_object(self.area_id, {
+    class = class,
+    x = x,
+    y = y,
+    z = z,
+    width = template.width,
+    height = template.height,
+    data = template.data,
+    custom_properties = custom_properties
+  })
+
+  self:load_panel(Net.get_object_by_id(self.area_id, object_id))
+end
+
 ---@param object Net.Object
 ---@return Liberation.PanelObject
-function MissionInstance:create_panel(object)
+function MissionInstance:load_panel(object)
   local new_panel = object --[[@as Liberation.PanelObject]]
 
   if PanelType.OPTIONAL_COLLISION[object.type] then

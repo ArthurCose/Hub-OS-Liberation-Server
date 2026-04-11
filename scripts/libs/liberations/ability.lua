@@ -44,7 +44,12 @@ local function panel_search(instance, player)
   Async.create_scope(function()
     player.selection:clear()
     Async.await(player:animate_search(panels))
-    Async.await(player:loot_panels(panels, PANEL_SEARCH_LOOT_OPTIONS))
+    local total_loot = Async.await(player:loot_panels(panels, PANEL_SEARCH_LOOT_OPTIONS))
+
+    if total_loot == 0 then
+      Async.await(player:message_with_mug("I didn't find anything!"))
+    end
+
     player:complete_turn()
   end)
 end
@@ -176,8 +181,8 @@ Ability.register({
 })
 
 Ability.register({
-  name = "NumberSearch",
-  question = "Remove traps & get items?",
+  name = "NumberCheck",
+  question = "Remove traps and get items?",
   cost = 1,
   generate_shape = static_shape_generator(0, 0, {
     { 1, 1, 1 },
