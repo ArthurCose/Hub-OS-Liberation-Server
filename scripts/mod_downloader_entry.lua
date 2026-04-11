@@ -24,6 +24,9 @@ local package_ids = {
   "BattleNetwork6.TileStates.Ice",
   "BattleNetwork6.TileStates.Poison",
   "BattleNetwork6.Statuses.Uninstall",
+  -- Grab Revenge
+  "BattleNetwork6.Class01.Standard.167",
+  "BattleNetwork6.Libraries.PanelGrab",
   -- minimal libraries necessary for liberations:
   "dev.konstinople.library.liberation",
   "BattleNetwork6.Statuses.Invincible",

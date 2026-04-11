@@ -4,6 +4,7 @@ local LiberationLib = require("dev.konstinople.library.liberation")
 
 ---@param encounter Encounter
 function encounter_init(encounter, data)
+    SharedLib.buff_terrain(data)
     LiberationLib.init(encounter, data)
     SharedLib.generate_poison_field()
 
@@ -16,5 +17,6 @@ function encounter_init(encounter, data)
             -- Restores health from data,
             -- and sends the final health back to the server when battle ends
             LiberationLib.sync_enemy_health(entity, encounter, data)
+            SharedLib.buff_boss(entity)
         end)
 end

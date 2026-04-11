@@ -159,6 +159,121 @@ function Lib.shuffle_dark_hole_guardians(encounter, id, rank)
     end
 end
 
+function Lib.buff_terrain(data)
+    local TERRAIN_BOOST = {
+        advantage = "even",
+        even = "disadvantage",
+        disadvantage = "surrounded",
+        surrounded = "surrounded",
+    }
+
+    data.terrain = TERRAIN_BOOST[data.terrain]
+end
+
+---@param character Entity
+local function nerf_stun(character)
+    local MAX_STUN_TIME = 45
+    local component = character:create_component(Lifetime.ActiveBattle)
+
+    component.on_update_func = function()
+        if not character:is_inactionable() then
+            return
+        end
+
+        local remaining_blockers = Hit.action_blockers()
+        local flag = 1
+
+        while remaining_blockers ~= 0 do
+            if remaining_blockers & 1 ~= 0 then
+                local remaining_time = character:remaining_status_time(flag --[[@as Hit]])
+
+                if remaining_time > MAX_STUN_TIME then
+                    character:set_remaining_status_time(flag --[[@as Hit]], MAX_STUN_TIME)
+                end
+            end
+
+            remaining_blockers = remaining_blockers >> 1
+            flag = flag << 1
+        end
+    end
+end
+
+---@param character Entity
+local function guard_area(character)
+    local grab_revenge = CardProperties.from_package("BattleNetwork6.Class01.Standard.167")
+    local revenge_queued = false
+
+    local component = character:create_component(Lifetime.ActiveBattle)
+    component.on_update_func = function()
+        if revenge_queued then
+            return
+        end
+
+        local extra_count = 0
+        local stolen_count = 0
+
+        local team = character:team()
+        Field.find_tiles(function(tile)
+            if tile:is_edge() then
+                return false
+            end
+
+            if tile:original_team() ~= team then
+                return false
+            end
+
+            if tile:team() ~= team then
+                stolen_count = stolen_count + 1
+                return false
+            end
+
+            local behind_tile = tile:get_tile(Direction.reverse(tile:facing()), 1)
+
+            if behind_tile and behind_tile:is_edge() then
+                return false
+            end
+
+            extra_count = extra_count + 1
+
+            return false
+        end)
+
+        local needs_revenge = stolen_count > 0 and extra_count <= 2
+
+        if not needs_revenge then
+            -- wait for more area to be lost
+            return
+        end
+
+        local spell = Spell.new(character:team())
+
+        spell.on_spawn_func = function()
+            spell:queue_action(Action.from_card(spell, grab_revenge) --[[@as Action]])
+        end
+
+        spell.on_update_func = function()
+            if not spell:has_actions() then
+                spell:delete()
+                revenge_queued = false
+            end
+        end
+
+        spell:on_erase(function()
+            revenge_queued = false
+        end)
+
+        Field.spawn(spell, 0, 0)
+
+        revenge_queued = true
+    end
+end
+
+---@param character Entity
+function Lib.buff_boss(character)
+    nerf_stun(character)
+    guard_area(character)
+end
+
 function Lib.generate_ice_field()
     require("generate_ice_field")()
 end
