@@ -16,6 +16,10 @@ local GUARDIAN_POOLS = {
   },
 }
 
+local CUSTOM_BOSSES = {
+  ShadeMan = "scripts/main/custom_enemies/shademan"
+}
+
 local LOOT_POOL = {
   "HEART",
   "ORDER_POINT",
@@ -66,6 +70,14 @@ local function randomize_mission(base_area_id, area_id)
 
       Net.set_object_custom_property(area_id, object_id, "Direct Encounter", direct_encounter)
       Net.set_object_custom_property(area_id, object_id, "Encounter", encounter)
+    end
+
+    if object.custom_properties.Boss then
+      local custom_boss = CUSTOM_BOSSES[object.custom_properties.Boss]
+
+      if custom_boss then
+        Net.set_object_custom_property(area_id, object_id, "Boss", custom_boss)
+      end
     end
   end
 end
