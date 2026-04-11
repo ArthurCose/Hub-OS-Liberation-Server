@@ -600,13 +600,22 @@ function Player:liberate_panels(panels, results)
   end)
 end
 
--- returns a promise that resolves after looting
-function Player:loot_panels(panels, remove_traps, destroy_items)
+---@class Liberation.Player.LootPanelsOptions
+---@field remove_traps boolean?
+---@field destroy_items boolean?
+
+local default_loot_options = {}
+
+---@param panels Liberation.PanelObject[]
+---@param options Liberation.Player.LootPanelsOptions?
+function Player:loot_panels(panels, options)
+  options = options or default_loot_options
+
   return Async.create_scope(function()
     for _, panel in ipairs(panels) do
       if panel.loot then
         -- loot the panel if it has loot
-        Async.await(Loot.loot_item_panel(self.instance, self, panel, destroy_items))
+        Async.await(Loot.loot_item_panel(self.instance, self, panel, options.destroy_items))
       elseif panel.type == "Trap Panel" then
         local slide_time = .1
         local spawn_x = math.floor(panel.x) + .5
@@ -623,8 +632,8 @@ function Player:loot_panels(panels, remove_traps, destroy_items)
 
         Async.await(Async.sleep(slide_time))
 
-        if remove_traps then
-          Async.await(self:message_with_mug("I found a trap! It's been removed."))
+        if options.remove_traps then
+          Async.await(self:message_with_mug("A trap panel! I'll remove it."))
         elseif panel.custom_properties["Damage"] then
           if panel.custom_properties["Message"] ~= nil then
             Async.await(self:message_with_mug(panel.custom_properties["Message"]))
@@ -650,14 +659,6 @@ function Player:loot_panels(panels, remove_traps, destroy_items)
     self.selection:clear()
 
     return true
-  end)
-end
-
----@param results Liberation.BattleResults
-function Player:liberate_and_loot_panels(panels, results, remove_traps, destroy_items)
-  return Async.create_scope(function()
-    Async.await(self:liberate_panels(panels, results))
-    Async.await(self:loot_panels(panels, remove_traps, destroy_items))
   end)
 end
 

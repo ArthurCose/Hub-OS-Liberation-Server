@@ -23,10 +23,10 @@ local function liberate_and_loot(instance, player, results)
     player.selection:merge_bonus_shape()
   end
 
-  local remove_traps, destroy_items = player.ability.remove_traps, player.ability.destroy_items
-  local panels = player.selection:get_panels()
-
-  player:liberate_and_loot_panels(panels, results, remove_traps, destroy_items).and_then(function()
+  Async.create_scope(function()
+    local panels = player.selection:get_panels()
+    Async.await(player:liberate_panels(panels, results))
+    Async.await(player:loot_panels(panels))
     player:complete_turn()
   end)
 end
@@ -34,10 +34,12 @@ end
 ---@param instance Liberation.MissionInstance
 ---@param player Liberation.Player
 local function panel_search(instance, player)
-  local remove_traps, destroy_items = player.ability.remove_traps, player.ability.destroy_items
   local panels = player.selection:get_panels()
+  local loot_options = {
+    remove_traps = true
+  }
 
-  player:loot_panels(panels, remove_traps, destroy_items).and_then(function()
+  player:loot_panels(panels, loot_options).and_then(function()
     player:complete_turn()
   end)
 end
@@ -74,8 +76,6 @@ end
 ---@field question string Missing a question turns this ability into a passive
 ---@field cost number
 ---@field shadow_step? boolean
----@field remove_traps? boolean
----@field destroy_items? boolean
 ---@field generate_shape fun(instance: Liberation.MissionInstance, player: Liberation.Player): number[][], number, number
 ---@field activate fun(instance: Liberation.MissionInstance, player: Liberation.Player)
 
@@ -126,7 +126,6 @@ Ability.register({
   name = "PanelSearch",
   question = "Search in this area?",
   cost = 1,
-  remove_traps = true,
   generate_shape = function(instance, player)
     local shape = {}
 
@@ -175,7 +174,6 @@ Ability.register({
   name = "NumberSearch",
   question = "Remove traps & get items?",
   cost = 1,
-  remove_traps = true,
   generate_shape = static_shape_generator(0, 0, {
     { 1, 1, 1 },
     { 1, 1, 1 },
