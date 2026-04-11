@@ -50,10 +50,10 @@ local function randomize_mission(base_area_id, area_id)
         -- 100 damage trap
         Net.set_object_type(area_id, object_id, "Trap Panel")
         Net.set_object_custom_property(area_id, object_id, "Damage", "150")
+      else
+        local loot = LOOT_POOL[math.random(#LOOT_POOL)]
+        Net.set_object_custom_property(area_id, object_id, "Specific Loot", loot)
       end
-
-      local loot = LOOT_POOL[math.random(#LOOT_POOL)]
-      Net.set_object_custom_property(area_id, object_id, "Specific Loot", loot)
     elseif object.class == "Bonus Panel" then
       -- specify bonus loot
       local loot = BONUS_LOOT_POOL[math.random(#BONUS_LOOT_POOL)]
