@@ -31,6 +31,9 @@ local HURT_SFX = Preloader.add_asset("/server/assets/liberations/sounds/hurt.ogg
 ---@field movement_locked boolean
 ---@field stacked_movement_locks number
 ---@field viewing_player Net.ActorId?
+---@field kick_votes table<Liberation.Player, boolean>
+---@field total_kick_votes number
+---@field kick_vote_successful? boolean
 ---@field abandoning boolean?
 ---@field disconnected boolean
 ---@field disconnected_position Net.Position?
@@ -55,6 +58,8 @@ function Player:new(instance, player_id)
     movement_locked = false,
     stacked_movement_locks = 0,
     viewing_player = self.id,
+    kick_votes = {},
+    total_kick_votes = 0,
     disconnected = false,
   }
 
@@ -518,6 +523,11 @@ function Player:complete_turn()
 end
 
 function Player:give_turn()
+  if self.kick_vote_successful then
+    -- kick next cycle if we somehow missed this player
+    return
+  end
+
   self.completed_turn = false
   self.invincible = false
 
@@ -761,6 +771,7 @@ function Player:loot_panels(panels, options)
   end)
 end
 
+---@package
 function Player:cycle_camera_target()
   if not self.instance.player_map[self.viewing_player] then
     self.viewing_player = self.id
@@ -782,6 +793,93 @@ function Player:cycle_camera_target()
   self.viewing_player = self.instance.players[index].id
 
   Net.track_with_player_camera(self.id, self.viewing_player)
+end
+
+function Player:handle_spectator_input(button)
+  if button == 1 then
+    -- cycle when L is pressed
+    self:cycle_camera_target()
+    return
+  end
+
+  if button ~= 0 then
+    -- just in case we add more buttons
+    return
+  end
+
+  if Net.is_player_busy(self.id) then
+    -- menu may already open
+    return
+  end
+
+  local IMMEDIATE_TOKEN = "\x04"
+  local VOTE_TO_KICK = IMMEDIATE_TOKEN .. "Vote to Kick"
+  local CANCEL_VOTE_TO_KICK = IMMEDIATE_TOKEN .. "Remove Vote"
+  local ABANDON = IMMEDIATE_TOKEN .. "Abandon Mission"
+  local CANCEL = IMMEDIATE_TOKEN .. "Close"
+
+  local options = { ABANDON, CANCEL }
+
+  ---@type Liberation.Player
+  local viewed_player = self.instance.player_map[self.viewing_player]
+
+  if viewed_player and self.viewing_player ~= self.id and #self.instance.players > 2 then
+    if viewed_player.kick_votes[self] then
+      table.insert(options, 2, CANCEL_VOTE_TO_KICK)
+    else
+      table.insert(options, 2, VOTE_TO_KICK)
+    end
+  end
+
+  Async.create_scope(function()
+    local response = Async.await(Async.quiz_player(self.id, options[1], options[2], options[3]))
+
+    if not response then
+      return
+    end
+
+    local option = options[response + 1]
+
+    if option == VOTE_TO_KICK then
+      viewed_player.kick_votes[self] = true
+      viewed_player.total_kick_votes = viewed_player.total_kick_votes + 1
+      if viewed_player:resolve_kick_vote() then
+        viewed_player:complete_turn()
+      end
+    elseif option == CANCEL_VOTE_TO_KICK then
+      viewed_player.kick_votes[self] = nil
+      viewed_player.total_kick_votes = viewed_player.total_kick_votes - 1
+      if viewed_player:resolve_kick_vote() then
+        viewed_player:complete_turn()
+      end
+    elseif option == ABANDON then
+      local abandon_response = Async.await(self:question_with_mug("Abandon mission?"))
+
+      if abandon_response == 1 then
+        if self.instance:taking_enemy_turn() then
+          -- vote self out
+          self.kick_vote_successful = true
+        else
+          self.instance:kick_player(self.id, "abandoned")
+        end
+      end
+    end
+  end)
+end
+
+function Player:resolve_kick_vote()
+  if not self.kick_vote_successful then
+    self.kick_vote_successful = self.total_kick_votes >= math.ceil(#self.instance.players / 2)
+
+    for _, player in ipairs(self.instance.players) do
+      if player.kick_votes[self] then
+        player.kick_votes[self] = nil
+        player.total_kick_votes = player.total_kick_votes - 1
+      end
+    end
+  end
+
+  return self.kick_vote_successful
 end
 
 function Player:handle_disconnect()

@@ -292,13 +292,31 @@ local function liberate_panel(self, player)
 end
 
 ---@param self Liberation.MissionInstance
+local function handle_vote_kick(self)
+  local kicked_players = {}
+
+  for _, player in ipairs(self.players) do
+    -- note: this includes spectators that are abandoning during the enemy turn
+    if player.kick_vote_successful then
+      kicked_players[#kicked_players + 1] = player
+    end
+  end
+
+  for _, player in ipairs(kicked_players) do
+    self:kick_player(player.id, "abandoned")
+  end
+end
+
+---@param self Liberation.MissionInstance
 local function take_enemy_turn(self)
   if self.needs_disposal then
     self:destroy()
     return
   end
 
-  self.updating = true
+  handle_vote_kick(self)
+
+  self._taking_enemy_turn = true
 
   Async.create_scope(function()
     local hold_time = .15
@@ -458,7 +476,9 @@ local function take_enemy_turn(self)
     self.phase = self.phase + 1
   end)
       .and_then(function()
-        self.updating = false
+        self._taking_enemy_turn = false
+
+        handle_vote_kick(self)
 
         if self.needs_disposal then
           self:destroy()
@@ -504,7 +524,7 @@ end
 ---@field package spawn_positions Net.Object[]
 ---@field package abandon_points table<number, table<number, table<number, boolean>>>
 ---@field package net_listeners [string, fun()][]
----@field package updating boolean
+---@field package _taking_enemy_turn boolean
 ---@field package needs_disposal boolean
 local MissionInstance = {}
 
@@ -560,7 +580,7 @@ function MissionInstance:new(area_id)
     abandon_points = {},
     net_listeners = {},
     events = Net.EventEmitter.new(),
-    updating = false,
+    _taking_enemy_turn = false,
     needs_disposal = false
   }
 
@@ -859,7 +879,7 @@ function MissionInstance:kick_player(player_id, reason)
 end
 
 function MissionInstance:destroy()
-  if self.updating then
+  if self._taking_enemy_turn then
     -- mark as needs_disposal to clean up after async functions complete
     self.needs_disposal = true
     return
@@ -882,6 +902,10 @@ end
 
 function MissionInstance:destroying()
   return self.needs_disposal
+end
+
+function MissionInstance:taking_enemy_turn()
+  return self._taking_enemy_turn
 end
 
 ---@package
@@ -913,7 +937,7 @@ function MissionInstance:handle_tile_interaction(player_id, x, y, z, button)
   end
 
   if player.completed_turn then
-    player:cycle_camera_target()
+    player:handle_spectator_input(button)
     return
   end
 
@@ -1004,6 +1028,10 @@ function MissionInstance:handle_tile_interaction(player_id, x, y, z, button)
     )
 
     quiz_promise.and_then(function(response)
+      if player.kick_vote_successful then
+        return
+      end
+
       if response == 0 then
         -- Liberate
         liberate_panel(self, player)
