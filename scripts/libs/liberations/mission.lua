@@ -517,9 +517,9 @@ end
 ---@field dark_holes Liberation.PanelObject[]
 ---@field indestructible_panels Liberation.PanelObject[]
 ---@field gate_panels Liberation.PanelObject[]
----@field panel_template_map table<string, Liberation.PanelTemplate[]>
----@field collision_template Net.ObjectOptions
----@field marker_template Net.ObjectOptions
+---@field package panel_template_map table<string, Liberation.PanelTemplate[]>
+---@field package collision_template Net.ObjectOptions
+---@field package marker_template Net.ObjectOptions
 ---@field events Net.EventEmitter "dark_hole_liberated" {}, "money" { player_id, money }, "player_kicked" { player_id, reason }, "player_disconnect" { player }, "destroyed" {}
 ---@field package spawn_positions Net.Object[]
 ---@field package abandon_points table<number, table<number, table<number, boolean>>>
