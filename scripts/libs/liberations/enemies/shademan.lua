@@ -81,7 +81,8 @@ function ShadeMan:get_death_message()
   return "Grr! I can't\nbelieve I've been\ndisgraced again...!\nGyaaaahh!!"
 end
 
-function ShadeMan:banter(player_id)
+---@param player Liberation.Player
+function ShadeMan:banter(player)
   return Async.create_scope(function()
     if self.is_engaged then
       return
@@ -89,8 +90,7 @@ function ShadeMan:banter(player_id)
 
     self.is_engaged = true
 
-    Async.await(Async.message_player(player_id, "Your deletion will be delicious!", self.mug.texture_path,
-      self.mug.animation_path))
+    Async.await(player:message("Your deletion will be delicious!", self.mug.texture_path, self.mug.animation_path))
   end)
 end
 

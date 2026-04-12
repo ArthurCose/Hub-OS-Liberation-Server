@@ -67,7 +67,8 @@ function BlizzardMan:new(options)
   return blizzardman
 end
 
-function BlizzardMan:banter(player_id)
+---@param player Liberation.Player
+function BlizzardMan:banter(player)
   return Async.create_scope(function()
     if self.is_engaged then
       return
@@ -75,9 +76,9 @@ function BlizzardMan:banter(player_id)
 
     self.is_engaged = true
 
-    Async.await(Async.message_player(player_id, "I didn't think you would make it this far! *Whoosh*",
+    Async.await(player:message("I didn't think you would make it this far! *Whoosh*",
       self.mug.texture_path, self.mug.animation_path))
-    Async.await(Async.message_player(player_id, "I'll freeze you to the bone!", self.mug.texture_path,
+    Async.await(player:message("I'll freeze you to the bone!", self.mug.texture_path,
       self.mug.animation_path))
   end)
 end

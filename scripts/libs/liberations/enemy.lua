@@ -14,7 +14,7 @@
 ---@field new fun(self: Liberation.Enemy, options: Liberation.EnemyOptions): Liberation.Enemy
 ---@field take_turn fun(self: Liberation.Enemy): Net.Promise
 ---@field get_death_message fun(self: Liberation.Enemy): string
----@field banter fun(self: Liberation.Enemy, player_id: Net.ActorId): Net.Promise
+---@field banter fun(self: Liberation.Enemy, player: Liberation.Player): Net.Promise
 
 local built_in_enemies = {
   BigBrute = require("scripts/libs/liberations/enemies/bigbrute"),

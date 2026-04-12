@@ -34,6 +34,7 @@ local HURT_SFX = Preloader.add_asset("/server/assets/liberations/sounds/hurt.ogg
 ---@field kick_votes table<Liberation.Player, boolean>
 ---@field total_kick_votes number
 ---@field kick_vote_successful? boolean
+---@field unresolved_promises table
 ---@field abandoning boolean?
 ---@field disconnected boolean
 ---@field disconnected_position Net.Position?
@@ -60,6 +61,7 @@ function Player:new(instance, player_id)
     viewing_player = self.id,
     kick_votes = {},
     total_kick_votes = 0,
+    unresolved_promises = {},
     disconnected = false,
   }
 
@@ -143,11 +145,41 @@ function Player:unstack_lock_movement()
   Net.unlock_player_movement(self.id)
 end
 
+---Wraps promises to end immediately if the player was kicked or disconnected
+---@generic T
+---@param promise_constructor fun(): Net.Promise<T>
+---@returns Net.Promise<T|nil>
+function Player:wrap_promise(promise_constructor)
+  return Async.create_promise(function(resolve)
+    local resolved = false
+
+    if self.kick_vote_successful or self.disconnected then
+      resolve(nil)
+      return
+    end
+
+    local resolve_once = function(value)
+      if not resolved then
+        resolve(value)
+      end
+    end
+
+    self.unresolved_promises[resolve_once] = true
+
+    promise_constructor().and_then(function(value)
+      resolve_once(value)
+      self.unresolved_promises[resolve_once] = nil
+    end)
+  end)
+end
+
 ---@param message string
 ---@param texture_path? string
 ---@param animation_path? string
 function Player:message(message, texture_path, animation_path)
-  return Async.message_player(self.id, message, texture_path, animation_path)
+  return self:wrap_promise(function()
+    return Async.message_player(self.id, message, texture_path, animation_path)
+  end)
 end
 
 ---@param message string
@@ -155,34 +187,34 @@ end
 ---@param texture_path? string
 ---@param animation_path? string
 function Player:message_auto(message, close_delay, texture_path, animation_path)
-  return Async.message_player_auto(self.id, message, close_delay, texture_path, animation_path)
+  return self:wrap_promise(function()
+    return Async.message_player_auto(self.id, message, close_delay, texture_path, animation_path)
+  end)
 end
 
 ---@param message string
 function Player:message_with_mug(message)
-  if self.disconnected then
-    return Async.create_scope(function() end)
-  end
-
-  local mug = Net.get_player_mugshot(self.id)
-  return self:message(message, mug.texture_path, mug.animation_path)
+  return self:wrap_promise(function()
+    local mug = Net.get_player_mugshot(self.id)
+    return Async.message_player(self.id, message, mug.texture_path, mug.animation_path)
+  end)
 end
 
 ---@param question string
 ---@param texture_path? string
 ---@param animation_path? string
 function Player:question(question, texture_path, animation_path)
-  return Async.question_player(self.id, question, texture_path, animation_path)
+  return self:wrap_promise(function()
+    return Async.question_player(self.id, question, texture_path, animation_path)
+  end)
 end
 
 ---@param question string
 function Player:question_with_mug(question)
-  if self.disconnected then
-    return Async.create_scope(function() end)
-  end
-
-  local mug = Net.get_player_mugshot(self.id)
-  return self:question(question, mug.texture_path, mug.animation_path)
+  return self:wrap_promise(function()
+    local mug = Net.get_player_mugshot(self.id)
+    return Async.question_player(self.id, question, mug.texture_path, mug.animation_path)
+  end)
 end
 
 ---@param a string
@@ -191,7 +223,9 @@ end
 ---@param texture_path? string
 ---@param animation_path? string
 function Player:quiz(a, b, c, texture_path, animation_path)
-  return Async.quiz_player(self.id, a, b, c, texture_path, animation_path)
+  return self:wrap_promise(function()
+    return Async.quiz_player(self.id, a, b, c, texture_path, animation_path)
+  end)
 end
 
 function Player:get_ability_permission()
@@ -823,7 +857,7 @@ function Player:handle_spectator_input(button)
   ---@type Liberation.Player
   local viewed_player = self.instance.player_map[self.viewing_player]
 
-  if viewed_player and self.viewing_player ~= self.id and #self.instance.players > 2 then
+  if viewed_player and self.viewing_player ~= self.id and #self.instance.players > 2 and not self.kick_vote_successful then
     if viewed_player.kick_votes[self] then
       table.insert(options, 2, CANCEL_VOTE_TO_KICK)
     else
@@ -840,13 +874,13 @@ function Player:handle_spectator_input(button)
 
     local option = options[response + 1]
 
-    if option == VOTE_TO_KICK then
+    if option == VOTE_TO_KICK and not self.kick_vote_successful then
       viewed_player.kick_votes[self] = true
       viewed_player.total_kick_votes = viewed_player.total_kick_votes + 1
       if viewed_player:resolve_kick_vote() then
         viewed_player:complete_turn()
       end
-    elseif option == CANCEL_VOTE_TO_KICK then
+    elseif option == CANCEL_VOTE_TO_KICK and not self.kick_vote_successful then
       viewed_player.kick_votes[self] = nil
       viewed_player.total_kick_votes = viewed_player.total_kick_votes - 1
       if viewed_player:resolve_kick_vote() then
@@ -871,10 +905,16 @@ function Player:resolve_kick_vote()
   if not self.kick_vote_successful then
     self.kick_vote_successful = self.total_kick_votes >= math.ceil(#self.instance.players / 2)
 
-    for _, player in ipairs(self.instance.players) do
-      if player.kick_votes[self] then
-        player.kick_votes[self] = nil
-        player.total_kick_votes = player.total_kick_votes - 1
+    if self.kick_vote_successful then
+      for _, player in ipairs(self.instance.players) do
+        if player.kick_votes[self] then
+          player.kick_votes[self] = nil
+          player.total_kick_votes = player.total_kick_votes - 1
+        end
+      end
+
+      for resolve in pairs(self.unresolved_promises) do
+        resolve(nil)
       end
     end
   end

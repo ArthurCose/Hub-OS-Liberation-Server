@@ -75,7 +75,7 @@ function Bladia:get_death_message()
   return "Gyaaaahh!!"
 end
 
-function Bladia:banter(player_id)
+function Bladia:banter(player)
   return Async.create_scope(function() end)
 end
 

@@ -189,7 +189,7 @@ local function liberate_panel(self, player)
         data.health = enemy.health
         data.rank = enemy.rank
 
-        Async.await(enemy:banter(player.id))
+        Async.await(enemy:banter(player))
       elseif panel.enemy then
         -- hidden enemy within dark panel
         local hidden_enemy = panel.enemy
