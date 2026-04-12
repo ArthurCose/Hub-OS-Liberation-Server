@@ -766,6 +766,10 @@ function MissionInstance:new(area_id)
     mission:handle_object_interaction(event.player_id, event.object_id, event.button)
   end)
 
+  add_event_listener("actor_interaction", function(event)
+    mission:handle_actor_interaction(event.player_id, event.actor_id, event.button)
+  end)
+
   add_event_listener("player_move", function(event)
     mission:handle_player_move(event.player_id, event.x, event.y, event.z)
   end)
@@ -1051,6 +1055,17 @@ function MissionInstance:handle_object_interaction(player_id, object_id, button)
   end
 
   self:handle_tile_interaction(player_id, object.x, object.y, object.z, button)
+end
+
+---@package
+function MissionInstance:handle_actor_interaction(player_id, _actor_id, button)
+  local x, y, z = Net.get_player_position_multi(player_id)
+
+  if not x then
+    return
+  end
+
+  self:handle_tile_interaction(player_id, x, y, z, button)
 end
 
 ---@package
