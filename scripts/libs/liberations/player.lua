@@ -585,6 +585,7 @@ function Player:give_turn()
   end
 
   self:unlock_movement()
+  self.viewing_player = nil
   Net.track_with_player_camera(self.id, self.id)
 end
 
@@ -949,6 +950,11 @@ function Player:handle_disconnect()
 
   for _ = 1, self.stacked_movement_locks do
     Net.unlock_player_movement(self.id)
+  end
+
+  if self.viewing_player and self.viewing_player ~= self.id then
+    self.viewing_player = nil
+    Net.track_with_player_camera(self.id, self.id)
   end
 end
 
