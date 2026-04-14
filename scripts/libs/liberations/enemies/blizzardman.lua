@@ -1,15 +1,12 @@
 local EnemySelection = require("scripts/libs/liberations/selections/enemy_selection")
-local EnemyHelpers = require("scripts/libs/liberations/enemy_helpers")
 local Preloader = require("scripts/libs/liberations/preloader")
 
 local SNOWBALL_TEXTURE_PATH = Preloader.add_asset("/server/assets/liberations/bots/snowball.png")
 local SNOWBALL_ANIMATION_PATH = Preloader.add_asset("/server/assets/liberations/bots/snowball.animation")
 
----@class Liberation.Enemies.BlizzardMan: Liberation.Enemy
----@field instance Liberation.MissionInstance
----@field selection Liberation.EnemySelection
+---@class Liberation.Enemies.BlizzardMan: Liberation.EnemyAi
 ---@field damage number
----@field direction string
+---@field selection Liberation.EnemySelection
 ---@field is_engaged boolean
 local BlizzardMan = {}
 
@@ -27,27 +24,14 @@ local rank_to_index = {
 local mob_health = { 400, 1200, 1600, 2000 }
 local mob_damage = { 40, 80, 120, 160 }
 
----@param options Liberation.EnemyOptions
----@return Liberation.Enemies.BlizzardMan
-function BlizzardMan:new(options)
-  local rank_index = rank_to_index[options.rank]
+---@param builder Liberation.EnemyBuilder
+function BlizzardMan:new(builder)
+  local rank_index = rank_to_index[builder.rank]
 
+  ---@type Liberation.Enemies.BlizzardMan
   local blizzardman = {
-    instance = options.instance,
-    id = nil,
-    health = mob_health[rank_index],
-    max_health = mob_health[rank_index],
     damage = mob_damage[rank_index],
-    rank = options.rank,
-    x = math.floor(options.position.x),
-    y = math.floor(options.position.y),
-    z = math.floor(options.position.z),
-    mug = {
-      texture_path = "/server/assets/liberations/mugs/blizzardman.png",
-      animation_path = "/server/assets/liberations/mugs/blizzardman.animation",
-    },
-    encounter = options.encounter,
-    selection = EnemySelection:new(options.instance),
+    selection = EnemySelection:new(builder.instance),
     is_engaged = false
   }
 
@@ -62,13 +46,24 @@ function BlizzardMan:new(options)
   }
 
   blizzardman.selection:set_shape(shape, 0, -2)
-  blizzardman:spawn(options.direction)
 
-  return blizzardman
+  return builder:build({
+    ai = blizzardman,
+    name = "BlizzardMan",
+    health = mob_health[rank_index],
+    max_health = mob_health[rank_index],
+    texture_path = "/server/assets/liberations/bots/blizzardman.png",
+    animation_path = "/server/assets/liberations/bots/blizzardman.animation",
+    mug = {
+      texture_path = "/server/assets/liberations/mugs/blizzardman.png",
+      animation_path = "/server/assets/liberations/mugs/blizzardman.animation",
+    },
+  })
 end
 
+---@param actor Liberation.Enemy
 ---@param player Liberation.Player
-function BlizzardMan:banter(player)
+function BlizzardMan:banter(actor, player)
   return Async.create_scope(function()
     if self.is_engaged then
       return
@@ -76,46 +71,39 @@ function BlizzardMan:banter(player)
 
     self.is_engaged = true
 
-    Async.await(player:message("I didn't think you would make it this far! *Whoosh*",
-      self.mug.texture_path, self.mug.animation_path))
-    Async.await(player:message("I'll freeze you to the bone!", self.mug.texture_path,
-      self.mug.animation_path))
+    Async.await(player:message(
+      "I didn't think you would make it this far! *Whoosh*",
+      actor.mug.texture_path,
+      actor.mug.animation_path
+    ))
+    Async.await(player:message(
+      "I'll freeze you to the bone!",
+      actor.mug.texture_path,
+      actor.mug.animation_path
+    ))
   end)
 end
 
-function BlizzardMan:spawn(direction)
-  self.id = Net.create_bot({
-    name = "BlizzardMan",
-    texture_path = "/server/assets/liberations/bots/blizzardman.png",
-    animation_path = "/server/assets/liberations/bots/blizzardman.animation",
-    area_id = self.instance.area_id,
-    direction = direction,
-    warp_in = false,
-    x = self.x + .5,
-    y = self.y + .5,
-    z = self.z
-  })
-  Net.set_bot_map_color(self.id, EnemyHelpers.BOSS_MINIMAP_COLOR)
-end
-
-function BlizzardMan:get_death_message()
+function BlizzardMan:get_final_message()
   return "Woosh!\nI can't believe\nit. I can't lose.\nNOOOO!"
 end
 
-function BlizzardMan:take_turn()
+function BlizzardMan:take_turn(actor)
   return Async.create_scope(function()
-    if not debug and self.instance.phase == 1 then
-      for _, player in ipairs(self.instance.players) do
+    local instance = actor.instance
+
+    if not debug and instance.phase == 1 then
+      for _, player in ipairs(instance.players) do
         player:message_auto(
           "I'll turn this area into a Nebula ski resort! Got it?",
           2,
-          self.mug.texture_path,
-          self.mug.animation_path
+          actor.mug.texture_path,
+          actor.mug.animation_path
         )
       end
     end
 
-    self.selection:move(self, Net.get_bot_direction(self.id))
+    self.selection:move(actor, Net.get_bot_direction(actor.id))
 
     local caught_players = self.selection:detect_players()
 
@@ -127,24 +115,24 @@ function BlizzardMan:take_turn()
 
     Async.await(Async.sleep(1))
 
-    for _, player in ipairs(self.instance.players) do
+    for _, player in ipairs(instance.players) do
       player:message_auto(
         "Shiver in my\ndeep winter!",
         1.5,
-        self.mug.texture_path,
-        self.mug.animation_path
+        actor.mug.texture_path,
+        actor.mug.animation_path
       )
       player:message_auto(
         "Snowball!",
         1.5,
-        self.mug.texture_path,
-        self.mug.animation_path
+        actor.mug.texture_path,
+        actor.mug.animation_path
       )
     end
 
     Async.await(Async.sleep(4.5))
 
-    EnemyHelpers.play_attack_animation(self)
+    actor:play_attack_animation()
 
     Async.await(Async.sleep(.5))
 
@@ -156,7 +144,7 @@ function BlizzardMan:take_turn()
         local snowball_bot_id = Net.create_bot({
           texture_path = SNOWBALL_TEXTURE_PATH,
           animation_path = SNOWBALL_ANIMATION_PATH,
-          area_id = self.instance.area_id,
+          area_id = instance.area_id,
           warp_in = false,
           x = player_x + 1 / 32,
           y = player_y + 1 / 32,
@@ -189,7 +177,7 @@ function BlizzardMan:take_turn()
 
     Async.await(Async.sleep(.5))
 
-    for _, player in ipairs(self.instance.players) do
+    for _, player in ipairs(instance.players) do
       Net.shake_player_camera(player.id, 2, .5)
     end
 
@@ -203,7 +191,7 @@ function BlizzardMan:take_turn()
       Net.remove_bot(bot_id, false)
     end
 
-    EnemyHelpers.play_idle_animation(self)
+    actor:play_idle_animation()
 
     self.selection:remove_indicators()
   end)

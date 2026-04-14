@@ -114,7 +114,7 @@ Loot.MAJOR_HIT = {
 
       local enemy = player:find_closest_guardian() or instance.boss
 
-      Async.await(Enemy.focus(instance, enemy, function()
+      Async.await(enemy:focus(function()
         -- wait before showing the attack
         Async.await(Async.sleep(0.5))
 
@@ -158,7 +158,7 @@ Loot.MAJOR_HIT = {
         Async.await(Async.sleep(0.5))
 
         -- play delete animation
-        Async.await(Enemy.destroy_in_focus(instance, enemy))
+        Async.await(enemy:destroy_in_focus())
       end))
     end)
   end

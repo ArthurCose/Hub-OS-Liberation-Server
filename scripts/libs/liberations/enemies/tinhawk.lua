@@ -1,12 +1,10 @@
-local EnemyHelpers = require("scripts/libs/liberations/enemy_helpers")
 local EnemySelection = require("scripts/libs/liberations/selections/enemy_selection")
 local Preloader = require("scripts/libs/liberations/preloader")
 local Direction = require("scripts/libs/direction")
 
 local ATTACK_SFX = Preloader.add_asset("/server/assets/liberations/sounds/tinhawk_attack.ogg")
 
----@class Liberation.Enemies.TinHawk: Liberation.Enemy
----@field package instance Liberation.MissionInstance
+---@class Liberation.Enemies.TinHawk: Liberation.EnemyAi
 ---@field package selection Liberation.EnemySelection
 ---@field package damage number
 local TinHawk = {}
@@ -56,52 +54,32 @@ local MOVE_SHAPE = {
   { 0, 0, 1, 1, 1, 0, 0 },
 }
 
----@param options Liberation.EnemyOptions
-function TinHawk:new(options)
-  local rank_index = rank_to_index[options.rank]
+---@param builder Liberation.EnemyBuilder
+function TinHawk:new(builder)
+  local rank_index = rank_to_index[builder.rank]
 
+  ---@type Liberation.Enemies.TinHawk
   local tinhawk = {
-    instance = options.instance,
-    id = nil,
-    health = mob_health[rank_index],
-    max_health = mob_health[rank_index],
+    selection = EnemySelection:new(builder.instance),
     damage = mob_damage[rank_index],
-    rank = options.rank,
-    x = math.floor(options.position.x),
-    y = math.floor(options.position.y),
-    z = math.floor(options.position.z),
-    selection = EnemySelection:new(options.instance),
-    encounter = options.encounter
   }
 
   setmetatable(tinhawk, self)
   self.__index = self
 
-
   tinhawk.selection:set_shape(ATTACK_SHAPE, 0, - #ATTACK_SHAPE // 2)
-  tinhawk:spawn(options.direction)
 
-  return tinhawk
-end
-
-function TinHawk:spawn(direction)
-  local rank_index = rank_to_index[self.rank]
-
-  self.id = Net.create_bot({
+  return builder:build({
+    ai = tinhawk,
     name = "TinHawk",
+    health = mob_health[rank_index],
+    max_health = mob_health[rank_index],
     texture_path = "/server/assets/liberations/bots/" .. textures[rank_index],
     animation_path = "/server/assets/liberations/bots/tinhawk.animation",
-    area_id = self.instance.area_id,
-    direction = direction,
-    warp_in = false,
-    x = self.x + .5,
-    y = self.y + .5,
-    z = self.z
   })
-  Net.set_bot_map_color(self.id, EnemyHelpers.GUARDIAN_MINIMAP_MARKER)
 end
 
-function TinHawk:get_death_message()
+function TinHawk:get_final_message()
   return "Gyaaaaahh!!"
 end
 
@@ -110,9 +88,10 @@ function TinHawk:banter()
 end
 
 ---@param self Liberation.Enemies.TinHawk
-local function attempt_move(self)
+---@param actor Liberation.Enemy
+local function attempt_move(self, actor)
   return Async.create_scope(function()
-    local player = EnemyHelpers.find_closest_player(self.instance, self)
+    local player = actor:find_closest_player()
 
     if not player then
       return
@@ -126,16 +105,16 @@ local function attempt_move(self)
     local player_tile_y = math.floor(player_y)
 
     local initial_chebyshev = math.max(
-      math.abs(self.x - player_tile_x),
-      math.abs(self.y - player_tile_y)
+      math.abs(actor.x - player_tile_x),
+      math.abs(actor.y - player_tile_y)
     )
     local initial_manhatten =
-        math.abs(self.x - player_tile_x) +
-        math.abs(self.y - player_tile_y)
+        math.abs(actor.x - player_tile_x) +
+        math.abs(actor.y - player_tile_y)
 
     self.selection:set_shape(MOVE_SHAPE, 0, - #MOVE_SHAPE // 2)
     self.selection:for_each_tile(function(x, y, z)
-      if not EnemyHelpers.can_move_to(self.instance, x, y, z) then
+      if not actor:can_move_to(x, y, z) then
         return
       end
 
@@ -149,7 +128,7 @@ local function attempt_move(self)
         ),
         -- manhatten distance
         math.abs(x - player_tile_x) + math.abs(y - player_tile_y),
-        self.instance:get_panel_at(x, y, z)
+        actor.instance:get_panel_at(x, y, z)
       }
     end)
 
@@ -164,7 +143,7 @@ local function attempt_move(self)
       test_position.z = panel.z
 
       self.selection:move(test_position, Direction.DOWN_LEFT)
-      tuple[1] = self.selection:is_within(player_x, player_y, self.z)
+      tuple[1] = self.selection:is_within(player_x, player_y, actor.z)
     end
 
     if #valid_panels == 0 then
@@ -192,24 +171,23 @@ local function attempt_move(self)
       return false
     end
 
-    Async.await(EnemyHelpers.move(
-      self.instance,
-      self,
+    Async.await(actor:move(
       panel.x,
       panel.y,
       panel.z
     ))
 
-    EnemyHelpers.face_position(self, player_x, player_y)
+    actor:face_position(player_x, player_y)
 
     return true
   end)
 end
 
 ---@param self Liberation.Enemies.TinHawk
-local function attempt_attack(self)
+---@param actor Liberation.Enemy
+local function attempt_attack(self, actor)
   return Async.create_scope(function()
-    self.selection:move(self, Net.get_bot_direction(self.id))
+    self.selection:move(actor, Net.get_bot_direction(actor.id))
 
     -- find target
     local caught_players = self.selection:detect_players()
@@ -220,10 +198,10 @@ local function attempt_attack(self)
 
       local player_x, player_y, player_z = player:position_multi()
 
-      local x_enemy = self.instance:get_enemy_at(player_x - 1, player_y, player_z)
-      local y_enemy = self.instance:get_enemy_at(player_x, player_y - 1, player_z)
+      local x_enemy = actor.instance:get_enemy_at(player_x - 1, player_y, player_z)
+      local y_enemy = actor.instance:get_enemy_at(player_x, player_y - 1, player_z)
 
-      if x_enemy and x_enemy ~= self and y_enemy and y_enemy ~= self then
+      if x_enemy and x_enemy ~= actor and y_enemy and y_enemy ~= actor then
         -- swap remove
         caught_players[i] = caught_players[#caught_players]
         caught_players[#caught_players] = nil
@@ -238,7 +216,7 @@ local function attempt_attack(self)
 
     -- face player
     local player_position = player:position()
-    EnemyHelpers.face_position(self, player_position.x, player_position.y)
+    actor:face_position(player_position.x, player_position.y)
 
     -- delay before indicating
     Async.await(Async.sleep(0.5))
@@ -248,7 +226,7 @@ local function attempt_attack(self)
     -- delay before speaking
     Async.await(Async.sleep(1))
 
-    for _, player in ipairs(self.instance.players) do
+    for _, player in ipairs(actor.instance.players) do
       Net.message_player_auto(player.id, "Gyaaaah!\nHawkAttack!", 0.8)
     end
 
@@ -256,19 +234,19 @@ local function attempt_attack(self)
     Async.await(Async.sleep(2))
 
     -- resolve movement
-    local warp_back_pos = { x = self.x, y = self.y, z = self.z }
+    local warp_back_pos = { x = actor.x, y = actor.y, z = actor.z }
     local target_x, target_y = math.floor(player_position.x), math.floor(player_position.y)
 
-    local x_enemy = self.instance:get_enemy_at(target_x - 1, target_y, player_position.z)
-    local y_enemy = self.instance:get_enemy_at(target_x, target_y - 1, player_position.z)
+    local x_enemy = actor.instance:get_enemy_at(target_x - 1, target_y, player_position.z)
+    local y_enemy = actor.instance:get_enemy_at(target_x, target_y - 1, player_position.z)
 
-    if not (x_enemy and x_enemy ~= self) and ((y_enemy and y_enemy ~= self) or math.random(2) == 1) then
+    if not (x_enemy and x_enemy ~= actor) and ((y_enemy and y_enemy ~= actor) or math.random(2) == 1) then
       target_x = target_x - 1
     else
       target_y = target_y - 1
     end
 
-    local moving = target_x ~= self.x or target_y ~= self.y
+    local moving = target_x ~= actor.x or target_y ~= actor.y
 
     if moving then
       local target_direction = Direction.diagonal_from_offset(
@@ -276,14 +254,14 @@ local function attempt_attack(self)
         player_position.y - target_y
       )
 
-      Async.await(EnemyHelpers.move(self.instance, self, target_x, target_y, player_position.z, target_direction))
+      Async.await(actor:move(target_x, target_y, player_position.z, target_direction))
     else
-      EnemyHelpers.face_position(self, player_position.x, player_position.y)
+      actor:face_position(player_position.x, player_position.y)
     end
 
     -- attack
-    EnemyHelpers.play_attack_animation(self)
-    Net.play_sound(self.instance.area_id, ATTACK_SFX)
+    actor:play_attack_animation()
+    Net.play_sound(actor.instance.area_id, ATTACK_SFX)
     player:hurt(self.damage)
 
     Async.await(Async.sleep(.5))
@@ -296,9 +274,7 @@ local function attempt_attack(self)
       )
 
       Async.await(
-        EnemyHelpers.move(
-          self.instance,
-          self,
+        actor:move(
           warp_back_pos.x,
           warp_back_pos.y,
           warp_back_pos.z,
@@ -306,7 +282,7 @@ local function attempt_attack(self)
         )
       )
     else
-      EnemyHelpers.face_position(self, player_position.x, player_position.y)
+      actor:face_position(player_position.x, player_position.y)
     end
 
     self.selection:remove_indicators()
@@ -315,10 +291,11 @@ local function attempt_attack(self)
   end)
 end
 
-function TinHawk:take_turn()
+---@param actor Liberation.Enemy
+function TinHawk:take_turn(actor)
   return Async.create_scope(function()
-    if not Async.await(attempt_attack(self)) then
-      Async.await(attempt_move(self))
+    if not Async.await(attempt_attack(self, actor)) then
+      Async.await(attempt_move(self, actor))
     end
   end)
 end

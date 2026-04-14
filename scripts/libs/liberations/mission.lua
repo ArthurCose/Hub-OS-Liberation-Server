@@ -1,7 +1,7 @@
 local TableUtil = require("scripts/libs/liberations/table_util")
 local Player = require("scripts/libs/liberations/player")
 local Enemy = require("scripts/libs/liberations/enemy")
-local EnemyHelpers = require("scripts/libs/liberations/enemy_helpers")
+local EnemyBuilder = require("scripts/libs/liberations/enemy_builder")
 local Loot = require("scripts/libs/liberations/loot")
 local PanelClass = require("scripts/libs/liberations/panel_class")
 local TargetPhase = require("scripts/libs/liberations/target_phase")
@@ -10,6 +10,7 @@ local HealthSprites = require("scripts/libs/liberations/effects/health_sprites")
 
 local MARKERS_TEXTURE_PATH = Preloader.add_asset("/server/assets/liberations/ui/markers.png")
 local MARKERS_ANIMATION_PATH = Preloader.add_asset("/server/assets/liberations/ui/markers.animation")
+local BOSS_MINIMAP_COLOR = { 200, 15, 67 }
 
 local ENEMY_TURN_SFX = Preloader.add_asset("/server/assets/liberations/sounds/enemy_turn.ogg")
 
@@ -184,12 +185,12 @@ local function liberate_panel(self, player)
       if enemy then
         local player_x, player_y = player:position_multi()
 
-        EnemyHelpers.face_position(enemy, player_x, player_y)
+        enemy:face_position(player_x, player_y)
         encounter_path = enemy.encounter
         data.health = enemy.health
         data.rank = enemy.rank
 
-        Async.await(enemy:banter(player))
+        Async.await(enemy.ai:banter(enemy, player))
       elseif panel.enemy then
         -- hidden enemy within dark panel
         local hidden_enemy = panel.enemy
@@ -243,7 +244,7 @@ local function liberate_panel(self, player)
         Async.await(Async.sleep(1))
 
         if enemy and enemy.health <= 0 then
-          Async.await(Enemy.destroy(self, enemy))
+          Async.await(enemy:destroy())
 
           if enemy == self.boss then
             -- we saw the delete animation,
@@ -272,7 +273,11 @@ local function liberate_panel(self, player)
       Async.await(player:liberate_panels(panels, results))
 
       -- destroy enemy
-      Async.await(Enemy.destroy(self, enemy or panel.enemy))
+      local destroyed_enemy = enemy or panel.enemy
+
+      if destroyed_enemy then
+        Async.await(destroyed_enemy:destroy())
+      end
 
       if panel.class == PanelClass.DARK_HOLE and #self.dark_holes == 0 then
         convert_indestructible_panels(self)
@@ -364,13 +369,13 @@ local function take_enemy_turn(self)
 
       if enemy == self.boss then
         -- darkloids heal up to 50% of health during their turn
-        Async.await(EnemyHelpers.heal(enemy, enemy.max_health / 2))
+        Async.await(enemy:heal(enemy.max_health / 2))
       else
         -- regular enemies heal only 30%?
-        Async.await(EnemyHelpers.heal(enemy, math.floor(enemy.max_health * .3)))
+        Async.await(enemy:heal(math.floor(enemy.max_health * .3)))
       end
 
-      Async.await(enemy:take_turn())
+      Async.await(enemy.ai:take_turn(enemy))
 
       -- wait a short amount of time to look nicer if there was no action taken
       Async.await(Async.sleep(hold_time))
@@ -383,7 +388,7 @@ local function take_enemy_turn(self)
     -- dark holes!
     for _, dark_hole in ipairs(self.dark_holes) do
       -- see if we need to spawn a new enemy
-      if Enemy.is_alive(dark_hole.enemy) then
+      if dark_hole.enemy:is_alive() then
         goto continue
       end
 
@@ -432,7 +437,7 @@ local function take_enemy_turn(self)
 
       -- spawn a new enemy
       local turn_order = dark_hole.enemy.turn_order
-      dark_hole.enemy = Enemy.from(Enemy.options_from(self, dark_hole))
+      dark_hole.enemy = EnemyBuilder.from_panel(self, dark_hole):build_from_require()
       dark_hole.enemy.turn_order = turn_order
       self.enemies[#self.enemies + 1] = dark_hole.enemy
 
@@ -443,7 +448,7 @@ local function take_enemy_turn(self)
       Async.await(Async.sleep(admire_time))
 
       -- move them out
-      Async.await(EnemyHelpers.move(self, dark_hole.enemy, destination.x, destination.y, destination.z))
+      Async.await(dark_hole.enemy:move(destination.x, destination.y, destination.z))
 
       -- Needs more admiration
       Async.await(Async.sleep(admire_time))
@@ -644,8 +649,7 @@ function MissionInstance:new(area_id)
       )
     elseif object.class == "Guardian" then
       -- spawning enemies
-      local enemy_options = Enemy.options_from(mission, object)
-      local enemy = Enemy.from(enemy_options)
+      local enemy = EnemyBuilder.from_panel(mission, object):build_from_require()
       table.insert(mission.enemies, enemy)
     elseif PanelClass.ALL[object.class] then
       -- track gid
@@ -673,8 +677,9 @@ function MissionInstance:new(area_id)
 
       if object.custom_properties.Boss then
         -- spawning bosses
-        local enemy_options = Enemy.options_from(mission, panel)
-        local enemy = Enemy.from(enemy_options)
+        local enemy = EnemyBuilder.from_panel(mission, panel):build_from_require()
+
+        Net.set_bot_map_color(enemy.id, BOSS_MINIMAP_COLOR)
 
         mission.boss = enemy
         table.insert(mission.enemies, enemy)
@@ -683,25 +688,25 @@ function MissionInstance:new(area_id)
         next_turn_object = object
       elseif object.custom_properties.Spawns then
         -- spawning enemies
-        local enemy_options = Enemy.options_from(mission, panel)
+        local enemy_builder = EnemyBuilder.from_panel(mission, object)
 
         local position_id = panel.custom_properties.Position
         local position_object = position_id and Net.get_object_by_id(area_id, position_id)
 
         if position_object then
           Net.remove_object(area_id, position_id)
-          enemy_options.position.x = math.floor(position_object.x)
-          enemy_options.position.y = math.floor(position_object.y)
-          enemy_options.position.z = position_object.z
+          enemy_builder.position.x = math.floor(position_object.x)
+          enemy_builder.position.y = math.floor(position_object.y)
+          enemy_builder.position.z = position_object.z
         elseif panel.class == PanelClass.DARK_HOLE then
           -- we're not allowed to block the dark hole with an enemy
-          enemy_options.position = EnemyHelpers.offset_position_with_direction(
-            enemy_options.position,
-            enemy_options.direction
+          enemy_builder.position = Enemy.offset_position_with_direction(
+            enemy_builder.position,
+            enemy_builder.direction
           )
         end
 
-        local enemy = Enemy.from(enemy_options)
+        local enemy = enemy_builder:build_from_require()
 
         panel.enemy = enemy
         table.insert(mission.enemies, enemy)

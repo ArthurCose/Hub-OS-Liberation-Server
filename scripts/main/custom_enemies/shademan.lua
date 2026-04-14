@@ -1,11 +1,9 @@
 -- Attacks every player, instead of a single one
 
 local EnemySelection = require("scripts/libs/liberations/selections/enemy_selection")
-local EnemyHelpers = require("scripts/libs/liberations/enemy_helpers")
 local Direction = require("scripts/libs/direction")
 
----@class LiberationServer.CustomEnemies.ShadeMan: Liberation.Enemy
----@field instance Liberation.MissionInstance
+---@class LiberationServer.CustomEnemies.ShadeMan: Liberation.EnemyAi
 ---@field selection Liberation.EnemySelection
 ---@field damage number
 ---@field direction string
@@ -26,28 +24,15 @@ local rank_to_index = {
 local mob_health = { 600, 1000, 1200, 1500 }
 local mob_damage = { 60, 70, 80, 100 }
 
----@param options Liberation.EnemyOptions
----@return Liberation.Enemies.ShadeMan
-function ShadeMan:new(options)
-  local rank_index = rank_to_index[options.rank]
+---@param builder Liberation.EnemyBuilder
+function ShadeMan:new(builder)
+  local rank_index = rank_to_index[builder.rank]
 
+  ---@type LiberationServer.CustomEnemies.ShadeMan
   local shademan = {
-    instance = options.instance,
-    id = nil,
-    health = mob_health[rank_index],
-    max_health = mob_health[rank_index],
+    selection = EnemySelection:new(builder.instance),
     damage = mob_damage[rank_index],
-    rank = options.rank,
-    x = math.floor(options.position.x),
-    y = math.floor(options.position.y),
-    z = math.floor(options.position.z),
-    direction = options.direction,
-    mug = {
-      texture_path = "/server/assets/liberations/mugs/shademan.png",
-      animation_path = "/server/assets/liberations/mugs/shademan.animation",
-    },
-    encounter = options.encounter,
-    selection = EnemySelection:new(options.instance),
+    direction = builder.direction,
     is_engaged = false
   }
 
@@ -59,31 +44,27 @@ function ShadeMan:new(options)
   }
 
   shademan.selection:set_shape(shape, 0, -1)
-  shademan:spawn(options.direction)
 
-  return shademan
-end
-
-function ShadeMan:spawn(direction)
-  self.id = Net.create_bot({
+  return builder:build({
+    ai = shademan,
     name = "ShadeMan",
+    health = mob_health[rank_index],
+    max_health = mob_health[rank_index],
     texture_path = "/server/assets/liberations/bots/shademan.png",
     animation_path = "/server/assets/liberations/bots/shademan.animation",
-    area_id = self.instance.area_id,
-    direction = direction,
-    warp_in = false,
-    x = self.x + .5,
-    y = self.y + .5,
-    z = self.z
+    mug = {
+      texture_path = "/server/assets/liberations/mugs/shademan.png",
+      animation_path = "/server/assets/liberations/mugs/shademan.animation",
+    }
   })
-  Net.set_bot_map_color(self.id, EnemyHelpers.BOSS_MINIMAP_COLOR)
 end
 
-function ShadeMan:get_death_message()
+function ShadeMan:get_final_message()
   return "Grr! I can't\nbelieve I've been\ndisgraced again...!\nGyaaaahh!!"
 end
 
-function ShadeMan:banter(player)
+---@param actor Liberation.Enemy
+function ShadeMan:banter(actor, player)
   return Async.create_scope(function()
     if self.is_engaged then
       return
@@ -91,21 +72,28 @@ function ShadeMan:banter(player)
 
     self.is_engaged = true
 
-    Async.await(player:message_player("Your deletion will be delicious!", self.mug.texture_path, self.mug.animation_path))
+    Async.await(player:message_player(
+      "Your deletion will be delicious!",
+      actor.mug.texture_path,
+      actor.mug.animation_path
+    ))
   end)
 end
 
-function ShadeMan:take_turn()
+---@param actor Liberation.Enemy
+function ShadeMan:take_turn(actor)
   return Async.create_scope(function()
-    if self.instance.phase == 1 then
+    local instance = actor.instance
+
+    if instance.phase == 1 then
       Async.await(Async.sleep(0.5))
 
-      for _, player in ipairs(self.instance.players) do
+      for _, player in ipairs(instance.players) do
         player:message_auto(
           "Heh heh...let's party!",
           1.5,
-          self.mug.texture_path,
-          self.mug.animation_path
+          actor.mug.texture_path,
+          actor.mug.animation_path
         )
       end
 
@@ -118,7 +106,7 @@ function ShadeMan:take_turn()
     local targets = {}
 
     -- filter out players that we can't reach
-    for _, player in ipairs(self.instance.players) do
+    for _, player in ipairs(instance.players) do
       if player:health() <= 0 then
         goto continue
       end
@@ -126,17 +114,17 @@ function ShadeMan:take_turn()
       local player_x, player_y, player_z = player:position_multi()
 
       if
-          not self.instance:get_panel_at(player_x - 1, player_y, player_z) and
-          not self.instance:get_panel_at(player_x + 1, player_y, player_z) and
-          not self.instance:get_panel_at(player_x, player_y - 1, player_z) and
-          not self.instance:get_panel_at(player_x, player_y + 1, player_z)
+          not instance:get_panel_at(player_x - 1, player_y, player_z) and
+          not instance:get_panel_at(player_x + 1, player_y, player_z) and
+          not instance:get_panel_at(player_x, player_y - 1, player_z) and
+          not instance:get_panel_at(player_x, player_y + 1, player_z)
       then
         -- no dark panels nearby
         goto continue
       end
 
-      local x_enemy = self.instance:get_enemy_at(player_x - 1, player_y, player_z)
-      local y_enemy = self.instance:get_enemy_at(player_x, player_y - 1, player_z)
+      local x_enemy = instance:get_enemy_at(player_x - 1, player_y, player_z)
+      local y_enemy = instance:get_enemy_at(player_x, player_y - 1, player_z)
 
       if x_enemy and x_enemy ~= self and y_enemy and y_enemy ~= self then
         -- enemy in the way
@@ -155,18 +143,18 @@ function ShadeMan:take_turn()
     Async.await(Async.sleep(0.5))
 
     -- message all players.
-    for _, players in ipairs(self.instance.players) do
+    for _, players in ipairs(instance.players) do
       Async.message_player_auto(players.id,
         "Don't underestimate\nthe Darkloids!",
         0.8,
-        self.mug.texture_path,
-        self.mug.animation_path
+        actor.mug.texture_path,
+        actor.mug.animation_path
       )
     end
 
     Async.await(Async.sleep(2))
 
-    local warp_back_pos = { x = self.x, y = self.y, z = self.z }
+    local warp_back_pos = actor:floored_position()
     local warp_back_direction = self.direction
 
     for _, player in ipairs(targets) do
@@ -179,8 +167,8 @@ function ShadeMan:take_turn()
       -- resolve movement
       local target_x, target_y = math.floor(player_position.x), math.floor(player_position.y)
 
-      local x_enemy = self.instance:get_enemy_at(target_x - 1, target_y, player_position.z)
-      local y_enemy = self.instance:get_enemy_at(target_x, target_y - 1, player_position.z)
+      local x_enemy = instance:get_enemy_at(target_x - 1, target_y, player_position.z)
+      local y_enemy = instance:get_enemy_at(target_x, target_y - 1, player_position.z)
 
       if not (x_enemy and x_enemy ~= self) and ((y_enemy and y_enemy ~= self) or math.random(2) == 1) then
         target_x = target_x - 1
@@ -188,7 +176,7 @@ function ShadeMan:take_turn()
         target_y = target_y - 1
       end
 
-      local moving = target_x ~= self.x or target_y ~= self.y
+      local moving = target_x ~= actor.x or target_y ~= actor.y
 
       if moving then
         local target_direction = Direction.diagonal_from_offset(
@@ -196,16 +184,16 @@ function ShadeMan:take_turn()
           player_position.y - target_y
         )
 
-        Async.await(EnemyHelpers.move(self.instance, self, target_x, target_y, player_position.z, target_direction))
+        Async.await(actor:move(target_x, target_y, player_position.z, target_direction))
       else
-        EnemyHelpers.face_position(self, player_position.x, player_position.y)
+        actor:face_position(player_position.x, player_position.y)
       end
 
       -- indicate and attack
       self.selection:move(player_position, Direction.None)
       self.selection:indicate()
 
-      EnemyHelpers.play_attack_animation(self)
+      actor:play_attack_animation()
 
       Async.await(Async.sleep(.2))
 
@@ -216,12 +204,10 @@ function ShadeMan:take_turn()
       ::continue::
     end
 
-    if self.x ~= warp_back_pos.x or self.y ~= warp_back_pos.y or self.z ~= warp_back_pos.z then
+    if actor.x ~= warp_back_pos.x or actor.y ~= warp_back_pos.y or actor.z ~= warp_back_pos.z then
       -- warp back
       Async.await(
-        EnemyHelpers.move(
-          self.instance,
-          self,
+        actor:move(
           warp_back_pos.x,
           warp_back_pos.y,
           warp_back_pos.z,
@@ -229,8 +215,8 @@ function ShadeMan:take_turn()
         )
       )
     else
-      Net.set_bot_direction(self.id, self.direction)
-      EnemyHelpers.play_idle_animation(self)
+      Net.set_bot_direction(actor.id, self.direction)
+      actor:play_idle_animation()
     end
 
     self.selection:remove_indicators()

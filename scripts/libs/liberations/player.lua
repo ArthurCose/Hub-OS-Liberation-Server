@@ -1,6 +1,5 @@
 local PlayerSelection = require("scripts/libs/liberations/selections/player_selection")
 local Loot = require("scripts/libs/liberations/loot")
-local EnemyHelpers = require("scripts/libs/liberations/enemy_helpers")
 local HealthSprites = require("scripts/libs/liberations/effects/health_sprites")
 local ParalysisEffect = require("scripts/libs/liberations/effects/paralysis_effect")
 local RecoverEffect = require("scripts/libs/liberations/effects/recover_effect")
@@ -623,7 +622,7 @@ function Player:find_closest_guardian()
       goto continue
     end
 
-    local distance = EnemyHelpers.chebyshev_tile_distance(enemy, x, y, z)
+    local distance = enemy:chebyshev_tile_distance(x, y, z)
 
     if distance < closest_distance then
       closest_distance = distance
