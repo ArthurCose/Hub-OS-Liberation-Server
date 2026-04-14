@@ -316,6 +316,8 @@ local function take_enemy_turn(self)
 
   handle_vote_kick(self)
 
+  self._events:emit("phase_end", { team = "player" })
+
   self._taking_enemy_turn = true
 
   Async.create_scope(function()
@@ -473,6 +475,7 @@ local function take_enemy_turn(self)
       player:give_turn()
     end
 
+    self._events:emit("phase_end", { team = "darkloid" })
     self.phase = self.phase + 1
   end)
       .and_then(function()
@@ -844,9 +847,10 @@ function MissionInstance:new(area_id)
 end
 
 ---Events:
---- - "dark_hole_liberated", {}
 --- - "money", { player_id, money }
---- - "player_kicked", { player_id, reason }
+--- - "dark_hole_liberated", {}
+--- - "phase_end", { team: "player" | "darkloid" }
+--- - "player_kicked", { player_id, reason: "success" | "failure" | "abandoned" }
 --- - "player_disconnect", { player }
 --- - "destroyed", {}
 function MissionInstance:events()
