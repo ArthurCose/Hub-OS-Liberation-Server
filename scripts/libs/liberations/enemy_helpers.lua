@@ -218,7 +218,7 @@ function EnemyHelpers.find_closest_player(instance, enemy, max_distance)
   for _, player in ipairs(instance.players) do
     local player_x, player_y, player_z = player:position_multi()
 
-    if player.health == 0 or player_z ~= enemy.z then
+    if player:health() == 0 or player_z ~= enemy.z then
       goto continue
     end
 

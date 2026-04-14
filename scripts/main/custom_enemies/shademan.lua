@@ -119,7 +119,7 @@ function ShadeMan:take_turn()
 
     -- filter out players that we can't reach
     for _, player in ipairs(self.instance.players) do
-      if player.health <= 0 then
+      if player:health() <= 0 then
         goto continue
       end
 

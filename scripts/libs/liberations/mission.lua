@@ -148,7 +148,7 @@ end
 ---@param player Liberation.Player
 local function liberate_panel(self, player)
   return Async.create_scope(function()
-    local selection = player.selection
+    local selection = player:selection()
     local panel = selection:root_panel()
 
     if panel.class == PanelClass.BONUS then
@@ -297,7 +297,7 @@ local function handle_vote_kick(self)
 
   for _, player in ipairs(self.players) do
     -- note: this includes spectators that are abandoning during the enemy turn
-    if player.kick_vote_successful then
+    if player:resolve_kick_vote() then
       kicked_players[#kicked_players + 1] = player
     end
   end
@@ -324,7 +324,7 @@ local function take_enemy_turn(self)
     local down_count = 0
 
     for _, player in ipairs(self.players) do
-      if player.health == 0 then
+      if player:health() == 0 then
         down_count = down_count + 1
       end
     end
@@ -460,7 +460,7 @@ local function take_enemy_turn(self)
       Net.unlock_player_camera(player.id)
 
       -- If they aren't paralyzed or otherwise unable to move, return input
-      if not player.paralysis_effect then
+      if not player:paralyzed() then
         player:unlock_movement()
       end
     end
@@ -497,6 +497,9 @@ end
 ---@field height number
 ---@field data { type: "Tile", gid: number }
 
+---@class Liberation.MissionInstance._InternalPlayerData
+---@field in_abandon_bounds? boolean
+
 -- public
 ---@class Liberation.MissionInstance
 ---@field area_id string
@@ -511,6 +514,7 @@ end
 ---@field points_of_interest Net.Object[]
 ---@field players Liberation.Player[]
 ---@field player_map table<Net.ActorId, Liberation.Player>
+---@field package internal_player_data table<Net.ActorId, Liberation.MissionInstance._InternalPlayerData>
 ---@field boss Liberation.Enemy
 ---@field enemies Liberation.Enemy[]
 ---@field panels table<number, table<number, table<number, Liberation.PanelObject>>>
@@ -544,6 +548,7 @@ function MissionInstance:new(area_id)
     points_of_interest = {},
     players = {},
     player_map = {},
+    internal_player_data = {},
     boss = nil,
     enemies = {},
     panels = {},
@@ -774,7 +779,7 @@ function MissionInstance:new(area_id)
     local player = mission.player_map[event.player_id]
 
     if player then
-      player.emote_delay = 3
+      player:handle_emote()
     end
   end)
 
@@ -916,13 +921,8 @@ function MissionInstance:tick(elapsed)
     take_enemy_turn(self)
   end
 
-
   for _, player in ipairs(self.players) do
-    if player.emote_delay <= 0 then
-      player:emote_state()
-    else
-      player.emote_delay = player.emote_delay - elapsed
-    end
+    player:tick(elapsed)
   end
 end
 
@@ -936,7 +936,7 @@ function MissionInstance:handle_tile_interaction(player_id, x, y, z, button)
     return
   end
 
-  if player.completed_turn then
+  if player:completed_turn() then
     player:handle_spectator_input(button)
     return
   end
@@ -963,7 +963,7 @@ function MissionInstance:handle_tile_interaction(player_id, x, y, z, button)
 
   if panel then
     for _, p in ipairs(self.players) do
-      if p.selection:root_panel() == panel then
+      if p:selection():root_panel() == panel then
         panel_already_selected = true
         break
       end
@@ -1022,7 +1022,7 @@ function MissionInstance:handle_tile_interaction(player_id, x, y, z, button)
     PanelClass.ABILITY_ACTIONABLE[panel.class]
   )
 
-  player.selection:select_panel(panel)
+  player:selection():select_panel(panel)
 
   if ability and can_use_ability then
     local quiz_promise = player:quiz(
@@ -1035,27 +1035,23 @@ function MissionInstance:handle_tile_interaction(player_id, x, y, z, button)
     )
 
     quiz_promise.and_then(function(response)
-      if player.kick_vote_successful then
-        return
-      end
-
       if response == 0 then
         -- Liberate
         liberate_panel(self, player)
       elseif response == 1 then
         -- Ability
         local selection_shape, shape_offset_x, shape_offset_y = ability.generate_shape(self, player)
-        player.selection:set_shape(selection_shape, shape_offset_x, shape_offset_y)
+        player:selection():set_shape(selection_shape, shape_offset_x, shape_offset_y)
 
         -- ask if we should use the ability
         player:get_ability_permission()
       elseif response == 2 then
         -- Pass
-        player.selection:clear()
+        player:selection():clear()
         player:get_pass_turn_permission()
       else
         -- Cancel
-        player.selection:clear()
+        player:selection():clear()
         player:unlock_movement()
       end
     end)
@@ -1077,11 +1073,11 @@ function MissionInstance:handle_tile_interaction(player_id, x, y, z, button)
       liberate_panel(self, player)
     elseif response == 1 then
       -- Pass
-      player.selection:clear()
+      player:selection():clear()
       player:get_pass_turn_permission()
     elseif response == 2 then
       -- Cancel
-      player.selection:clear()
+      player:selection():clear()
       player:unlock_movement()
     end
   end)
@@ -1118,20 +1114,22 @@ function MissionInstance:handle_player_move(player_id, x, y, z)
     return
   end
 
-  local abandoning = TableUtil.get(
+  local in_abandon_bounds = TableUtil.get(
     self.abandon_points,
     math.floor(x),
     math.floor(y),
     math.floor(z)
   )
 
-  if abandoning == player.abandoning then
+  local internal_data = self:access_internal_player_data(player_id)
+
+  if in_abandon_bounds == internal_data.in_abandon_bounds then
     return
   end
 
-  player.abandoning = abandoning
+  internal_data.in_abandon_bounds = in_abandon_bounds
 
-  if abandoning then
+  if in_abandon_bounds then
     player:question_with_mug("Abandon mission?").and_then(function(response)
       if response == 1 then
         self:kick_player(player_id, "abandoned")
@@ -1147,6 +1145,7 @@ function MissionInstance:handle_player_disconnect(player_id)
   if not player then return end
 
   self.player_map[player_id] = nil
+  self.internal_player_data[player_id] = nil
 
   for i, p in ipairs(self.players) do
     if player == p then
@@ -1158,8 +1157,16 @@ function MissionInstance:handle_player_disconnect(player_id)
   player:handle_disconnect()
 end
 
-function MissionInstance:get_players()
-  return self.players
+---@package
+function MissionInstance:access_internal_player_data(player_id)
+  local data = self.internal_player_data[player_id]
+
+  if not data then
+    data = {}
+    self.internal_player_data[player_id] = data
+  end
+
+  return data
 end
 
 -- helper functions

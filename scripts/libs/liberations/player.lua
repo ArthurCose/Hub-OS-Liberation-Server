@@ -18,26 +18,25 @@ local HURT_SFX = Preloader.add_asset("/server/assets/liberations/sounds/hurt.ogg
 ---@class Liberation.Player
 ---@field instance Liberation.MissionInstance
 ---@field id Net.ActorId
----@field health number
----@field paralysis_effect Liberation.ParalysisEffect?
----@field paralysis_counter number
----@field emote_delay number
----@field order_points_sprite_id Net.SpriteId?
----@field invincible boolean
----@field completed_turn boolean
----@field selection Liberation.PlayerSelection
 ---@field ability Liberation.Ability?
 ---@field spectate_next_battle boolean
----@field movement_locked boolean
----@field stacked_movement_locks number
----@field viewing_player Net.ActorId?
----@field kick_votes table<Liberation.Player, boolean>
----@field total_kick_votes number
----@field kick_vote_successful? boolean
----@field unresolved_promises table
----@field abandoning boolean?
----@field disconnected boolean
----@field disconnected_position Net.Position?
+---@field invincible boolean
+---@field package _health number
+---@field package paralysis_effect Liberation.ParalysisEffect?
+---@field package paralysis_counter number
+---@field package emote_delay number
+---@field package order_points_sprite_id Net.SpriteId?
+---@field package _completed_turn boolean
+---@field package _selection Liberation.PlayerSelection
+---@field package movement_locked boolean
+---@field package stacked_movement_locks number
+---@field package viewing_player Net.ActorId?
+---@field package kick_votes table<Liberation.Player, boolean>
+---@field package total_kick_votes number
+---@field package kick_vote_successful? boolean
+---@field package unresolved_promises table
+---@field package disconnected boolean
+---@field package disconnected_position Net.Position?
 local Player = {}
 
 ---@param instance Liberation.MissionInstance
@@ -47,13 +46,13 @@ function Player:new(instance, player_id)
   local player = {
     instance = instance,
     id = player_id,
-    health = Net.get_player_health(player_id),
+    _health = Net.get_player_health(player_id),
     paralysis_effect = nil,
     paralysis_counter = 0,
     emote_delay = 0,
     order_points_sprite_id = nil,
     invincible = false,
-    completed_turn = false,
+    _completed_turn = false,
     ability = nil,
     spectate_next_battle = false,
     movement_locked = false,
@@ -65,7 +64,7 @@ function Player:new(instance, player_id)
     disconnected = false,
   }
 
-  player.selection = PlayerSelection:new(instance, player)
+  player._selection = PlayerSelection:new(instance, player)
 
   HealthSprites.update_sprite(player.id, player.health)
 
@@ -74,10 +73,23 @@ function Player:new(instance, player_id)
   return player
 end
 
+function Player:selection()
+  return self._selection
+end
+
+---@param elapsed number
+function Player:tick(elapsed)
+  if self.emote_delay <= 0 then
+    self:emote_state()
+  else
+    self.emote_delay = self.emote_delay - elapsed
+  end
+end
+
 function Player:emote_state()
   if Net.is_player_battling(self.id) then
     -- the client will send emotes for this
-  elseif self.completed_turn then
+  elseif self._completed_turn then
     Net.set_player_emote(self.id, Emotes.GREEN_CHECK)
   elseif self.spectate_next_battle then
     Net.set_player_emote(self.id, Emotes.POPCORN_AND_SODA)
@@ -233,7 +245,7 @@ function Player:get_ability_permission()
   question_promise.and_then(function(response)
     if response == 0 then
       -- No
-      self.selection:clear()
+      self._selection:clear()
       self:unlock_movement()
       return
     end
@@ -258,7 +270,7 @@ end
 function Player:get_pass_turn_permission()
   local question = "End without doing anything?"
 
-  if self.health < self:max_health() then
+  if self._health < self:max_health() then
     question = "Recover HP?"
   end
 
@@ -323,7 +335,7 @@ local TERRAIN_BOOST = {
 function Player:resolve_terrain()
   local terrain = self:resolve_surrounding_terrain()
 
-  if #self.selection:get_panels() > 1 then
+  if #self._selection:get_panels() > 1 then
     terrain = TERRAIN_BOOST[terrain]
   end
 
@@ -372,7 +384,7 @@ function Player:initiate_encounter(encounter_path, data)
       goto continue
     end
 
-    if player.completed_turn or player.spectate_next_battle then
+    if player._completed_turn or player.spectate_next_battle then
       -- include as a spectator
       data.spectators[#player_ids] = true
       spectator_map[player.id] = true
@@ -391,7 +403,7 @@ function Player:initiate_encounter(encounter_path, data)
       player_ids[#player_ids + 1] = player.id
       -- prepare to spend a turn on co-op
       player:lock_movement()
-      player.selection:clear()
+      player._selection:clear()
       player.spectate_next_battle = false
     end
 
@@ -430,10 +442,10 @@ function Player:initiate_encounter(encounter_path, data)
 
         local max_health = Net.get_player_max_health(results_player.id)
 
-        results_player.health = results.health
+        results_player._health = results.health
         Net.set_player_health(results_player.id, math.min(results.health, max_health))
         Net.set_player_emotion(results_player.id, results.emotion)
-        HealthSprites.update_sprite(self.id, self.health)
+        HealthSprites.update_sprite(self.id, self._health)
 
         if results.health == 0 then
           results_player:paralyze()
@@ -464,20 +476,24 @@ function Player:initiate_encounter(encounter_path, data)
   return promise, emitter
 end
 
+function Player:health()
+  return self._health
+end
+
 function Player:max_health()
   return Net.get_player_max_health(self.id)
 end
 
 function Player:heal(amount)
   return Async.create_promise(function(resolve)
-    local previous_health = self.health
+    local previous_health = self._health
 
-    self.health = math.min(math.ceil(self.health + amount), self:max_health())
+    self._health = math.min(math.ceil(self._health + amount), self:max_health())
 
-    Net.set_player_health(self.id, self.health)
-    HealthSprites.update_sprite(self.id, self.health)
+    Net.set_player_health(self.id, self._health)
+    HealthSprites.update_sprite(self.id, self._health)
 
-    if previous_health < self.health then
+    if previous_health < self._health then
       RecoverEffect:new(self.id)
     end
 
@@ -486,34 +502,38 @@ function Player:heal(amount)
 end
 
 function Player:hurt(amount)
-  if self.disconnected or self.invincible or self.health == 0 or amount <= 0 then
+  if self.disconnected or self.invincible or self._health == 0 or amount <= 0 then
     return
   end
 
   Net.play_sound_for_player(self.id, HURT_SFX)
 
-  local prev_health = self.health
-  self.health = math.max(math.ceil(self.health - amount), 0)
+  local prev_health = self._health
+  self._health = math.max(math.ceil(self._health - amount), 0)
 
   -- spawn damage numbers
   local x, y, z = Net.get_player_position_multi(self.id)
   DamageNumbers.spawn(
     self.instance.area_id,
-    prev_health - self.health,
+    prev_health - self._health,
     x + 2 / 32,
     y + 2 / 32,
     z + 0.5
   )
 
   -- update UI
-  Net.set_player_health(self.id, self.health)
-  HealthSprites.update_sprite(self.id, self.health)
+  Net.set_player_health(self.id, self._health)
+  HealthSprites.update_sprite(self.id, self._health)
 
-  if self.health == 0 then
+  if self._health == 0 then
     Async.sleep(1).and_then(function()
       self:paralyze()
     end)
   end
+end
+
+function Player:paralyzed()
+  return self.paralysis_effect ~= nil
 end
 
 function Player:paralyze()
@@ -532,13 +552,17 @@ function Player:pass_turn()
   end)
 end
 
+function Player:completed_turn()
+  return self._completed_turn
+end
+
 function Player:complete_turn()
-  if self.disconnected or self.completed_turn then
+  if self.disconnected or self._completed_turn then
     return
   end
 
-  self.completed_turn = true
-  self.selection:clear()
+  self._completed_turn = true
+  self._selection:clear()
 
   -- make sure input is locked
   self:lock_movement()
@@ -561,7 +585,7 @@ function Player:give_turn()
     return
   end
 
-  self.completed_turn = false
+  self._completed_turn = false
   self.invincible = false
 
   if self.paralysis_counter > 0 then
@@ -578,7 +602,7 @@ function Player:give_turn()
     self.paralysis_effect = nil
 
     -- heal 50% so we don't just start battles with 0 lol
-    if self.health == 0 then
+    if self._health == 0 then
       self:heal(self:max_health() / 2)
     end
   end
@@ -648,7 +672,7 @@ end
 ---@param panels Liberation.PanelObject[]
 function Player:animate_search(panels)
   return Async.create_scope(function()
-    local indicator_template = self.selection:indicator_template()
+    local indicator_template = self._selection:indicator_template()
 
     local bot_id = Net.create_bot({
       area_id = self.instance.area_id,
@@ -799,7 +823,7 @@ function Player:loot_panels(panels, options)
     end
 
     -- Clear the selection so that it can be used again later.
-    self.selection:clear()
+    self._selection:clear()
 
     return total_looted
   end)
@@ -922,13 +946,17 @@ function Player:resolve_kick_vote()
   return self.kick_vote_successful
 end
 
+function Player:handle_emote()
+  self.emote_delay = 3
+end
+
 function Player:handle_disconnect()
   self.disconnected = true
   self.disconnected_position = self:position()
 
-  self.selection:clear()
+  self._selection:clear()
 
-  if self.completed_turn then
+  if self._completed_turn then
     self.instance.ready_count = self.instance.ready_count - 1
   end
 
@@ -979,10 +1007,10 @@ function Player:try_reconnect(player_id)
 
   -- paralyze for one turn to discourage intentional disconnecting
   self.paralysis_counter = math.max(self.paralysis_counter, 1)
-  self.completed_turn = true
+  self._completed_turn = true
   self.movement_locked = true
 
-  if self.completed_turn then
+  if self._completed_turn then
     self.instance.ready_count = self.instance.ready_count + 1
   end
 
@@ -992,7 +1020,7 @@ function Player:try_reconnect(player_id)
 
   self:update_order_points_hud()
 
-  HealthSprites.update_sprite(self.id, self.health)
+  HealthSprites.update_sprite(self.id, self._health)
 
   if self.movement_locked then
     Net.lock_player_movement(self.id)
@@ -1007,7 +1035,7 @@ function Player:try_reconnect(player_id)
   -- restore client data
   local position = self.disconnected_position --[[@as Net.Position]]
   Net.transfer_player(player_id, self.instance.area_id, true, position.x, position.y, position.z)
-  Net.set_player_health(player_id, self.health)
+  Net.set_player_health(player_id, self._health)
 
   return true
 end

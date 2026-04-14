@@ -57,7 +57,7 @@ function EnemySelection:detect_players()
   for _, player in ipairs(self.instance.players) do
     local x, y, z = player:position_multi()
 
-    if player.health ~= 0 and self.selection:is_within(x, y, z) then
+    if player:health() ~= 0 and self.selection:is_within(x, y, z) then
       players[#players + 1] = player
     end
   end

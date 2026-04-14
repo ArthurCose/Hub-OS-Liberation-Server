@@ -20,11 +20,11 @@ local function liberate_and_loot(instance, player, results)
   end
 
   if results and results.turns == 1 then
-    player.selection:merge_bonus_shape()
+    player:selection():merge_bonus_shape()
   end
 
   Async.create_scope(function()
-    local panels = player.selection:get_panels()
+    local panels = player:selection():get_panels()
     Async.await(player:liberate_panels(panels, results))
     Async.await(player:loot_panels(panels))
     player:complete_turn()
@@ -39,10 +39,10 @@ local PANEL_SEARCH_LOOT_OPTIONS = {
 ---@param instance Liberation.MissionInstance
 ---@param player Liberation.Player
 local function panel_search(instance, player)
-  local panels = player.selection:get_panels()
+  local panels = player:selection():get_panels()
 
   Async.create_scope(function()
-    player.selection:clear()
+    player:selection():clear()
     Async.await(player:animate_search(panels))
     local total_loot = Async.await(player:loot_panels(panels, PANEL_SEARCH_LOOT_OPTIONS))
 
@@ -63,7 +63,7 @@ local function battle_to_liberate_and_loot(instance, player)
     if battle_results.connection_failed then
       -- avoid ending this player's turn to allow them to retry
       player:unlock_movement()
-      player.selection:clear()
+      player:selection():clear()
       -- return order points
       instance:add_order_points(1)
     elseif battle_results.won then
@@ -139,7 +139,7 @@ Ability.register({
   generate_shape = function(instance, player)
     local shape = {}
 
-    local root_panel = player.selection:root_panel()
+    local root_panel = player:selection():root_panel()
     local player_x, player_y = player:position_multi()
 
     local direction = Direction.diagonal_from_offset(
