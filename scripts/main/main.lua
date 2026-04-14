@@ -55,6 +55,12 @@ local function transfer_players_to_new_instance(base_area, player_ids)
 
   local mission = Mission:new(area_id)
 
+  -- scale boss hp externally
+  local boss = mission.boss
+  boss.max_health = boss.max_health + math.floor(boss.max_health * (#player_ids - 1) * 0.5)
+  boss.health = boss.max_health
+  boss:heal(0)
+
   -- load players
   local recovery_keys = {}
 

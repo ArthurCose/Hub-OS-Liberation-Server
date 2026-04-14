@@ -2,6 +2,7 @@
 ---@field terrain Liberation.TerrainString
 ---@field rank? string
 ---@field health? number
+---@field max_health? number
 ---@field start_invincible boolean
 ---@field spectators table<number, boolean>
 

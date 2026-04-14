@@ -343,6 +343,7 @@ end
 
 ---@class Liberation.InitiateEncounterData
 ---@field health number? HP for a synced enemy
+---@field max_health number? Max HP for a synced enemy
 ---@field rank string? Rank for a synced enemy
 
 ---@param encounter_path string

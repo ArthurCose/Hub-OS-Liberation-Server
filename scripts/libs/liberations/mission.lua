@@ -188,6 +188,7 @@ local function liberate_panel(self, player)
         enemy:face_position(player_x, player_y)
         encounter_path = enemy.encounter
         data.health = enemy.health
+        data.max_health = enemy.max_health
         data.rank = enemy.rank
 
         Async.await(enemy.ai:banter(enemy, player))
@@ -196,6 +197,7 @@ local function liberate_panel(self, player)
         local hidden_enemy = panel.enemy
         -- spawn fully healed
         data.health = hidden_enemy.max_health
+        data.max_health = hidden_enemy.max_health
         data.rank = hidden_enemy.rank
         -- override encounter
         encounter_path = panel.custom_properties["Direct Encounter"] or hidden_enemy.encounter
