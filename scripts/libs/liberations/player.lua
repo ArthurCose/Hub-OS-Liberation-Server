@@ -220,11 +220,10 @@ end
 ---@param a string
 ---@param b? string
 ---@param c? string
----@param texture_path? string
----@param animation_path? string
-function Player:quiz(a, b, c, texture_path, animation_path)
+---@param textbox_options? Net.TextboxOptions
+function Player:quiz(a, b, c, textbox_options)
   return self:wrap_promise(function()
-    return Async.quiz_player(self.id, a, b, c, texture_path, animation_path)
+    return Async.quiz_player(self.id, a, b, c, textbox_options)
   end)
 end
 

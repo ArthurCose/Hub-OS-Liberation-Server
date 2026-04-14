@@ -96,7 +96,10 @@ local help = Async.create_function(function(player_id)
       "Liberations",
       "Parties",
       "Nothing",
-      prog_textbox_options
+      {
+        mug = prog_textbox_options.mug,
+        cancel_response = 2
+      }
     ))
 
     if response == nil then

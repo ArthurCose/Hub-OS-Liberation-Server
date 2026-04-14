@@ -989,7 +989,11 @@ function MissionInstance:handle_tile_interaction(player_id, x, y, z, button)
     local quiz_promise = player:quiz(
       IMMEDIATE_TOKEN .. spectate_text,
       IMMEDIATE_TOKEN .. "Pass Turn",
-      IMMEDIATE_TOKEN .. "Close")
+      IMMEDIATE_TOKEN .. "Close",
+      {
+        cancel_response = 2
+      }
+    )
 
     quiz_promise.and_then(function(response)
       if response == 0 then
@@ -1024,7 +1028,10 @@ function MissionInstance:handle_tile_interaction(player_id, x, y, z, button)
     local quiz_promise = player:quiz(
       IMMEDIATE_TOKEN .. "Liberation",
       IMMEDIATE_TOKEN .. ability.name,
-      IMMEDIATE_TOKEN .. "Pass Turn"
+      IMMEDIATE_TOKEN .. "Pass Turn",
+      {
+        cancel_response = 3
+      }
     )
 
     quiz_promise.and_then(function(response)
@@ -1046,6 +1053,10 @@ function MissionInstance:handle_tile_interaction(player_id, x, y, z, button)
         -- Pass
         player.selection:clear()
         player:get_pass_turn_permission()
+      else
+        -- Cancel
+        player.selection:clear()
+        player:unlock_movement()
       end
     end)
     return
@@ -1054,7 +1065,10 @@ function MissionInstance:handle_tile_interaction(player_id, x, y, z, button)
   local quiz_promise = player:quiz(
     IMMEDIATE_TOKEN .. "Liberation",
     IMMEDIATE_TOKEN .. "Pass Turn",
-    IMMEDIATE_TOKEN .. "Cancel"
+    IMMEDIATE_TOKEN .. "Cancel",
+    {
+      cancel_response = 2
+    }
   )
 
   quiz_promise.and_then(function(response)

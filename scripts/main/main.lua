@@ -273,7 +273,8 @@ Net:on("tile_interaction", function(event)
   Async.quiz_player(player_id,
     IMMEDIATE_TOKEN .. "View Party",
     IMMEDIATE_TOKEN .. "Leave Party",
-    IMMEDIATE_TOKEN .. "Close"
+    IMMEDIATE_TOKEN .. "Close",
+    { cancel_response = 2 }
   ).and_then(function(response)
     if response == 0 then
       PartiesMenu.view(player_id)
