@@ -123,7 +123,7 @@ end
 ---@param z number
 ---@param direction string?
 function Enemy:move(x, y, z, direction)
-  return Async.create_promise(function(resolve)
+  return Async.create_scope(function()
     local instance = self.instance
 
     x = math.floor(x)
@@ -201,7 +201,7 @@ function Enemy:move(x, y, z, direction)
     self.y = y
     self.z = z
 
-    return resolve(true)
+    return true
   end)
 end
 
