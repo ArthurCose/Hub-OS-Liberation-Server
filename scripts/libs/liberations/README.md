@@ -245,7 +245,9 @@ local function start_mission(scripts, base_area, player_ids)
 
   -- handling events:
 
-  mission.events:on("money", function(event)
+  local mission_events = mission:events()
+
+  mission_events:on("money", function(event)
     -- update save data...
 
     -- update UI:
@@ -253,7 +255,7 @@ local function start_mission(scripts, base_area, player_ids)
     Net.set_player_money(event.player_id, prev_money + event.money)
   end)
 
-  mission.events:on("player_kicked", function(event)
+  mission_events:on("player_kicked", function(event)
     -- send the player somewhere else
     Net.transfer_player(event.player_id, "default", true)
 
@@ -267,18 +269,15 @@ local function start_mission(scripts, base_area, player_ids)
   end)
 
   -- instance cleanup
-  local function cleanup_tick()
-    if #mission:get_players() > 0 or mission:destroying() then
-      return
+  mission_events:on("player_disconnect", function(event)
+    if #mission.players == 0 then
+      mission:destroy()
     end
+  end)
 
-    Net:remove_listener("tick", cleanup_tick)
-
-    mission:destroy().and_then(function()
-      scripts:unload(area_id)
-      instancer:remove_instance(instance_id)
-    end)
-  end
+  mission_events:on("destroyed", function()
+    instancer:remove_instance(instance_id)
+  end)
 
   Net:on("tick", cleanup_tick)
 end

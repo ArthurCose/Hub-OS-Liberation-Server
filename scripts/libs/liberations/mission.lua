@@ -524,7 +524,7 @@ end
 ---@field package panel_template_map table<string, Liberation.PanelTemplate[]>
 ---@field package collision_template Net.ObjectOptions
 ---@field package marker_template Net.ObjectOptions
----@field events Net.EventEmitter "dark_hole_liberated" {}, "money" { player_id, money }, "player_kicked" { player_id, reason }, "player_disconnect" { player }, "destroyed" {}
+---@field package _events Net.EventEmitter
 ---@field package spawn_positions Net.Object[]
 ---@field package abandon_points table<number, table<number, table<number, boolean>>>
 ---@field package net_listeners [string, fun()][]
@@ -584,7 +584,7 @@ function MissionInstance:new(area_id)
     spawn_positions = {},
     abandon_points = {},
     net_listeners = {},
-    events = Net.EventEmitter.new(),
+    _events = Net.EventEmitter.new(),
     _taking_enemy_turn = false,
     needs_disposal = false
   }
@@ -835,12 +835,22 @@ function MissionInstance:new(area_id)
 
     mission:handle_player_disconnect(event.player_id)
 
-    mission.events:emit("player_disconnect", {
+    mission._events:emit("player_disconnect", {
       player = player
     })
   end)
 
   return mission
+end
+
+---Events:
+--- - "dark_hole_liberated", {}
+--- - "money", { player_id, money }
+--- - "player_kicked", { player_id, reason }
+--- - "player_disconnect", { player }
+--- - "destroyed", {}
+function MissionInstance:events()
+  return self._events
 end
 
 ---@param player_id Net.ActorId
@@ -877,7 +887,7 @@ function MissionInstance:kick_player(player_id, reason)
 
   self:handle_player_disconnect(player_id)
 
-  self.events:emit("player_kicked", {
+  self._events:emit("player_kicked", {
     player_id = player_id,
     reason = reason
   })
@@ -902,7 +912,7 @@ function MissionInstance:destroy()
     Net:remove_listener(name, callback)
   end
 
-  self.events:emit("destroyed", {})
+  self._events:emit("destroyed", {})
 end
 
 function MissionInstance:destroying()
@@ -1225,7 +1235,7 @@ function MissionInstance:remove_panel(panel)
       end
     end
 
-    self.events:emit("dark_hole_liberated", {})
+    self._events:emit("dark_hole_liberated", {})
   end
 end
 

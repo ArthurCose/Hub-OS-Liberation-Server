@@ -108,7 +108,9 @@ local function transfer_players_to_new_instance(base_area, player_ids)
     ::continue::
   end
 
-  mission.events:on("dark_hole_liberated", function(event)
+  local mission_events = mission:events()
+
+  mission_events:on("dark_hole_liberated", function(event)
     -- award 5z to each player for liberating a dark hole
     for _, player in ipairs(mission.players) do
       local player_id = player.id
@@ -121,7 +123,7 @@ local function transfer_players_to_new_instance(base_area, player_ids)
     end
   end)
 
-  mission.events:on("player_kicked", function(event)
+  mission_events:on("player_kicked", function(event)
     local player_id = event.player_id
 
     -- reset hp
@@ -174,7 +176,7 @@ local function transfer_players_to_new_instance(base_area, player_ids)
     end
   end)
 
-  mission.events:on("player_disconnect", function(event)
+  mission_events:on("player_disconnect", function(event)
     if #mission.players == 0 then
       delete_recovery_data()
       mission:destroy()
@@ -186,7 +188,7 @@ local function transfer_players_to_new_instance(base_area, player_ids)
     players_in_mission[player.id] = nil
   end)
 
-  mission.events:on("destroyed", function()
+  mission_events:on("destroyed", function()
     instancer:remove_instance(instance_id)
     delete_recovery_data()
 

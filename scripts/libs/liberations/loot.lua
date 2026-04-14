@@ -51,7 +51,7 @@ Loot.MONEY = {
       Async.await(player:message_with_mug("I found some\nZenny!"))
       Async.await(player:message("Obtained " .. tostring(money) .. "z!"))
 
-      instance.events:emit("money", {
+      instance:events():emit("money", {
         player_id = player.id,
         money = money
       })
