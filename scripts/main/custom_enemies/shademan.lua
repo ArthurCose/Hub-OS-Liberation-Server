@@ -64,6 +64,7 @@ function ShadeMan:get_final_message()
 end
 
 ---@param actor Liberation.Enemy
+---@param player Liberation.Player
 function ShadeMan:banter(actor, player)
   return Async.create_scope(function()
     if self.is_engaged then
@@ -72,7 +73,7 @@ function ShadeMan:banter(actor, player)
 
     self.is_engaged = true
 
-    Async.await(player:message_player(
+    Async.await(player:message(
       "Your deletion will be delicious!",
       actor.mug.texture_path,
       actor.mug.animation_path

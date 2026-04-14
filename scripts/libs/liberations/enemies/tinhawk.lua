@@ -83,7 +83,9 @@ function TinHawk:get_final_message()
   return "Gyaaaaahh!!"
 end
 
-function TinHawk:banter()
+---@param actor Liberation.Enemy
+---@param player Liberation.Player
+function TinHawk:banter(actor, player)
   return Async.create_scope(function() end)
 end
 

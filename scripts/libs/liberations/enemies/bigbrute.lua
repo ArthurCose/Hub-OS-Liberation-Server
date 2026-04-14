@@ -71,7 +71,9 @@ function BigBrute:get_final_message()
   return "Gyaaaaahh!!"
 end
 
-function BigBrute:banter()
+---@param actor Liberation.Enemy
+---@param player Liberation.Player
+function BigBrute:banter(actor, player)
   return Async.create_scope(function() end)
 end
 
