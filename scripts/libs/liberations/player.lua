@@ -701,14 +701,11 @@ function Player:animate_search(panels)
       end
     end
 
-    -- todo: this should be unnecessary as the client should use the final value of the last keyframe
-    keyframes[#keyframes + 1] = keyframes[#keyframes]
-
     keyframes[#keyframes + 1] = {
       properties = {
         { property = "Animation", value = "HIDDEN" },
-        duration = KEY_FRAME_DURATION,
       },
+      duration = KEY_FRAME_DURATION,
     }
 
     Net.animate_bot_properties(bot_id, keyframes)
