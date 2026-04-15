@@ -885,6 +885,10 @@ function MissionInstance:transfer_player(player_id, ability)
     spawn_position.z,
     spawn_position.custom_properties.Direction
   )
+
+  if ability and ability.init then
+    ability.init(player)
+  end
 end
 
 ---@alias Liberation.KickReason "success" | "failure" | "abandoned"
@@ -892,9 +896,13 @@ end
 ---@param player_id Net.ActorId
 ---@param reason Liberation.KickReason
 function MissionInstance:kick_player(player_id, reason)
-  if not self.player_map[player_id] then
+  local player = self.player_map[player_id]
+
+  if not player then
     return
   end
+
+  player:remove_all_defenses()
 
   self:handle_player_disconnect(player_id)
 

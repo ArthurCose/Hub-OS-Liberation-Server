@@ -193,46 +193,48 @@ local function attempt_attack(self, actor)
 
     Async.await(Async.sleep(2))
 
-    local spawned_bots = {}
+    actor:attack({ caught_players }, function(targets)
+      local spawned_bots = {}
 
-    Net.synchronize(function()
-      actor:play_attack_animation()
+      Net.synchronize(function()
+        actor:play_attack_animation()
 
-      for _, player in ipairs(caught_players) do
-        local player_x, player_y, player_z = player:position_multi()
+        for _, player in ipairs(targets) do
+          local player_x, player_y, player_z = player:position_multi()
 
-        table.insert(spawned_bots, Net.create_bot({
-          texture_path = BEAST_BREATH_TEXTURE_PATH,
-          animation_path = BEAST_BREATH_ANIMATION_PATH,
-          animation = "ANIMATE",
-          area_id = instance.area_id,
-          warp_in = false,
-          x = player_x + 1 / 32,
-          y = player_y + 1 / 32,
-          z = player_z
-        }))
+          table.insert(spawned_bots, Net.create_bot({
+            texture_path = BEAST_BREATH_TEXTURE_PATH,
+            animation_path = BEAST_BREATH_ANIMATION_PATH,
+            animation = "ANIMATE",
+            area_id = instance.area_id,
+            warp_in = false,
+            x = player_x + 1 / 32,
+            y = player_y + 1 / 32,
+            z = player_z
+          }))
+        end
+
+        Net.play_sound(instance.area_id, BEAST_BREATH_SFX)
+      end)
+
+      Async.await(Async.sleep(.5))
+
+      for _, player in ipairs(instance.players) do
+        Net.shake_player_camera(player.id, 2, .5)
       end
 
-      Net.play_sound(instance.area_id, BEAST_BREATH_SFX)
+      for _, target in ipairs(targets) do
+        target:hurt(self.damage)
+      end
+
+      Async.await(Async.sleep(.5))
+
+      actor:play_idle_animation()
+
+      for _, bot_id in ipairs(spawned_bots) do
+        Net.remove_bot(bot_id, false)
+      end
     end)
-
-    Async.await(Async.sleep(.5))
-
-    for _, player in ipairs(instance.players) do
-      Net.shake_player_camera(player.id, 2, .5)
-    end
-
-    for _, player in ipairs(caught_players) do
-      player:hurt(self.damage)
-    end
-
-    Async.await(Async.sleep(.5))
-
-    actor:play_idle_animation()
-
-    for _, bot_id in ipairs(spawned_bots) do
-      Net.remove_bot(bot_id, false)
-    end
 
     Async.await(Async.sleep(1))
 

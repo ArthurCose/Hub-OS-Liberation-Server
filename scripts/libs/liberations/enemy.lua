@@ -209,6 +209,21 @@ function Enemy:move(x, y, z, direction)
   end)
 end
 
+---Used to give time for players to prepare for an attack
+---@param targets Liberation.Player[]
+---@param callback fun(filtered_targets: Liberation.Player[])
+function Enemy:attack(targets, callback)
+  for _, player in ipairs(self._instance.players) do
+    targets = player:prepare_for_attack(self, targets)
+  end
+
+  callback(targets)
+
+  for _, player in ipairs(self._instance.players) do
+    player:relax_after_attack()
+  end
+end
+
 ---@param position Net.Position
 ---@param direction string
 function Enemy.offset_position_with_direction(position, direction)

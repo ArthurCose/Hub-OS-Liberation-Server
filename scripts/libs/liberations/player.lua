@@ -12,6 +12,7 @@ local Preloader = require("scripts/libs/liberations/preloader")
 local ORDER_POINTS_TEXTURE_PATH = Preloader.add_asset("/server/assets/liberations/ui/order_points.png")
 local ORDER_POINTS_ANIMATION_PATH = Preloader.add_asset("/server/assets/liberations/ui/order_points.animation")
 
+local GUARD_SFX = Preloader.add_asset("/server/assets/liberations/sounds/guard.ogg")
 local HURT_SFX = Preloader.add_asset("/server/assets/liberations/sounds/hurt.ogg")
 
 ---@class Liberation.Player
@@ -21,6 +22,7 @@ local HURT_SFX = Preloader.add_asset("/server/assets/liberations/sounds/hurt.ogg
 ---@field spectate_next_battle boolean
 ---@field invincible boolean
 ---@field package _health number
+---@field package _defenses Liberation.Player.Defense[]
 ---@field package paralysis_effect Liberation.ParalysisEffect?
 ---@field package paralysis_counter number
 ---@field package emote_delay number
@@ -46,6 +48,7 @@ function Player:new(instance, player_id)
     _instance = instance,
     id = player_id,
     _health = Net.get_player_health(player_id),
+    _defenses = {},
     paralysis_effect = nil,
     paralysis_counter = 0,
     emote_delay = 0,
@@ -127,12 +130,29 @@ function Player:update_order_points_hud()
   end
 end
 
+function Player:direction()
+  return Net.get_player_direction(self.id)
+end
+
 function Player:position()
   return Net.get_player_position(self.id)
 end
 
 function Player:position_multi()
   return Net.get_player_position_multi(self.id)
+end
+
+function Player:floored_position()
+  local position = self:position()
+  position.x = math.floor(position.x)
+  position.y = math.floor(position.y)
+  position.z = math.floor(position.z)
+  return position
+end
+
+function Player:floored_position_multi()
+  local x, y, z = self:position_multi()
+  return math.floor(x), math.floor(y), math.floor(z)
 end
 
 --- Used for direct control, locking due to the player's action or by the mission
@@ -514,15 +534,32 @@ function Player:heal(amount)
   end)
 end
 
+---@param amount number
 function Player:hurt(amount)
-  if self.disconnected or self.invincible or self._health == 0 or amount <= 0 then
+  if self.disconnected or self._health == 0 or amount <= 0 then
     return
   end
 
-  Net.play_sound_for_player(self.id, HURT_SFX)
+  if self.invincible then
+    amount = 0
+  else
+    -- copy to protect against additions + removal during loop
+    local defenses_copy = table.pack(table.unpack(self._defenses))
+
+    for _, defense in ipairs(defenses_copy) do
+      amount = defense.defend(amount)
+    end
+  end
 
   local prev_health = self._health
-  self._health = math.max(math.ceil(self._health - amount), 0)
+
+  if amount > 0 then
+    Net.play_sound_for_player(self.id, HURT_SFX)
+
+    self._health = math.max(math.ceil(self._health - amount), 0)
+  else
+    Net.play_sound_for_player(self.id, GUARD_SFX)
+  end
 
   -- spawn damage numbers
   local instance = self._instance
@@ -535,6 +572,10 @@ function Player:hurt(amount)
     z + 0.5
   )
 
+  if amount == 0 then
+    return
+  end
+
   -- update UI
   Net.set_player_health(self.id, self._health)
   HealthSprites.update_sprite(self.id, self._health)
@@ -543,6 +584,108 @@ function Player:hurt(amount)
     Async.sleep(1).and_then(function()
       self:paralyze()
     end)
+  end
+end
+
+---@enum Liberation.Player.DefensePriority
+Player.DefensePriority = {
+  Barrier = 0,
+  Action = 1,
+  Body = 2,
+  Trap = 3,
+  Last = 4
+}
+
+---@class Liberation.Player.Defense
+---@field priority Liberation.Player.DefensePriority avoid changing this once set
+---@field prepare? fun(attacker: Liberation.Enemy, targets: Liberation.Player[]): Liberation.Player[]? Called when any enemy is attacking, used to change who the enemy targets
+---@field defend? fun(damage: number): number
+---@field relax? fun() Called after the enemy finishes attacking
+---@field on_remove? fun() Called when removed directly, a defense with the same priority was added, or the mission was completed / abandoned
+---@field on_disconnect? fun() Called when a player disconnects, the player may still rejoin after this
+---@field on_rejoin? fun()
+
+---@param defense Liberation.Player.Defense
+function Player:add_defense(defense)
+  local priority = defense.priority
+
+  if priority == Player.DefensePriority.Last then
+    -- always place at the end
+    self._defenses[#self._defenses + 1] = defense
+    return
+  end
+
+  for i, existing_defense in ipairs(self._defenses) do
+    if priority < existing_defense.priority then
+      -- higher priority, place before existing defense
+      table.insert(self._defenses, i, defense)
+      return
+    elseif priority == existing_defense.priority then
+      -- replace existing defenes
+      local prev_defense = self._defenses[i]
+      self._defenses[i] = defense
+
+      if prev_defense.on_remove then
+        prev_defense.on_remove()
+      end
+
+      return
+    end
+  end
+
+  -- place at the end
+  self._defenses[#self._defenses + 1] = defense
+end
+
+---@param defense Liberation.Player.Defense
+function Player:remove_defense(defense)
+  for i, existing_defense in ipairs(self._defenses) do
+    if existing_defense == defense then
+      table.remove(self._defenses, i)
+
+      if defense.on_remove then
+        defense.on_remove()
+      end
+
+      break
+    end
+  end
+end
+
+function Player:remove_all_defenses()
+  local old_defenses = self._defenses
+  self._defenses = {}
+
+  for _, defense in ipairs(old_defenses) do
+    if defense.on_remove then
+      defense.on_remove()
+    end
+  end
+end
+
+---Automatically called by enemy:attack()
+---@param enemy Liberation.Enemy
+---@param targets Liberation.Player[]
+function Player:prepare_for_attack(enemy, targets)
+  for _, defense in ipairs(self._defenses) do
+    if defense.prepare then
+      local new_targets = defense.prepare(enemy, targets)
+
+      if new_targets then
+        targets = new_targets
+      end
+    end
+  end
+
+  return targets
+end
+
+---Automatically called by enemy:attack()
+function Player:relax_after_attack()
+  for _, defense in ipairs(self._defenses) do
+    if defense.relax then
+      defense.relax()
+    end
   end
 end
 
@@ -1010,6 +1153,12 @@ function Player:handle_disconnect()
     self.viewing_player = nil
     Net.track_with_player_camera(self.id, self.id)
   end
+
+  for _, defense in ipairs(self._defenses) do
+    if defense.on_disconnect then
+      defense.on_disconnect()
+    end
+  end
 end
 
 ---@param player_id Net.ActorId
@@ -1065,6 +1214,12 @@ function Player:try_reconnect(player_id)
   local position = self.disconnected_position --[[@as Net.Position]]
   Net.transfer_player(player_id, instance.area_id, true, position.x, position.y, position.z)
   Net.set_player_health(player_id, self._health)
+
+  for _, defense in ipairs(self._defenses) do
+    if defense.on_rejoin then
+      defense.on_rejoin()
+    end
+  end
 
   return true
 end

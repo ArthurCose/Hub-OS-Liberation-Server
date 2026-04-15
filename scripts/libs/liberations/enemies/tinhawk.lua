@@ -264,11 +264,16 @@ local function attempt_attack(self, actor)
     end
 
     -- attack
-    actor:play_attack_animation()
-    Net.play_sound(instance.area_id, ATTACK_SFX)
-    player:hurt(self.damage)
+    actor:attack({ player }, function(targets)
+      actor:play_attack_animation()
+      Net.play_sound(instance.area_id, ATTACK_SFX)
 
-    Async.await(Async.sleep(.5))
+      for _, target in ipairs(targets) do
+        target:hurt(self.damage)
+      end
+
+      Async.await(Async.sleep(.5))
+    end)
 
     if moving then
       -- warp back

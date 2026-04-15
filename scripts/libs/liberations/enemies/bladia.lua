@@ -152,12 +152,17 @@ function Bladia:take_turn(actor)
     end
     --Indicate the attack range.
     self.selection:indicate()
-    --Attack visually.
-    actor:play_attack_animation()
-    --Hurt the player for the set damage
-    player:hurt(self.damage)
-    --Sleep long enough to let the player ruminate on their mistakes.
-    Async.await(Async.sleep(.7))
+
+    actor:attack({ player }, function(targets)
+      actor:play_attack_animation()
+
+      for _, target in targets do
+        target:hurt(self.damage)
+      end
+
+      Async.await(Async.sleep(.7))
+    end)
+
     --Remove the indicator.
     self.selection:remove_indicators()
   end)

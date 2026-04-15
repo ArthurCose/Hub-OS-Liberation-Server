@@ -188,13 +188,17 @@ function ShadeMan:take_turn(actor)
     self.selection:move(player_position, Direction.None)
     self.selection:indicate()
 
-    actor:play_attack_animation()
+    actor:attack({ player }, function(targets)
+      actor:play_attack_animation()
 
-    Async.await(Async.sleep(.2))
+      Async.await(Async.sleep(.2))
 
-    player:hurt(self.damage)
+      for _, target in ipairs(targets) do
+        target:hurt(self.damage)
+      end
 
-    Async.await(Async.sleep(.5))
+      Async.await(Async.sleep(.5))
+    end)
 
     if moving then
       -- warp back

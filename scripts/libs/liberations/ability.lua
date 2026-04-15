@@ -1,4 +1,5 @@
 local PanelClass = require("scripts/libs/liberations/panel_class")
+local Player = require("scripts/libs/liberations/player")
 local Direction = require("scripts/libs/direction")
 
 local function static_shape_generator(offset_x, offset_y, shape)
@@ -79,6 +80,7 @@ end
 ---@class Liberation.PassiveAbility
 ---@field name string
 ---@field shadow_step? boolean
+---@field init? fun(player: Liberation.Player)
 
 ---@class Liberation.ActiveAbility: Liberation.PassiveAbility
 ---@field question string
@@ -100,7 +102,132 @@ end
 
 -- passive, knightman's ability
 Ability.register({
-  name = "Guard"
+  name = "KnightGuard",
+  init = function(player)
+    local swapped_player
+    local swapped_position
+    local swapped_direction
+    local original_position
+    local original_direction
+
+    local relax = function()
+      if not swapped_player then
+        return
+      end
+
+      Net.animate_player_properties(player.id, {
+        {
+          properties = {
+            { property = "X",         value = original_position.x, ease = "Ceil" },
+            { property = "Y",         value = original_position.y, ease = "Ceil" },
+            { property = "Z",         value = original_position.z, ease = "Ceil" },
+            { property = "Direction", value = original_direction,  ease = "Ceil" },
+          },
+          duration = 1
+        }
+      })
+
+      Net.animate_player_properties(swapped_player.id, {
+        {
+          properties = {
+            { property = "X",         value = swapped_position.x, ease = "Ceil" },
+            { property = "Y",         value = swapped_position.y, ease = "Ceil" },
+            { property = "Z",         value = swapped_position.z, ease = "Ceil" },
+            { property = "Direction", value = swapped_direction,  ease = "Ceil" },
+          },
+          duration = 1
+        }
+      })
+
+      swapped_player = nil
+    end
+
+    ---@type Liberation.Player.Defense
+    local defense = {
+      priority = Player.DefensePriority.Last,
+      prepare = function(attacker, targets)
+        if #targets == 0 then
+          return
+        end
+
+        for _, target in ipairs(targets) do
+          if target == player then
+            -- can't defend anyone if we're a target
+            return
+          end
+        end
+
+        -- find a player to defend
+        local x, y, z = player:floored_position_multi()
+
+        local swapped_index
+
+        for i, target in ipairs(targets) do
+          local target_x, target_y, target_z = target:floored_position_multi()
+
+          if math.abs(target_x - x) <= 1 and math.abs(target_y - y) <= 1 and target_z == z and target.ability ~= Ability.KnightGuard then
+            -- in range
+            swapped_index = i
+          end
+        end
+
+        if not swapped_index then
+          -- no one to defend
+          return
+        end
+
+        swapped_player = targets[swapped_index]
+        swapped_position = swapped_player:position()
+        swapped_direction = swapped_player:direction()
+        original_position = player:position()
+        original_direction = player:direction()
+
+        local confront_direction = Direction.from_points(swapped_player:floored_position(), attacker:floored_position())
+
+        local position_offset = Direction.vector(confront_direction)
+        position_offset.x = position_offset.x * 0.25
+        position_offset.y = position_offset.y * 0.25
+
+        Net.animate_player_properties(player.id, {
+          {
+            properties = {
+              -- jump in front
+              { property = "X",         value = swapped_position.x + position_offset.x, ease = "Ceil" },
+              { property = "Y",         value = swapped_position.y + position_offset.y, ease = "Ceil" },
+              { property = "Z",         value = swapped_position.z,                     ease = "Ceil" },
+              -- face the boss
+              { property = "Direction", value = confront_direction,                     ease = "Ceil" },
+            },
+            duration = 1
+          }
+        })
+
+        Net.animate_player_properties(swapped_player.id, {
+          {
+            properties = {
+              -- move aside
+              { property = "X",         value = swapped_position.x - position_offset.x, ease = "Ceil" },
+              { property = "Y",         value = swapped_position.y - position_offset.y, ease = "Ceil" },
+              { property = "Z",         value = swapped_position.z,                     ease = "Ceil" },
+              -- retain old position
+              { property = "Direction", value = swapped_direction,                      ease = "Ceil" },
+            },
+            duration = 1
+          }
+        })
+
+        local new_targets = table.pack(table.unpack(targets))
+        new_targets[swapped_index] = player
+        return new_targets
+      end,
+      defend = function()
+        return 0
+      end,
+      relax = relax,
+      on_disconnect = relax
+    }
+    player:add_defense(defense)
+  end
 })
 
 Ability.register({

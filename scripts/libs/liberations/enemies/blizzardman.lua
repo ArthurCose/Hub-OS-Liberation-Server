@@ -88,6 +88,7 @@ function BlizzardMan:get_final_message()
   return "Woosh!\nI can't believe\nit. I can't lose.\nNOOOO!"
 end
 
+---@param actor Liberation.Enemy
 function BlizzardMan:take_turn(actor)
   return Async.create_scope(function()
     local instance = actor:instance()
@@ -132,66 +133,68 @@ function BlizzardMan:take_turn(actor)
 
     Async.await(Async.sleep(4.5))
 
-    actor:play_attack_animation()
+    actor:attack(caught_players, function(targets)
+      actor:play_attack_animation()
 
-    Async.await(Async.sleep(.5))
+      Async.await(Async.sleep(.5))
 
-    local spawned_bots = {}
+      local spawned_bots = {}
 
-    Net.synchronize(function()
-      for _, player in ipairs(caught_players) do
-        local player_x, player_y, player_z = player:position_multi()
-        local snowball_bot_id = Net.create_bot({
-          texture_path = SNOWBALL_TEXTURE_PATH,
-          animation_path = SNOWBALL_ANIMATION_PATH,
-          area_id = instance.area_id,
-          warp_in = false,
-          x = player_x + 1 / 32,
-          y = player_y + 1 / 32,
-          z = player_z + 8.5
-        })
+      Net.synchronize(function()
+        for _, player in ipairs(targets) do
+          local player_x, player_y, player_z = player:position_multi()
+          local snowball_bot_id = Net.create_bot({
+            texture_path = SNOWBALL_TEXTURE_PATH,
+            animation_path = SNOWBALL_ANIMATION_PATH,
+            area_id = instance.area_id,
+            warp_in = false,
+            x = player_x + 1 / 32,
+            y = player_y + 1 / 32,
+            z = player_z + 8.5
+          })
 
-        Net.animate_bot_properties(snowball_bot_id, {
-          {
-            properties = {
-              { property = "Animation", value = "FALL" },
+          Net.animate_bot_properties(snowball_bot_id, {
+            {
+              properties = {
+                { property = "Animation", value = "FALL" },
+              },
             },
-          },
-          {
-            properties = {
-              { property = "Z", ease = "Linear", value = player_z + 1.25 },
+            {
+              properties = {
+                { property = "Z", ease = "Linear", value = player_z + 1.25 },
+              },
+              duration = .5
             },
-            duration = .5
-          },
-          {
-            properties = {
-              { property = "Animation", value = "" },
+            {
+              properties = {
+                { property = "Animation", value = "" },
+              },
+              duration = .5
             },
-            duration = .5
-          },
-        })
+          })
 
-        spawned_bots[#spawned_bots + 1] = snowball_bot_id
+          spawned_bots[#spawned_bots + 1] = snowball_bot_id
+        end
+      end)
+
+      Async.await(Async.sleep(.5))
+
+      for _, player in ipairs(instance.players) do
+        Net.shake_player_camera(player.id, 2, .5)
       end
+
+      for _, target in ipairs(targets) do
+        target:hurt(self.damage)
+      end
+
+      Async.await(Async.sleep(1.5))
+
+      for _, bot_id in ipairs(spawned_bots) do
+        Net.remove_bot(bot_id, false)
+      end
+
+      actor:play_idle_animation()
     end)
-
-    Async.await(Async.sleep(.5))
-
-    for _, player in ipairs(instance.players) do
-      Net.shake_player_camera(player.id, 2, .5)
-    end
-
-    for _, player in ipairs(caught_players) do
-      player:hurt(self.damage)
-    end
-
-    Async.await(Async.sleep(1.5))
-
-    for _, bot_id in ipairs(spawned_bots) do
-      Net.remove_bot(bot_id, false)
-    end
-
-    actor:play_idle_animation()
 
     self.selection:remove_indicators()
   end)
