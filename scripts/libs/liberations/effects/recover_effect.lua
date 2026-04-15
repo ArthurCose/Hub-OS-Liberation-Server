@@ -3,7 +3,7 @@ local Preloader = require("scripts/libs/liberations/preloader")
 local TEXTURE_PATH = Preloader.add_asset("/server/assets/liberations/bots/recover.png")
 local DARK_TEXTURE_PATH = Preloader.add_asset("/server/assets/liberations/bots/recover_dark.png")
 local ANIMATION_PATH = Preloader.add_asset("/server/assets/liberations/bots/recover.animation")
-local SFX_PATH = "/server/assets/liberations/sounds/recover.ogg"
+local SFX_PATH = Preloader.add_asset("/server/assets/liberations/sounds/recover.ogg")
 
 local RecoverEffect = {}
 

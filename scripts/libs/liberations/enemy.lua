@@ -87,7 +87,7 @@ function Enemy:heal(amount)
 
     if previous_health < self.health then
       Async.await(Async.sleep(0.2))
-      RecoverEffect:new_dark(self.id)
+      RecoverEffect:new_dark(self.id, true)
       Async.await(Async.sleep(1))
     end
   end)
