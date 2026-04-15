@@ -38,6 +38,7 @@ local HURT_SFX = Preloader.add_asset("/server/assets/liberations/sounds/hurt.ogg
 ---@field package unresolved_promises table
 ---@field package disconnected boolean
 ---@field package disconnected_position Net.Position?
+---@field package disconnected_direction string?
 local Player = {}
 
 ---@param instance Liberation.MissionInstance
@@ -131,14 +132,24 @@ function Player:update_order_points_hud()
 end
 
 function Player:direction()
+  if self.disconnected then
+    return self.disconnected_direction --[[@as string]]
+  end
+
   return Net.get_player_direction(self.id)
 end
 
 function Player:position()
-  return Net.get_player_position(self.id)
+  local x, y, z = Net.get_player_position_multi(self.id)
+  return { x = x, y = y, z = z }
 end
 
 function Player:position_multi()
+  if self.disconnected then
+    local position = self.disconnected_position --[[@as Net.Position]]
+    return position.x, position.y, position.z
+  end
+
   return Net.get_player_position_multi(self.id)
 end
 
@@ -1126,8 +1137,9 @@ function Player:handle_emote()
 end
 
 function Player:handle_disconnect()
-  self.disconnected = true
   self.disconnected_position = self:position()
+  self.disconnected_direction = self:direction()
+  self.disconnected = true
 
   self._selection:clear()
 
@@ -1218,7 +1230,8 @@ function Player:try_reconnect(player_id)
 
   -- restore client data
   local position = self.disconnected_position --[[@as Net.Position]]
-  Net.transfer_player(player_id, instance.area_id, true, position.x, position.y, position.z)
+  local direction = self.disconnected_direction
+  Net.transfer_player(player_id, instance.area_id, true, position.x, position.y, position.z, direction)
   Net.set_player_health(player_id, self._health)
 
   for _, defense in ipairs(self._defenses) do
