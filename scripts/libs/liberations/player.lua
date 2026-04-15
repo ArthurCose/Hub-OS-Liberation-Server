@@ -892,8 +892,9 @@ function Player:animate_search(panels)
 end
 
 ---@class Liberation.Player.LootPanelsOptions
----@field remove_traps boolean?
+---@field destroy_traps boolean?
 ---@field destroy_items boolean?
+---@field silent boolean? Avoids mentioning destroyed traps and items
 
 local default_loot_options = {}
 local loot_slide_time = .1
@@ -925,6 +926,16 @@ function Player:loot_panels(panels, options)
 
       if not loot and panel.class ~= PanelClass.TRAP then
         goto continue
+      end
+
+      if options.silent then
+        if loot and loot.breakable and options.destroy_items then
+          goto continue
+        end
+
+        if panel.class == PanelClass.TRAP and options.destroy_traps then
+          goto continue
+        end
       end
 
       total_looted = total_looted + 1
@@ -960,7 +971,7 @@ function Player:loot_panels(panels, options)
       elseif panel.class == PanelClass.TRAP then
         local trap_damage = tonumber(panel.custom_properties["Damage"])
 
-        if options.remove_traps then
+        if options.destroy_traps then
           Async.await(self:message_with_mug("A trap panel!\nI'll remove it!"))
 
           Poof.spawn(instance.area_id, "LARGE", panel.x + 0.5, panel.y + 0.5, panel.z + 0.5)

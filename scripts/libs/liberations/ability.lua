@@ -8,32 +8,9 @@ local function static_shape_generator(offset_x, offset_y, shape)
   end
 end
 
----@param player Liberation.Player
----@param results Liberation.BattleResults?
-local function liberate_and_loot(player, results)
-  if not results then
-    results = {
-      won = true,
-      turns = 3,
-      connection_failed = false
-    }
-  end
-
-  if results and results.turns == 1 then
-    player:selection():merge_bonus_shape()
-  end
-
-  Async.create_scope(function()
-    local panels = player:selection():get_panels()
-    Async.await(player:liberate_panels(panels, results))
-    Async.await(player:loot_panels(panels))
-    player:complete_turn()
-  end)
-end
-
 ---@type Liberation.Player.LootPanelsOptions
 local PANEL_SEARCH_LOOT_OPTIONS = {
-  remove_traps = true
+  destroy_traps = true
 }
 
 ---@param player Liberation.Player
@@ -54,19 +31,31 @@ local function panel_search(player)
 end
 
 ---@param player Liberation.Player
-local function battle_to_liberate_and_loot(player)
+---@param loot_options Liberation.Player.LootPanelsOptions?
+local function battle_to_liberate_and_loot(player, loot_options)
   local instance = player:instance()
   local encounter_path = instance.default_encounter
 
-  player:initiate_encounter(encounter_path, {}).and_then(function(battle_results)
+  Async.create_scope(function()
+    local battle_results = Async.await(player:initiate_encounter(encounter_path, {}))
+
     if battle_results.connection_failed then
       -- avoid ending this player's turn to allow them to retry
       player:unlock_movement()
       player:selection():clear()
       -- return order points
-      instance:add_order_points(1)
+      if player.ability.cost then
+        instance:add_order_points(player.ability.cost)
+      end
     elseif battle_results.won then
-      liberate_and_loot(player, battle_results)
+      if battle_results.turns == 1 then
+        player:selection():merge_bonus_shape()
+      end
+
+      local panels = player:selection():get_panels()
+      Async.await(player:liberate_panels(panels, battle_results))
+      Async.await(player:loot_panels(panels, loot_options))
+      player:complete_turn()
     else
       Async.sleep(1).and_then(function()
         player:complete_turn()
@@ -254,6 +243,32 @@ Ability.register({
     { 1, 1, 1 },
   }),
   activate = battle_to_liberate_and_loot
+})
+
+Ability.register({
+  name = "TomahawkSwing",
+  question = "Want to chop around this area?",
+  cost = 1,
+  generate_shape = static_shape_generator(0, 0, {
+    { 1, 1, 1 },
+    { 1, 1, 1 },
+  }),
+  activate = battle_to_liberate_and_loot
+})
+
+Ability.register({
+  name = "Napalm",
+  question = "Use Napalm?",
+  cost = 1,
+  generate_shape = static_shape_generator(0, 0, {
+    { 0, 1, 0 },
+    { 0, 1, 0 },
+    { 1, 1, 1 },
+    { 0, 1, 0 },
+  }),
+  activate = function(player)
+    battle_to_liberate_and_loot(player, { destroy_items = true, silent = true })
+  end
 })
 
 Ability.register({
