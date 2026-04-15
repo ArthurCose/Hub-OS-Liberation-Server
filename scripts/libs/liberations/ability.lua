@@ -78,12 +78,11 @@ end
 
 ---@class Liberation.PassiveAbility
 ---@field name string
-
----@class Liberation.ActiveAbility
----@field name string
----@field question string Missing a question turns this ability into a passive
----@field cost number
 ---@field shadow_step? boolean
+
+---@class Liberation.ActiveAbility: Liberation.PassiveAbility
+---@field question string
+---@field cost number
 ---@field generate_shape fun(player: Liberation.Player): number[][], number, number
 ---@field activate fun(player: Liberation.Player)
 
