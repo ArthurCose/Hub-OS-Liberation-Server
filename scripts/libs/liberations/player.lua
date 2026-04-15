@@ -72,8 +72,6 @@ function Player:new(instance, player_id)
 
   player._selection = PlayerSelection:new(player)
 
-  HealthSprites.update_sprite(player.id, player.health)
-
   return player
 end
 

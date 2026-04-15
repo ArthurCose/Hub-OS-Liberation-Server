@@ -829,6 +829,8 @@ function MissionInstance:new(area_id)
 
     player:update_order_points_hud()
 
+    HealthSprites.update_sprite(player.id, player:health())
+
     if not player or not player.ability or not player.ability.shadow_step then
       -- must be a player with shadow step to continue
       return
