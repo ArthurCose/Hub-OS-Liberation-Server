@@ -193,7 +193,7 @@ local function attempt_attack(self, actor)
 
     Async.await(Async.sleep(2))
 
-    actor:attack({ caught_players }, function(targets)
+    actor:attack(caught_players, function(targets)
       local spawned_bots = {}
 
       Net.synchronize(function()
