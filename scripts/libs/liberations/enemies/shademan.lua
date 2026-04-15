@@ -82,7 +82,7 @@ end
 ---@param actor Liberation.Enemy
 function ShadeMan:take_turn(actor)
   return Async.create_scope(function()
-    local instance = actor.instance
+    local instance = actor:instance()
 
     if instance.phase == 1 then
       Async.await(Async.sleep(0.5))
@@ -162,8 +162,8 @@ function ShadeMan:take_turn(actor)
     local warp_back_direction = self.direction
     local target_x, target_y = math.floor(player_position.x), math.floor(player_position.y)
 
-    local x_enemy = actor.instance:get_enemy_at(target_x - 1, target_y, player_position.z)
-    local y_enemy = actor.instance:get_enemy_at(target_x, target_y - 1, player_position.z)
+    local x_enemy = instance:get_enemy_at(target_x - 1, target_y, player_position.z)
+    local y_enemy = instance:get_enemy_at(target_x, target_y - 1, player_position.z)
 
     if not (x_enemy and x_enemy ~= self) and ((y_enemy and y_enemy ~= self) or math.random(2) == 1) then
       target_x = target_x - 1

@@ -84,7 +84,7 @@ end
 ---@param actor Liberation.Enemy
 function ShadeMan:take_turn(actor)
   return Async.create_scope(function()
-    local instance = actor.instance
+    local instance = actor:instance()
 
     if instance.phase == 1 then
       Async.await(Async.sleep(0.5))

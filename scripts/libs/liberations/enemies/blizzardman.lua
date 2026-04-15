@@ -90,7 +90,7 @@ end
 
 function BlizzardMan:take_turn(actor)
   return Async.create_scope(function()
-    local instance = actor.instance
+    local instance = actor:instance()
 
     if not debug and instance.phase == 1 then
       for _, player in ipairs(instance.players) do

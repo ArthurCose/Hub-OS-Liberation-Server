@@ -68,7 +68,7 @@ local function transfer_players_to_new_instance(base_area, player_ids)
     for _, key in ipairs(recovery_keys) do
       local player = recovery_data[key]
 
-      if player and player.instance == mission then
+      if player and player:instance() == mission then
         recovery_data[key] = nil
       end
     end
@@ -366,7 +366,7 @@ Net:on("player_join", function(event)
     return
   end
 
-  local area_id = player.instance.area_id
+  local area_id = player:instance().area_id
   local short_name = Net.get_area_custom_property(area_id, "Short Name")
 
   if not short_name then

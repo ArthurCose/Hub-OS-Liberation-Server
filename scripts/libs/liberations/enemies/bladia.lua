@@ -66,7 +66,7 @@ function Bladia:take_turn(actor)
     local player = actor:find_closest_player(5)
     if not player then return end --No player. Don't bother.
 
-    local instance = actor.instance
+    local instance = actor:instance()
 
     local player_position = player:position()
     local player_x, player_y, player_z = player:position_multi()

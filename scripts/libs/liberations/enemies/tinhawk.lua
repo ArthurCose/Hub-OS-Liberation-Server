@@ -130,7 +130,7 @@ local function attempt_move(self, actor)
         ),
         -- manhatten distance
         math.abs(x - player_tile_x) + math.abs(y - player_tile_y),
-        actor.instance:get_panel_at(x, y, z)
+        actor:instance():get_panel_at(x, y, z)
       }
     end)
 
@@ -195,13 +195,15 @@ local function attempt_attack(self, actor)
     local caught_players = self.selection:detect_players()
 
     -- filter out players that we can't reach
+    local instance = actor:instance()
+
     for i = #caught_players, 1, -1 do
       local player = caught_players[i]
 
       local player_x, player_y, player_z = player:position_multi()
 
-      local x_enemy = actor.instance:get_enemy_at(player_x - 1, player_y, player_z)
-      local y_enemy = actor.instance:get_enemy_at(player_x, player_y - 1, player_z)
+      local x_enemy = instance:get_enemy_at(player_x - 1, player_y, player_z)
+      local y_enemy = instance:get_enemy_at(player_x, player_y - 1, player_z)
 
       if x_enemy and x_enemy ~= actor and y_enemy and y_enemy ~= actor then
         -- swap remove
@@ -228,7 +230,7 @@ local function attempt_attack(self, actor)
     -- delay before speaking
     Async.await(Async.sleep(1))
 
-    for _, player in ipairs(actor.instance.players) do
+    for _, player in ipairs(instance.players) do
       Net.message_player_auto(player.id, "Gyaaaah!\nHawkAttack!", 0.8)
     end
 
@@ -239,8 +241,8 @@ local function attempt_attack(self, actor)
     local warp_back_pos = { x = actor.x, y = actor.y, z = actor.z }
     local target_x, target_y = math.floor(player_position.x), math.floor(player_position.y)
 
-    local x_enemy = actor.instance:get_enemy_at(target_x - 1, target_y, player_position.z)
-    local y_enemy = actor.instance:get_enemy_at(target_x, target_y - 1, player_position.z)
+    local x_enemy = instance:get_enemy_at(target_x - 1, target_y, player_position.z)
+    local y_enemy = instance:get_enemy_at(target_x, target_y - 1, player_position.z)
 
     if not (x_enemy and x_enemy ~= actor) and ((y_enemy and y_enemy ~= actor) or math.random(2) == 1) then
       target_x = target_x - 1
@@ -263,7 +265,7 @@ local function attempt_attack(self, actor)
 
     -- attack
     actor:play_attack_animation()
-    Net.play_sound(actor.instance.area_id, ATTACK_SFX)
+    Net.play_sound(instance.area_id, ATTACK_SFX)
     player:hurt(self.damage)
 
     Async.await(Async.sleep(.5))

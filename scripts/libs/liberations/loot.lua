@@ -169,8 +169,9 @@ Loot.MAJOR_HIT = {
 local function find_matching_gates(player, key_id)
   local gates = {}
 
-  for i = 1, #player.instance.gate_panels do
-    local gate = player.instance.gate_panels[i]
+  local instance = player:instance()
+  for i = 1, #instance.gate_panels do
+    local gate = instance.gate_panels[i]
 
     if gate.custom_properties["Gate Key"] == key_id then
       table.insert(gates, gate)

@@ -8,7 +8,6 @@
 
 ---@class Liberation.Enemy: Net.Position
 ---@field id Net.ActorId
----@field instance Liberation.MissionInstance
 ---@field ai Liberation.EnemyAi
 ---@field turn_order number? set and used internally
 ---@field rank string the character rank for the encounter
@@ -19,6 +18,7 @@
 ---@field z number should be floored
 ---@field mug Net.TextureAnimationPair?
 ---@field encounter string
+---@field package _instance Liberation.MissionInstance
 
 local RecoverEffect = require("scripts/libs/liberations/effects/recover_effect")
 local ExplodingEffect = require("scripts/libs/liberations/effects/exploding_effect")
@@ -34,6 +34,10 @@ local BLUR_SFX = Preloader.add_asset("/server/assets/liberations/sounds/move.ogg
 ---@class Liberation.Enemy: Net.Position
 local Enemy = {}
 Enemy.__index = Enemy
+
+function Enemy:instance()
+  return self._instance
+end
 
 function Enemy:is_alive()
   return Net.is_bot(self.id)
@@ -103,7 +107,7 @@ end
 ---@param y number
 ---@param z number
 function Enemy:can_move_to(x, y, z)
-  local instance = self.instance
+  local instance = self._instance
   local panel = instance:get_panel_at(x, y, z)
 
   if not panel or not PanelClass.ENEMY_WALKABLE[panel.class] then
@@ -124,7 +128,7 @@ end
 ---@param direction string?
 function Enemy:move(x, y, z, direction)
   return Async.create_scope(function()
-    local instance = self.instance
+    local instance = self._instance
 
     x = math.floor(x)
     y = math.floor(y)
@@ -241,7 +245,7 @@ end
 -- uses chebyshev_tile_distance
 ---@param max_distance? number
 function Enemy:find_closest_player(max_distance)
-  local instance = self.instance
+  local instance = self._instance
 
   local closest_player = nil
   local closest_distance = math.huge
@@ -275,7 +279,7 @@ function Enemy:focus(callback)
     local involved_players = {}
 
     -- moving every player's camera to the enemy
-    local instance = self.instance
+    local instance = self._instance
 
     for _, player in ipairs(instance.players) do
       player:stack_lock_movement()
@@ -321,7 +325,7 @@ function Enemy:destroy()
     end
 
     -- remove from the instance
-    local instance = self.instance
+    local instance = self._instance
 
     for i, stored_enemy in pairs(instance.enemies) do
       if self == stored_enemy then
@@ -372,7 +376,7 @@ function Enemy:destroy_in_focus()
     end
 
     -- remove from the instance
-    local instance = self.instance
+    local instance = self._instance
     for i, stored_enemy in pairs(instance.enemies) do
       if self == stored_enemy then
         table.remove(instance.enemies, i)

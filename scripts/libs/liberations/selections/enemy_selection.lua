@@ -4,7 +4,7 @@ local TEXTURE_PATH = "/server/assets/liberations/bots/selection.png"
 local ANIMATION_PATH = "/server/assets/liberations/bots/selection.animation"
 
 ---@class Liberation.EnemySelection
----@field instance Liberation.MissionInstance
+---@field package instance Liberation.MissionInstance
 ---@field package selection Liberation.Selection
 local EnemySelection = {}
 

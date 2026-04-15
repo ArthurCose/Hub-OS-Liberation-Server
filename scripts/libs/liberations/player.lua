@@ -15,7 +15,7 @@ local ORDER_POINTS_ANIMATION_PATH = Preloader.add_asset("/server/assets/liberati
 local HURT_SFX = Preloader.add_asset("/server/assets/liberations/sounds/hurt.ogg")
 
 ---@class Liberation.Player
----@field instance Liberation.MissionInstance
+---@field _instance Liberation.MissionInstance
 ---@field id Net.ActorId
 ---@field ability Liberation.Ability?
 ---@field spectate_next_battle boolean
@@ -43,7 +43,7 @@ local Player = {}
 ---@return Liberation.Player
 function Player:new(instance, player_id)
   local player = {
-    instance = instance,
+    _instance = instance,
     id = player_id,
     _health = Net.get_player_health(player_id),
     paralysis_effect = nil,
@@ -70,6 +70,10 @@ function Player:new(instance, player_id)
   setmetatable(player, self)
   self.__index = self
   return player
+end
+
+function Player:instance()
+  return self._instance
 end
 
 function Player:selection()
@@ -108,14 +112,14 @@ function Player:update_order_points_hud()
   end
 
   if self.order_points_sprite_id then
-    Net.animate_sprite(self.order_points_sprite_id, tostring(self.instance.order_points))
+    Net.animate_sprite(self.order_points_sprite_id, tostring(self:instance().order_points))
   else
     self.order_points_sprite_id = Net.create_sprite({
       player_id = self.id,
       parent_id = "hud",
       texture_path = ORDER_POINTS_TEXTURE_PATH,
       animation_path = ORDER_POINTS_ANIMATION_PATH,
-      animation = tostring(self.instance.order_points)
+      animation = tostring(self:instance().order_points)
     })
   end
 end
@@ -250,19 +254,19 @@ function Player:get_ability_permission()
     end
 
     -- Yes
-    if self.instance.order_points < self.ability.cost then
+    if self:instance().order_points < self.ability.cost then
       -- not enough order points
       self:message("Not enough Order Pts!")
       return
     end
 
-    self.instance.order_points = self.instance.order_points - self.ability.cost
+    self:instance().order_points = self:instance().order_points - self.ability.cost
 
-    for _, p in ipairs(self.instance.players) do
+    for _, p in ipairs(self:instance().players) do
       p:update_order_points_hud()
     end
 
-    self.ability.activate(self.instance, self)
+    self.ability.activate(self:instance(), self)
   end)
 end
 
@@ -296,7 +300,7 @@ local corner_offsets = {
 ---Resolves the terrain without accounting for selection
 function Player:resolve_surrounding_terrain()
   local function has_dark_panel(x, y, z)
-    local panel = self.instance:get_panel_at(x, y, z)
+    local panel = self:instance():get_panel_at(x, y, z)
 
     return panel and PanelClass.TERRAIN[panel.class]
   end
@@ -368,7 +372,7 @@ function Player:initiate_encounter(encounter_path, data)
   -- disable spectating if we started a battle
   self.spectate_next_battle = false
 
-  for _, player in ipairs(self.instance.players) do
+  for _, player in ipairs(self:instance().players) do
     if player == self then
       -- already included
       goto continue
@@ -421,7 +425,7 @@ function Player:initiate_encounter(encounter_path, data)
     local resolved = false
 
     emitter:on("battle_results", function(results)
-      local results_player = self.instance.player_map[results.player_id]
+      local results_player = self:instance().player_map[results.player_id]
 
       -- update player
       if results ~= nil and not spectator_map[results.player_id] and results_player then
@@ -514,7 +518,7 @@ function Player:hurt(amount)
   -- spawn damage numbers
   local x, y, z = Net.get_player_position_multi(self.id)
   DamageNumbers.spawn(
-    self.instance.area_id,
+    self:instance().area_id,
     prev_health - self._health,
     x + 2 / 32,
     y + 2 / 32,
@@ -572,11 +576,11 @@ function Player:complete_turn()
 
   self:emote_state()
 
-  if self.instance.ready_count < #self.instance.players then
+  if self:instance().ready_count < #self:instance().players then
     Net.unlock_player_camera(self.id)
   end
 
-  self.instance.ready_count = self.instance.ready_count + 1
+  self:instance().ready_count = self:instance().ready_count + 1
 end
 
 function Player:give_turn()
@@ -618,8 +622,8 @@ function Player:find_closest_guardian()
 
   local x, y, z = self:position_multi()
 
-  for _, enemy in ipairs(self.instance.enemies) do
-    if self.instance.boss == enemy then
+  for _, enemy in ipairs(self:instance().enemies) do
+    if self:instance().boss == enemy then
       goto continue
     end
 
@@ -648,7 +652,7 @@ function Player:liberate_panels(panels, results)
     Async.await(Async.sleep(2))
 
     for _, panel in ipairs(panels) do
-      self.instance:remove_panel(panel)
+      self:instance():remove_panel(panel)
     end
 
     -- If the results do not exist, notify the player of the issue to start a bug report.
@@ -675,7 +679,7 @@ function Player:animate_search(panels)
     local indicator_template = self._selection:indicator_template()
 
     local bot_id = Net.create_bot({
-      area_id = self.instance.area_id,
+      area_id = self:instance().area_id,
       x = -10000,
       texture_path = indicator_template.texture_path,
       animation_path = indicator_template.animation_path,
@@ -769,15 +773,15 @@ function Player:loot_panels(panels, options)
 
       if loot then
         -- replace with a regular dark panel
-        convert_loot_panel(self.instance, panel)
+        convert_loot_panel(self:instance(), panel)
 
         -- spawn loot item
-        local remove_item_bot = Async.await(Loot.spawn_item_bot(loot, self.instance.area_id, spawn_x, spawn_y, spawn_z))
+        local remove_item_bot = Async.await(Loot.spawn_item_bot(loot, self:instance().area_id, spawn_x, spawn_y, spawn_z))
 
         if loot.breakable and options.destroy_items then
           Async.await(self:message_with_mug("Ah!! The item was destroyed!"))
         else
-          Async.await(loot.activate(self.instance, self, panel))
+          Async.await(loot.activate(self:instance(), self, panel))
         end
 
         remove_item_bot()
@@ -785,8 +789,8 @@ function Player:loot_panels(panels, options)
         if options.remove_traps then
           Async.await(self:message_with_mug("A trap panel!\nI'll remove it!"))
 
-          Poof.spawn(self.instance.area_id, "LARGE", panel.x + 0.5, panel.y + 0.5, panel.z + 0.5)
-          convert_loot_panel(self.instance, panel)
+          Poof.spawn(self:instance().area_id, "LARGE", panel.x + 0.5, panel.y + 0.5, panel.z + 0.5)
+          convert_loot_panel(self:instance(), panel)
 
           Async.await(Async.sleep(1))
         elseif panel.custom_properties["Damage"] then
@@ -799,7 +803,7 @@ function Player:loot_panels(panels, options)
           Async.await(Async.sleep(0.25))
 
           self:hurt(tonumber(panel.custom_properties["Damage"]))
-          convert_loot_panel(self.instance, panel)
+          convert_loot_panel(self:instance(), panel)
 
           Async.await(Async.sleep(1))
         else
@@ -810,7 +814,7 @@ function Player:loot_panels(panels, options)
           end
 
           self:paralyze()
-          convert_loot_panel(self.instance, panel)
+          convert_loot_panel(self:instance(), panel)
 
           Async.await(Async.sleep(1))
         end
@@ -828,14 +832,14 @@ end
 
 ---@package
 function Player:cycle_camera_target()
-  if not self.instance.player_map[self.viewing_player] then
+  if not self:instance().player_map[self.viewing_player] then
     self.viewing_player = self.id
   end
 
   local index
 
-  for i = 1, #self.instance.players do
-    local player = self.instance.players[i]
+  for i = 1, #self:instance().players do
+    local player = self:instance().players[i]
 
     if player.id == self.viewing_player then
       index = i
@@ -843,9 +847,9 @@ function Player:cycle_camera_target()
     end
   end
 
-  index = index % #self.instance.players + 1
+  index = index % #self:instance().players + 1
 
-  self.viewing_player = self.instance.players[index].id
+  self.viewing_player = self:instance().players[index].id
 
   Net.track_with_player_camera(self.id, self.viewing_player)
 end
@@ -876,9 +880,9 @@ function Player:handle_spectator_input(button)
   local options = { ABANDON, CANCEL }
 
   ---@type Liberation.Player
-  local viewed_player = self.instance.player_map[self.viewing_player]
+  local viewed_player = self:instance().player_map[self.viewing_player]
 
-  if viewed_player and self.viewing_player ~= self.id and #self.instance.players > 2 and not self.kick_vote_successful then
+  if viewed_player and self.viewing_player ~= self.id and #self:instance().players > 2 and not self.kick_vote_successful then
     if viewed_player.kick_votes[self] then
       table.insert(options, 2, CANCEL_VOTE_TO_KICK)
     else
@@ -911,11 +915,11 @@ function Player:handle_spectator_input(button)
       local abandon_response = Async.await(self:question_with_mug("Abandon mission?"))
 
       if abandon_response == 1 then
-        if self.instance:taking_enemy_turn() then
+        if self:instance():taking_enemy_turn() then
           -- vote self out
           self.kick_vote_successful = true
         else
-          self.instance:kick_player(self.id, "abandoned")
+          self:instance():kick_player(self.id, "abandoned")
         end
       end
     end
@@ -924,10 +928,10 @@ end
 
 function Player:resolve_kick_vote()
   if not self.kick_vote_successful then
-    self.kick_vote_successful = self.total_kick_votes >= math.ceil(#self.instance.players / 2)
+    self.kick_vote_successful = self.total_kick_votes >= math.ceil(#self:instance().players / 2)
 
     if self.kick_vote_successful then
-      for _, player in ipairs(self.instance.players) do
+      for _, player in ipairs(self:instance().players) do
         if player.kick_votes[self] then
           player.kick_votes[self] = nil
           player.total_kick_votes = player.total_kick_votes - 1
@@ -954,7 +958,7 @@ function Player:handle_disconnect()
   self._selection:clear()
 
   if self._completed_turn then
-    self.instance.ready_count = self.instance.ready_count - 1
+    self:instance().ready_count = self:instance().ready_count - 1
   end
 
   if self.paralysis_effect then
@@ -990,9 +994,9 @@ function Player:try_reconnect(player_id)
   end
 
   if
-      self.instance.liberated or
-      self.instance:destroying() or
-      not Net.is_area(self.instance.area_id)
+      self:instance().liberated or
+      self:instance():destroying() or
+      not Net.is_area(self:instance().area_id)
   then
     return false
   end
@@ -1008,7 +1012,7 @@ function Player:try_reconnect(player_id)
   self.movement_locked = true
 
   if self._completed_turn then
-    self.instance.ready_count = self.instance.ready_count + 1
+    self:instance().ready_count = self:instance().ready_count + 1
   end
 
   if self.paralysis_counter > 0 then
@@ -1026,12 +1030,12 @@ function Player:try_reconnect(player_id)
   self.stacked_movement_locks = 0
 
   -- add this player back to the instance
-  self.instance.player_map[self.id] = self
-  self.instance.players[#self.instance.players + 1] = self
+  self:instance().player_map[self.id] = self
+  self:instance().players[#self:instance().players + 1] = self
 
   -- restore client data
   local position = self.disconnected_position --[[@as Net.Position]]
-  Net.transfer_player(player_id, self.instance.area_id, true, position.x, position.y, position.z)
+  Net.transfer_player(player_id, self:instance().area_id, true, position.x, position.y, position.z)
   Net.set_player_health(player_id, self._health)
 
   return true
