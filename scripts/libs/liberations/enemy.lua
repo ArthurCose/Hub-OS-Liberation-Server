@@ -121,6 +121,26 @@ function Enemy:can_move_to(x, y, z)
   return true
 end
 
+---@param self Liberation.Enemy
+local function set_panel_collision(self, enabled)
+  local instance = self:instance()
+  local panel = instance:get_panel_at(self.x, self.y, self.z)
+
+  if not panel or not panel.collision_id then
+    return
+  end
+
+  for _, player in ipairs(instance.players) do
+    if player.ability and player.ability.shadow_step then
+      if enabled then
+        Net.include_object_for_player(player.id, panel.collision_id)
+      else
+        Net.exclude_object_for_player(player.id, panel.collision_id)
+      end
+    end
+  end
+end
+
 -- takes instance to move player cameras
 ---@param x number
 ---@param y number
@@ -201,9 +221,12 @@ function Enemy:move(x, y, z, direction)
     -- delete the blur bot
     Net.remove_bot(blur_bot_id)
 
+    -- update position and colliders
+    set_panel_collision(self, false)
     self.x = x
     self.y = y
     self.z = z
+    set_panel_collision(self, true)
 
     return true
   end)

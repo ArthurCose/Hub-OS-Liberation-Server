@@ -828,7 +828,7 @@ function MissionInstance:new(area_id)
     for _, layer in pairs(mission.panels) do
       for _, row in pairs(layer) do
         for _, panel in pairs(row) do
-          if panel.collision_id then
+          if panel.collision_id and not mission:get_enemy_at(panel.x, panel.y, panel.z) then
             Net.exclude_object_for_player(player.id, panel.collision_id)
           end
         end
@@ -1338,9 +1338,11 @@ function MissionInstance:load_panel(object)
 
     new_panel.collision_id = Net.create_object(self.area_id, self.collision_template)
 
-    for _, player in ipairs(self.players) do
-      if player.ability and player.ability.shadow_step then
-        Net.exclude_object_for_player(player.id, new_panel.collision_id)
+    if not self:get_enemy_at(object.x, object.y, object.z) then
+      for _, player in ipairs(self.players) do
+        if player.ability and player.ability.shadow_step then
+          Net.exclude_object_for_player(player.id, new_panel.collision_id)
+        end
       end
     end
   end

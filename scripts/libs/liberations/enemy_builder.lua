@@ -89,6 +89,17 @@ function EnemyBuilder:build(options)
   }
   setmetatable(enemy, Enemy)
 
+  -- enable panel collisions
+  local panel = self.instance:get_panel_at(self.position.x, self.position.y, self.position.z)
+
+  if panel and panel.collision_id then
+    for _, player in ipairs(self.instance.players) do
+      if player.ability and player.ability.shadow_step then
+        Net.include_object_for_player(player.id, panel.collision_id)
+      end
+    end
+  end
+
   return enemy
 end
 
