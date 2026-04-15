@@ -7,10 +7,9 @@ local function static_shape_generator(offset_x, offset_y, shape)
   end
 end
 
----@param instance Liberation.MissionInstance
 ---@param player Liberation.Player
 ---@param results Liberation.BattleResults?
-local function liberate_and_loot(instance, player, results)
+local function liberate_and_loot(player, results)
   if not results then
     results = {
       won = true,
@@ -36,9 +35,8 @@ local PANEL_SEARCH_LOOT_OPTIONS = {
   remove_traps = true
 }
 
----@param instance Liberation.MissionInstance
 ---@param player Liberation.Player
-local function panel_search(instance, player)
+local function panel_search(player)
   local panels = player:selection():get_panels()
 
   Async.create_scope(function()
@@ -54,9 +52,9 @@ local function panel_search(instance, player)
   end)
 end
 
----@param instance Liberation.MissionInstance
 ---@param player Liberation.Player
-local function battle_to_liberate_and_loot(instance, player)
+local function battle_to_liberate_and_loot(player)
+  local instance = player:instance()
   local encounter_path = instance.default_encounter
 
   player:initiate_encounter(encounter_path, {}).and_then(function(battle_results)
@@ -67,7 +65,7 @@ local function battle_to_liberate_and_loot(instance, player)
       -- return order points
       instance:add_order_points(1)
     elseif battle_results.won then
-      liberate_and_loot(instance, player, battle_results)
+      liberate_and_loot(player, battle_results)
     else
       Async.sleep(1).and_then(function()
         player:complete_turn()
@@ -86,8 +84,8 @@ end
 ---@field question string Missing a question turns this ability into a passive
 ---@field cost number
 ---@field shadow_step? boolean
----@field generate_shape fun(instance: Liberation.MissionInstance, player: Liberation.Player): number[][], number, number
----@field activate fun(instance: Liberation.MissionInstance, player: Liberation.Player)
+---@field generate_shape fun(player: Liberation.Player): number[][], number, number
+---@field activate fun(player: Liberation.Player)
 
 ---@type table<string, Liberation.Ability>
 local Ability = {
@@ -136,7 +134,8 @@ Ability.register({
   name = "PanelSearch",
   question = "Search in this area?",
   cost = 1,
-  generate_shape = function(instance, player)
+  generate_shape = function(player)
+    local instance = player:instance()
     local shape = {}
 
     local root_panel = player:selection():root_panel()

@@ -271,7 +271,7 @@ function Player:get_ability_permission()
       p:update_order_points_hud()
     end
 
-    self.ability.activate(instance, self)
+    self.ability.activate(self)
   end)
 end
 

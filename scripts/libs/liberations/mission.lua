@@ -1061,7 +1061,7 @@ function MissionInstance:handle_tile_interaction(player_id, x, y, z, button)
         liberate_panel(self, player)
       elseif response == 1 then
         -- Ability
-        local selection_shape, shape_offset_x, shape_offset_y = ability.generate_shape(self, player)
+        local selection_shape, shape_offset_x, shape_offset_y = ability.generate_shape(player)
         player:selection():set_shape(selection_shape, shape_offset_x, shape_offset_y)
 
         -- ask if we should use the ability
