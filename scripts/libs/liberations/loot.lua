@@ -13,7 +13,7 @@ local HIT_ENEMY_SFX = Preloader.add_asset("/server/assets/liberations/sounds/hit
 ---@class Liberation.Loot
 ---@field animation string
 ---@field breakable boolean
----@field activate fun(instance: Liberation.MissionInstance, player: Liberation.Player, panel: Liberation.PanelObject): Net.Promise
+---@field activate fun(player: Liberation.Player, panel: Liberation.PanelObject): Net.Promise
 
 local Loot = {}
 
@@ -21,7 +21,7 @@ local Loot = {}
 Loot.HEART = {
   animation = "HEART",
   breakable = true,
-  activate = function(instance, player)
+  activate = function(player)
     return Async.create_scope(function()
       Async.await(player:message_with_mug("I found\na heart!"))
       player:heal(player:max_health() / 2)
@@ -33,7 +33,7 @@ Loot.HEART = {
 Loot.CHIP = {
   animation = "CHIP",
   breakable = true,
-  activate = function(instance, player)
+  activate = function(player)
     return Async.create_scope(function()
       Async.await(player:message_with_mug("I found a\nBattleChip!"))
     end)
@@ -44,14 +44,14 @@ Loot.CHIP = {
 Loot.MONEY = {
   animation = "MONEY",
   breakable = true,
-  activate = function(instance, player, panel)
+  activate = function(player, panel)
     return Async.create_scope(function()
       local money = tonumber(panel.custom_properties["Money"]) or 100
 
       Async.await(player:message_with_mug("I found some\nZenny!"))
       Async.await(player:message("Obtained " .. tostring(money) .. "z!"))
 
-      instance:events():emit("money", {
+      player:instance():events():emit("money", {
         player_id = player.id,
         money = money
       })
@@ -63,7 +63,7 @@ Loot.MONEY = {
 Loot.BUGFRAG = {
   animation = "BUGFRAG",
   breakable = true,
-  activate = function(instance, player)
+  activate = function(player)
     return Async.create_scope(function()
       Async.await(player:message_with_mug("I found a\nBugFrag!"))
     end)
@@ -74,9 +74,11 @@ Loot.BUGFRAG = {
 Loot.ORDER_POINT = {
   animation = "ORDER_POINT",
   breakable = false,
-  activate = function(instance, player)
+  activate = function(player)
     return Async.create_scope(function()
       Async.await(player:message_with_mug("I found\nOrder Points!"))
+
+      local instance = player:instance()
 
       local previous_points = instance.order_points
       instance:add_order_points(3)
@@ -93,8 +95,10 @@ Loot.ORDER_POINT = {
 Loot.INVINCIBILITY = {
   animation = "INVINCIBILITY",
   breakable = false,
-  activate = function(instance, player)
+  activate = function(player)
     return Async.create_scope(function()
+      local instance = player:instance()
+
       for _, other_player in pairs(instance.players) do
         other_player.invincible = true
       end
@@ -108,10 +112,11 @@ Loot.INVINCIBILITY = {
 Loot.MAJOR_HIT = {
   animation = "MAJOR_HIT",
   breakable = false,
-  activate = function(instance, player)
+  activate = function(player)
     return Async.create_scope(function()
       Async.await(player:message("Damages the closest\nenemy the most!"))
 
+      local instance = player:instance()
       local enemy = player:find_closest_guardian() or instance.boss
 
       Async.await(enemy:focus(function()
@@ -200,7 +205,7 @@ end
 Loot.KEY = {
   animation = "KEY",
   breakable = false,
-  activate = function(instance, player, panel)
+  activate = function(player, panel)
     return Async.create_scope(function()
       local player_x, player_y, player_z = player:position_multi()
 
@@ -214,6 +219,7 @@ Loot.KEY = {
         return
       end
 
+      local instance = player:instance()
       local points = find_gate_points(instance, key_id)
 
       local function unlock_gates()
@@ -449,10 +455,9 @@ function Loot.spawn_randomized_item_bot(loot_pool, item_index_or_state, area_id,
 end
 
 -- returns a promise, resolves when looting is completed
----@param instance Liberation.MissionInstance
 ---@param player Liberation.Player
 ---@param panel Liberation.PanelObject
-function Loot.loot_bonus_panel(instance, player, panel)
+function Loot.loot_bonus_panel(player, panel)
   ---@type string|number
   local loot_index_or_state = panel.custom_properties["Specific Loot"]
   local loot = Loot[loot_index_or_state]
@@ -473,6 +478,7 @@ function Loot.loot_bonus_panel(instance, player, panel)
   local spawn_z = panel.z
 
   return Async.create_scope(function()
+    local instance = player:instance()
     local remove_item_bot = Async.await(
       Loot.spawn_randomized_item_bot(
         Loot.BONUS_POOL,
@@ -484,7 +490,7 @@ function Loot.loot_bonus_panel(instance, player, panel)
       )
     )
 
-    Async.await(loot.activate(instance, player, panel))
+    Async.await(loot.activate(player, panel))
     remove_item_bot()
   end)
 end

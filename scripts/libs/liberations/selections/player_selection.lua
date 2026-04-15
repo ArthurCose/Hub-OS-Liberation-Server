@@ -21,9 +21,10 @@ end
 local PlayerSelection = {}
 
 ---@return Liberation.PlayerSelection
-function PlayerSelection:new(instance, player)
+function PlayerSelection:new(player)
+  local instance = player:instance()
+
   local player_selection = {
-    player = player,
     instance = instance,
     _root_panel = nil,
     selection = Selection:new(instance),
