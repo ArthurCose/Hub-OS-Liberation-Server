@@ -804,6 +804,8 @@ function Player:loot_panels(panels, options)
 
         remove_item_bot()
       elseif panel.class == PanelClass.TRAP then
+        local trap_damage = tonumber(panel.custom_properties["Damage"])
+
         if options.remove_traps then
           Async.await(self:message_with_mug("A trap panel!\nI'll remove it!"))
 
@@ -811,7 +813,7 @@ function Player:loot_panels(panels, options)
           convert_loot_panel(instance, panel)
 
           Async.await(Async.sleep(1))
-        elseif panel.custom_properties["Damage"] then
+        elseif trap_damage then
           if panel.custom_properties["Message"] ~= nil then
             Async.await(self:message_with_mug(panel.custom_properties["Message"]))
           else
@@ -820,7 +822,7 @@ function Player:loot_panels(panels, options)
 
           Async.await(Async.sleep(0.25))
 
-          self:hurt(tonumber(panel.custom_properties["Damage"]))
+          self:hurt(trap_damage)
           convert_loot_panel(instance, panel)
 
           Async.await(Async.sleep(1))
