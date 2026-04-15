@@ -767,7 +767,7 @@ function MissionInstance:new(area_id)
   local spawns_loaded = {}
 
   while true do
-    local id = current_spawn.custom_properties["Next Spawn"]
+    local id = current_spawn.custom_properties["Next Point"]
 
     if not id or spawns_loaded[id] then
       -- prevent infinite loops

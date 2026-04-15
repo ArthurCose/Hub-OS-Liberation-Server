@@ -93,7 +93,7 @@
     <property name="Rank" value="Beta"/>
    </properties>
   </object>
-  <object id="57" name="Spawn Point" x="653" y="559">
+  <object id="57" name="Spawn Point" x="640" y="560">
    <properties>
     <property name="Direction" value="Up Left"/>
     <property name="Next Point" type="object" value="86"/>
