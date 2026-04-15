@@ -110,7 +110,6 @@ end
   - Used to resolve a reasonable target phase based on the player count
 - `Minimum Target Phase` number, optional. Defaults to 1
   - Used to resolve a reasonable target phase based on the player count
-- `Victory Music` string, optional. Path to music to play when players win.
 - `Victory Background Texture` string, optional
 - `Victory Background Animation` string, optional
 - `Victory Background Vel X` number, optional

@@ -816,15 +816,6 @@ end
 ---@param results Liberation.BattleResults
 function Player:liberate_panels(panels, results)
   return Async.create_scope(function()
-    -- Allow time for the player to see the liberation range
-    Async.await(Async.sleep(2))
-
-    local instance = self._instance
-
-    for _, panel in ipairs(panels) do
-      instance:remove_panel(panel)
-    end
-
     -- If the results do not exist, notify the player of the issue to start a bug report.
     if results == nil then
       Async.await(self:message_with_mug("Something's wrong!\nThere's no results!")).and_then(function()
@@ -839,6 +830,12 @@ function Player:liberate_panels(panels, results)
       else
         Async.await(self:message_with_mug("Yeah!\nI liberated it!"))
       end
+    end
+
+    local instance = self._instance
+
+    for _, panel in ipairs(panels) do
+      instance:remove_panel(panel)
     end
   end)
 end

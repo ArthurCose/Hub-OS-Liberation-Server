@@ -13,6 +13,8 @@ local MARKERS_ANIMATION_PATH = Preloader.add_asset("/server/assets/liberations/u
 local BOSS_MINIMAP_COLOR = { 200, 15, 67 }
 
 local ENEMY_TURN_SFX = Preloader.add_asset("/server/assets/liberations/sounds/enemy_turn.ogg")
+local MISSION_SUCCESS_SFX = Preloader.add_asset("/server/assets/liberations/sounds/mission_success.ogg")
+local SILENT_MUSIC = Preloader.add_asset("/server/assets/liberations/sounds/silent.ogg")
 
 local DEBUG_AUTO_WIN = false
 
@@ -29,6 +31,7 @@ local function is_adjacent(position_a, position_b)
   return x_diff + y_diff == 1
 end
 
+---Expects to be called within an async scope
 ---@param self Liberation.MissionInstance
 local function liberate(self)
   self.liberated = true
@@ -66,13 +69,9 @@ local function liberate(self)
     )
   end
 
-  local victory_music = area_properties["Victory Music"] or area_properties["Victory Song"]
+  Net.play_sound(self.area_id, MISSION_SUCCESS_SFX)
 
-  if victory_music then
-    Net.set_music(self.area_id, victory_music)
-  else
-    Net.set_music(self.area_id, area_properties["Music"] or area_properties["Song"])
-  end
+  Async.await(Async.sleep(3))
 
   local victory_message =
       self.area_name .. " Liberated\n" ..
@@ -241,6 +240,13 @@ local function liberate_panel(self, player)
         end
       end
 
+      local targetted_enemy = enemy or panel.enemy
+
+      if targetted_enemy == self.boss and (targetted_enemy.health == 0 or (results and results.won)) then
+        -- silence for boss deletion
+        Net.set_music(self.area_id, SILENT_MUSIC)
+      end
+
       if not results or not results.won then
         -- delay to allow the return transition to end
         Async.await(Async.sleep(1))
@@ -272,14 +278,18 @@ local function liberate_panel(self, player)
 
       local panels = selection:get_panels()
 
-      Async.await(player:liberate_panels(panels, results))
+      -- Allow time for the player to see the liberation range
+      Async.await(Async.sleep(1))
 
       -- destroy enemy
-      local destroyed_enemy = enemy or panel.enemy
-
-      if destroyed_enemy then
-        Async.await(destroyed_enemy:destroy())
+      if targetted_enemy then
+        Async.await(targetted_enemy:destroy())
+      else
+        -- we can slow down a little
+        Async.await(Async.sleep(0.5))
       end
+
+      Async.await(player:liberate_panels(panels, results))
 
       if panel.class == PanelClass.DARK_HOLE and #self.dark_holes == 0 then
         convert_indestructible_panels(self)

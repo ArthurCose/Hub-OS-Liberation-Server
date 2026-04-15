@@ -52,6 +52,9 @@ local function battle_to_liberate_and_loot(player, loot_options)
         player:selection():merge_bonus_shape()
       end
 
+      -- Allow time for the player to see the liberation range
+      Async.await(Async.sleep(1.5))
+
       local panels = player:selection():get_panels()
       Async.await(player:liberate_panels(panels, battle_results))
       Async.await(player:loot_panels(panels, loot_options))

@@ -8,7 +8,6 @@
   <property name="Name" value="Test Area"/>
   <property name="Short Name" value="Test"/>
   <property name="Target Phase" type="int" value="27"/>
-  <property name="Victory Music" value="/server/assets/music/mission_success.ogg"/>
  </properties>
  <tileset firstgid="1" source="../assets/tiles/acdc3 unliberated paths.tsx"/>
  <tileset firstgid="2" source="../assets/tiles/panel base.tsx"/>
@@ -60,7 +59,7 @@
     <property name="Boss" value="BlizzardMan"/>
     <property name="Direction" value="Down Left"/>
     <property name="Encounter" value="/server/mods/BlizzardMan"/>
-    <property name="Rank" value="Omega"/>
+    <property name="Rank" value="V1"/>
    </properties>
   </object>
   <object id="57" name="Spawn Point" x="208" y="336">

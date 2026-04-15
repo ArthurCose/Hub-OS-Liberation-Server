@@ -8,7 +8,6 @@
   <property name="Name" value="Oran Area3"/>
   <property name="Short Name" value="Oran3"/>
   <property name="Target Phase" type="int" value="27"/>
-  <property name="Victory Music" value="/server/assets/music/mission_success.ogg"/>
  </properties>
  <tileset firstgid="1" source="../assets/tiles/acdc3 unliberated paths.tsx"/>
  <tileset firstgid="2" source="../assets/tiles/panel base.tsx"/>
