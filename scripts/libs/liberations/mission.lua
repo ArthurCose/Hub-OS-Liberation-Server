@@ -163,7 +163,7 @@ local function liberate_panel(self, player)
 
       selection:clear()
 
-      Async.await(Loot.loot_bonus_panel(self, player, panel))
+      Async.await(Loot.loot_bonus_panel(player, panel))
 
       player:unlock_movement()
     else
