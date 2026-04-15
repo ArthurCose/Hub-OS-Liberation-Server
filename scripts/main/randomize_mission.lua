@@ -35,6 +35,11 @@ local BONUS_LOOT_POOL = {
 }
 
 local function randomize_mission(base_area_id, area_id)
+  if not GUARDIAN_POOLS[base_area_id] then
+    warn("Missing randomization data for " .. base_area_id)
+    return
+  end
+
   local guardians = {}
 
   for i, option in ipairs(GUARDIAN_POOLS[base_area_id]) do
