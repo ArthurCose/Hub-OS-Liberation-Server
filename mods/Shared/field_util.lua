@@ -30,6 +30,12 @@ end
 ---@param state TileState
 function FieldUtil.set_tile_state(x, y, state)
   pending_tile_state_changes[#pending_tile_state_changes + 1] = { x, y, state }
+
+  local tile = Field.tile_at(x, y)
+
+  if tile then
+    tile:set_state(state)
+  end
 end
 
 ---Horizontally mirrors pending tile state changes

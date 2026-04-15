@@ -5,8 +5,11 @@ local LiberationLib = require("dev.konstinople.library.liberation")
 ---@param encounter Encounter
 function encounter_init(encounter, data)
     SharedLib.buff_terrain(data)
-    LiberationLib.init(encounter, data)
+
+    -- generating before initializing the liberation lib to allow it to shift spawns based on our panels
     SharedLib.generate_poison_field()
+
+    LiberationLib.init(encounter, data)
 
     encounter:set_spectate_on_delete(true)
 

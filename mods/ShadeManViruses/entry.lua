@@ -14,10 +14,12 @@ local VIRUS_POOL = {
 
 ---@param encounter Encounter
 function encounter_init(encounter, data)
+    -- generating before initializing the liberation lib to allow it to shift spawns based on our panels
+    SharedLib.generate_poison_field()
+
     LiberationLib.init(encounter, data)
 
     encounter:set_spectate_on_delete(true)
 
-    SharedLib.generate_poison_field()
     SharedLib.spawn_viruses(encounter, data, VIRUS_POOL)
 end
