@@ -1057,7 +1057,13 @@ function Player:handle_spectator_input(button)
   end
 
   Async.create_scope(function()
-    local response = Async.await(Async.quiz_player(self.id, options[1], options[2], options[3]))
+    local response = Async.await(Async.quiz_player(
+      self.id,
+      options[1],
+      options[2],
+      options[3],
+      { cancel_response = 4 }
+    ))
 
     if not response then
       return
