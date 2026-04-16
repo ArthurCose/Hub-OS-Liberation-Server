@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.10" tiledversion="1.12.1" orientation="isometric" renderorder="right-down" width="23" height="26" tilewidth="64" tileheight="32" infinite="0" nextlayerid="3" nextobjectid="28">
  <properties>
-  <property name="Background Animation" value="/server/assets/backgrounds/ACDC.animation"/>
-  <property name="Background Texture" value="/server/assets/backgrounds/ACDC.png"/>
+  <property name="Background Animation" value="/server/assets/backgrounds/acdc.animation"/>
+  <property name="Background Texture" value="/server/assets/backgrounds/acdc.png"/>
   <property name="Music" value="/server/assets/music/lobby.ogg"/>
   <property name="Name" value="ACDC2"/>
  </properties>
  <tileset firstgid="1" source="../assets/tiles/acdc2.tsx"/>
- <tileset firstgid="2" source="../assets/tiles/nebula door.tsx"/>
- <tileset firstgid="8" source="../assets/tiles/walkable space.tsx"/>
+ <tileset firstgid="2" source="../assets/tiles/nebula_door.tsx"/>
+ <tileset firstgid="8" source="../assets/tiles/walkable_space.tsx"/>
  <tileset firstgid="14" source="../assets/tiles/warp.tsx"/>
- <tileset firstgid="20" source="../assets/tiles/home warp.tsx"/>
- <tileset firstgid="24" source="../assets/tiles/BBS.tsx"/>
+ <tileset firstgid="20" source="../assets/tiles/home_warp.tsx"/>
+ <tileset firstgid="24" source="../assets/tiles/bbs.tsx"/>
  <tileset firstgid="25" source="../assets/liberations/tiles/collision.tsx"/>
  <layer id="1" name="Tile Layer 1" width="23" height="26" visible="0">
   <data encoding="csv">
@@ -85,10 +85,10 @@
   </object>
   <object id="25" name="ACDC2" type="Board" gid="24" x="248" y="508" width="32" height="56">
    <properties>
-    <property name="BBS" type="bool" value="true"/>
     <property name="Color" type="color" value="#ff6bbdcd"/>
     <property name="Name" value="ACDC2"/>
     <property name="Post Limit" type="int" value="100"/>
+    <property name="bbs" type="bool" value="true"/>
    </properties>
   </object>
   <object id="27" name="Spawn" x="172" y="684">

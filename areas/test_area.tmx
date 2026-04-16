@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.10" tiledversion="1.12.1" orientation="isometric" renderorder="right-down" width="13" height="16" tilewidth="64" tileheight="32" infinite="0" nextlayerid="3" nextobjectid="211">
  <properties>
-  <property name="Background Animation" value="/server/assets/backgrounds/ACDC.animation"/>
-  <property name="Background Texture" value="/server/assets/backgrounds/ACDC Unliberated.png"/>
+  <property name="Background Animation" value="/server/assets/backgrounds/acdc.animation"/>
+  <property name="Background Texture" value="/server/assets/backgrounds/acdc_unliberated.png"/>
   <property name="Liberation Encounter" value="/server/mods/BlizzardManViruses"/>
   <property name="Music" value="/server/assets/music/mission.ogg"/>
   <property name="Name" value="Test Area"/>
   <property name="Short Name" value="Test"/>
   <property name="Target Phase" type="int" value="27"/>
  </properties>
- <tileset firstgid="1" source="../assets/tiles/acdc3 unliberated paths.tsx"/>
- <tileset firstgid="2" source="../assets/tiles/panel base.tsx"/>
+ <tileset firstgid="1" source="../assets/tiles/acdc3_unliberated_paths.tsx"/>
+ <tileset firstgid="2" source="../assets/tiles/panel_base.tsx"/>
  <tileset firstgid="5" source="../assets/liberations/tiles/panels.tsx"/>
- <tileset firstgid="47" source="../assets/tiles/walkable space.tsx"/>
+ <tileset firstgid="47" source="../assets/tiles/walkable_space.tsx"/>
  <tileset firstgid="53" source="../assets/liberations/tiles/collision.tsx"/>
- <tileset firstgid="54" source="../assets/tiles/oran3 unliberated paths.tsx"/>
+ <tileset firstgid="54" source="../assets/tiles/oran3_unliberated_paths.tsx"/>
  <layer id="1" name="Tile Layer 1" width="13" height="16">
   <data encoding="csv">
 2,3,2,3,2,2147483652,2147483650,4,2147483652,2147483652,3,2147483652,3,
