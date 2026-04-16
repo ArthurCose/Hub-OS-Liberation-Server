@@ -357,7 +357,7 @@ local function take_enemy_turn(self)
 
           Async.await(Async.sleep(slide_time + 0.5))
 
-          local boss_name = Net.get_bot_name(self.boss.id) or "Nebula"
+          local boss_name = Net.get_actor_name(self.boss.id) or "Nebula"
           Async.await(player:message_with_mug("Is this the power of " .. boss_name .. "...?"))
 
           Async.await(Async.sleep(0.5))
@@ -691,7 +691,7 @@ function MissionInstance:new(area_id)
         -- spawning bosses
         local enemy = EnemyBuilder.from_panel(mission, panel):build_from_require()
 
-        Net.set_bot_map_color(enemy.id, BOSS_MINIMAP_COLOR)
+        Net.set_actor_map_color(enemy.id, BOSS_MINIMAP_COLOR)
 
         mission.boss = enemy
         table.insert(mission.enemies, enemy)
@@ -820,7 +820,7 @@ function MissionInstance:new(area_id)
   end)
 
   add_event_listener("player_area_transfer", function(event)
-    if Net.get_player_area(event.player_id) ~= area_id then
+    if Net.get_actor_area(event.player_id) ~= area_id then
       mission:handle_player_disconnect(event.player_id)
       return
     end
@@ -888,7 +888,7 @@ function MissionInstance:transfer_player(player_id, ability)
   self.player_map[player_id] = player
   self.target_phase.players_joined = self.target_phase.players_joined + 1
 
-  Net.transfer_player(
+  Net.transfer_actor(
     player.id,
     self.area_id,
     true,
@@ -1138,7 +1138,7 @@ end
 
 ---@package
 function MissionInstance:handle_actor_interaction(player_id, _actor_id, button)
-  local x, y, z = Net.get_player_position_multi(player_id)
+  local x, y, z = Net.get_actor_position_multi(player_id)
 
   if not x then
     return

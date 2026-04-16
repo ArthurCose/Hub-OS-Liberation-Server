@@ -69,7 +69,7 @@ end
 local link_prefix = "https://"
 Net:on("object_interaction", function(event)
   local player_id = event.player_id
-  local area_id = Net.get_player_area(player_id)
+  local area_id = Net.get_actor_area(player_id)
 
   local posts = boards[area_id .. event.object_id]
 

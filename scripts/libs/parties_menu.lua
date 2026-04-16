@@ -49,7 +49,7 @@ function PartiesMenu.view(player_id)
   end
 
   -- list nearby players
-  local nearby_ids = Net.list_players(Net.get_player_area(player_id))
+  local nearby_ids = Net.list_players(Net.get_actor_area(player_id))
   local nearby_data = {}
   local player_key = Parties.key_from_player_id(player_id)
 
@@ -175,7 +175,7 @@ end)
 
 Net:on("player_connect", function(event)
   local key = Parties.key_from_player_id(event.player_id)
-  names[key] = Net.get_player_name(event.player_id)
+  names[key] = Net.get_actor_name(event.player_id)
   PartiesMenu.set_player_status(event.player_id, "Online")
 end)
 

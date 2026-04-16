@@ -17,13 +17,7 @@ function ParalysisEffect:new(actor_id, area_wide_sfx)
   setmetatable(paralyze_effect, self)
   self.__index = self
 
-  local area_id
-
-  if Net.is_bot(actor_id) then
-    area_id = Net.get_bot_area(actor_id)
-  elseif Net.is_player(actor_id) then
-    area_id = Net.get_player_area(actor_id)
-  end
+  local area_id = Net.get_actor_area(actor_id)
 
   if area_wide_sfx then
     Net.play_sound(area_id, SFX_PATH)

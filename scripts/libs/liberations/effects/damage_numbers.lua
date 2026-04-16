@@ -35,7 +35,7 @@ function DamageNumbers.spawn(area_id, number, x, y, z)
       v_align = "center",
     })
 
-    Net.animate_bot_properties(bot_id, {
+    Net.animate_actor_properties(bot_id, {
       {
         properties = { { property = "Z", value = z, ease = "Floor" } },
         duration = 1 / 60,

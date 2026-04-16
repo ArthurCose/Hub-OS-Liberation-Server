@@ -140,7 +140,7 @@ local function create_post(player_id, board, title, text)
     }
   end
 
-  local player_name = Net.get_player_name(player_id)
+  local player_name = Net.get_actor_name(player_id)
   local character_limit = tonumber(board.custom_properties["Character Limit"])
 
   if contains_only_whitespace(title) then
@@ -213,7 +213,7 @@ end)
 
 Net:on("object_interaction", function(event)
   local player_id = event.player_id
-  local area = Net.get_player_area(player_id)
+  local area = Net.get_actor_area(player_id)
   local object = Net.get_object_by_id(area, event.object_id)
 
   if not object or not object.custom_properties.BBS then

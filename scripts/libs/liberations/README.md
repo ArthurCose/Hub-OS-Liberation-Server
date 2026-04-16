@@ -256,7 +256,7 @@ local function start_mission(scripts, base_area, player_ids)
 
   mission_events:on("player_kicked", function(event)
     -- send the player somewhere else
-    Net.transfer_player(event.player_id, "default", true)
+    Net.transfer_actor(event.player_id, "default", true)
 
     if event.reason == "success" then
       -- optional, reward the player in some way

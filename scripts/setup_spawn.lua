@@ -18,6 +18,6 @@ end
 Net:on("player_request", function(event)
   if event.data == "index" then
     local spawn = Net.get_object_by_name("default", "Index Spawn")
-    Net.transfer_player(event.player_id, "default", true, spawn.x, spawn.y, spawn.z, spawn.custom_properties.Direction)
+    Net.transfer_actor(event.player_id, "default", true, spawn.x, spawn.y, spawn.z, spawn.custom_properties.Direction)
   end
 end)

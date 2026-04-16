@@ -12,12 +12,9 @@ local EXPLOSION_AXIS_RANGE = .5
 local function update_tracked_position(self)
   local actor_id = self.tracked_actor_id
 
-  if Net.is_bot(actor_id) then
-    self.area_id = Net.get_bot_area(actor_id)
-    self.position = Net.get_bot_position(actor_id)
-  elseif Net.is_player(actor_id) then
-    self.area_id = Net.get_player_area(actor_id)
-    self.position = Net.get_player_position(actor_id)
+  if Net.is_actor(actor_id) then
+    self.area_id = Net.get_actor_area(actor_id)
+    self.position = Net.get_actor_position(actor_id)
   end
 end
 
@@ -33,7 +30,7 @@ local function explode(self, explosion_bot_id)
   local offset_x = (math.random() * 2 - 1) * EXPLOSION_AXIS_RANGE
   local offset_y = (math.random() * 2 - 1) * EXPLOSION_AXIS_RANGE
 
-  Net.transfer_bot(
+  Net.transfer_actor(
     explosion_bot_id,
     self.area_id,
     false,
@@ -50,9 +47,9 @@ local function explode(self, explosion_bot_id)
   Net.play_sound(self.area_id, SFX_PATH)
 
   if math.random(2) == 1 then
-    Net.animate_bot(explosion_bot_id, "EXPLODE")
+    Net.animate_actor(explosion_bot_id, "EXPLODE")
   else
-    Net.animate_bot(explosion_bot_id, "SMOKE")
+    Net.animate_actor(explosion_bot_id, "SMOKE")
   end
 
   -- explode again

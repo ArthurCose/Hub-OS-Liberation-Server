@@ -89,7 +89,7 @@ Net.EventEmitter = {}
 ---keyframes: {
 ---  properties: {
 ---    property: "Animation" | "Animation Loop" | "Animation Speed" | "X" | "Y" | "Z" | "ScaleX" | "ScaleY" | "Rotation" | "Direction" | "Sound Effect" | "Sound Effect Loop",
----    ease?: "Linear" | "In" | "Out" | "InOut" | "Floor",
+---    ease?: "Linear" | "In" | "Out" | "InOut" | "Floor" | "Ceil",
 ---    value: number | string
 ---  }[],
 ---  duration: number
@@ -101,7 +101,7 @@ Net.EventEmitter = {}
 
 ---@class Net.ActorPropertyKeyframe
 ---@field property "Animation" | "Animation Loop" | "Animation Speed" | "X" | "Y" | "Z" | "ScaleX" | "ScaleY" | "Rotation" | "Direction" | "Sound Effect" | "Sound Effect Loop"
----@field ease? "Linear" | "In" | "Out" | "InOut" | "Floor",
+---@field ease? "Linear" | "In" | "Out" | "InOut" | "Floor" | "Ceil",
 ---@field value number | string
 
 ---@class Net.ItemDefinition
@@ -112,7 +112,8 @@ Net.EventEmitter = {}
 ---@class Net.TextboxOptions
 ---@field mug? Net.TextureAnimationPair
 ---@field text_style? Net.TextStyle
----@field default_response? string | number
+---@field initial_response? string | number
+---@field cancel_response? string | number Supports prompts and quizzes. Quizzes accept positive integers or zero.
 ---@field character_limit? number Used for text inputs
 
 ---Example:
@@ -647,13 +648,13 @@ function Net.remove_object(area_id, object_id) end
 ---@param name string
 function Net.set_object_name(area_id, object_id, name) end
 
---- Changes the object's type, clients will be updated at the end of the tick.
+--- Changes the object's type / class, clients will be updated at the end of the tick.
 ---@param area_id string
 ---@param object_id number|string
 ---@param type string
 function Net.set_object_type(area_id, object_id, type) end
 
---- Deprecated. Use set_object_type instead.
+--- Changes the object's type / class, clients will be updated at the end of the tick.
 ---@param area_id string
 ---@param object_id number|string
 ---@param class string
@@ -956,14 +957,7 @@ function Net.remove_sprite(sprite_id) end
 --- Sets the color of the marker used in the map menu to represent this player. Defaults to `{ r: 0, g: 0, b: 0, a: 0 }`
 ---@param player_id Net.ActorId
 ---@param color Net.Color
-function Net.set_player_map_color(player_id, color) end
-
---- - `color`: [Net.Color](https://docs.hubos.dev/server/lua-api/widgets#netcolor)
----
---- Sets the color of the marker used in the map menu to represent this bot. Defaults to `{ r: 0, g: 0, b: 0, a: 0 }`
----@param bot_id Net.ActorId
----@param color Net.Color
-function Net.set_bot_map_color(bot_id, color) end
+function Net.set_actor_map_color(player_id, color) end
 
 --- Sends a link to the player to open in the browser. Permission will be asked before opening.
 ---
@@ -1003,11 +997,6 @@ function Net.list_players(area_id) end
 ---@return boolean
 function Net.is_player(player_id) end
 
---- Returns the `area_id` for the area the player is currently in.
----@param player_id Net.ActorId
----@return string
-function Net.get_player_area(player_id) end
-
 --- Returns the IP address of the player as a string. Useful for creating connection whitelists/blacklists.
 ---
 --- If you want to track data use [Net.get_player_secret()](https://docs.hubos.dev/server/lua-api/player-data#netget_player_secretplayer_id). Otherwise you'll have issues when multiple players live within the same house.
@@ -1015,76 +1004,15 @@ function Net.get_player_area(player_id) end
 ---@return string
 function Net.get_player_ip(player_id) end
 
---- Returns the name of the player. "Nickname" in config.
----@param player_id Net.ActorId
----@return string
-function Net.get_player_name(player_id) end
-
---- Sets the name of the player for all players to see.
----@param player_id Net.ActorId
----@param name string
-function Net.set_player_name(player_id, name) end
-
---- Returns the facing direction of the player.
----@param player_id Net.ActorId
----@return string
-function Net.get_player_direction(player_id) end
-
---- Returns [Net.Position](https://docs.hubos.dev/server/lua-api/misc#netposition)
----@param player_id Net.ActorId
----@return Net.Position
-function Net.get_player_position(player_id) end
-
---- Returns the player's position using multi-values.
----
---- ```lua
---- local x, y, z = Net.get_player_position_multi(bot_id)
---- ```
----@param player_id Net.ActorId
----@return number, number, number
-function Net.get_player_position_multi(player_id) end
-
 --- Returns [Net.TextureAnimationPair](https://docs.hubos.dev/server/lua-api/widgets#nettextureanimationpair)
 ---@param player_id Net.ActorId
 ---@return Net.TextureAnimationPair
 function Net.get_player_mugshot(player_id) end
 
---- Returns [Net.TextureAnimationPair](https://docs.hubos.dev/server/lua-api/widgets#nettextureanimationpair)
----@param player_id Net.ActorId
----@return Net.TextureAnimationPair
-function Net.get_player_avatar(player_id) end
-
---- Sets the texture file and animation file used to display the player.
----@param player_id Net.ActorId
----@param texture_path string
----@param animation_path string
-function Net.set_player_avatar(player_id, texture_path, animation_path) end
-
 --- Returns the name of the playable character used by the player.
 ---@param player_id Net.ActorId
 ---@return string
 function Net.get_player_avatar_name(player_id) end
-
---- Displays an emote above the player. `emote_id` is the name of an animation state in the emotes animation.
----
---- An invalid `emote_id` will hide an existing emote.
----@param player_id Net.ActorId
----@param emote_id string
-function Net.set_player_emote(player_id, emote_id) end
-
---- - `emoter_id`: a `bot_id` or `player_id`
----
---- Displays an emote exclusively to this player.
----@param player_id Net.ActorId
----@param emoter_id Net.ActorId
----@param emote_id string
-function Net.exclusive_player_emote(player_id, emoter_id, emote_id) end
-
---- Sets the animation state for the player, the default states will be used if the player moves.
----@param player_id Net.ActorId
----@param state_name string
----@param loop? boolean
-function Net.animate_player(player_id, state_name, loop) end
 
 --- Allows for assets to be sent ahead of time to reduce apparent server hiccups.
 ---@param player_id Net.ActorId
@@ -1110,6 +1038,14 @@ function Net.exclude_actor_for_player(player_id, actor_id) end
 ---@param player_id Net.ActorId
 ---@param actor_id Net.ActorId
 function Net.include_actor_for_player(player_id, actor_id) end
+
+--- - `emoter_id`: a `bot_id` or `player_id`
+---
+--- Displays an emote exclusively to this player.
+---@param player_id Net.ActorId
+---@param emoter_id Net.ActorId
+---@param emote_id string
+function Net.exclusive_actor_emote_for_player(player_id, emoter_id, emote_id) end
 
 --- - `range_x`: number
 --- - `range_y`: number
@@ -1188,15 +1124,6 @@ function Net.lock_player_movement(player_id) end
 --- Removes a lock on the player's movement.
 ---@param player_id Net.ActorId
 function Net.unlock_player_movement(player_id) end
-
---- Teleports the player to a new position.
----@param player_id Net.ActorId
----@param warp boolean
----@param x number
----@param y number
----@param z number
----@param direction? string
-function Net.teleport_player(player_id, warp, x, y, z, direction) end
 
 --- - `path`: `string`
 ---   - Server asset path to a toml file.
@@ -1281,16 +1208,6 @@ function Net.initiate_netplay(player_ids, package_path, encounter_data) end
 ---@param battle_id Net.BattleId
 ---@param encounter_data any
 function Net.send_battle_message(battle_id, encounter_data) end
-
---- Sends the player to a different area.
----@param player_id Net.ActorId
----@param area_id string
----@param warp_in? boolean
----@param x? number
----@param y? number
----@param z? number
----@param direction? string
-function Net.transfer_player(player_id, area_id, warp_in, x, y, z, direction) end
 
 --- - `data`: `string`
 ---   - Readable in [player_request](https://docs.hubos.dev/server/lua-api/events#player_request) on the remote server
@@ -1474,6 +1391,11 @@ function Net.unlock_player_equipment(player_id) end
 ---@return Net.ActorId[]
 function Net.list_bots(area_id) end
 
+--- Returns true if the id matches an existing bot.
+---@param bot_id Net.ActorId
+---@return boolean
+function Net.is_bot(bot_id) end
+
 --- - `bot_options`: [Net.BotOptions](https://docs.hubos.dev/server/lua-api/bots#netbotoptions)
 ---
 --- Creates a bot.
@@ -1483,110 +1405,125 @@ function Net.list_bots(area_id) end
 ---@return Net.ActorId
 function Net.create_bot(bot_options) end
 
---- Returns true if the id matches an existing bot.
----@param bot_id Net.ActorId
----@return boolean
-function Net.is_bot(bot_id) end
-
 --- Deletes the bot and notifies clients in the same area.
 ---@param bot_id Net.ActorId
 ---@param warp_out? boolean
 function Net.remove_bot(bot_id, warp_out) end
 
---- Returns the `area_id` for the area the bot is currently in.
----@param bot_id Net.ActorId
----@return string
-function Net.get_bot_area(bot_id) end
+--- Returns true if the id matches an existing actor.
+---@param actor_id Net.ActorId
+---@return boolean
+function Net.is_actor(actor_id) end
 
---- Returns the name shown to players for the bot.
----@param bot_id Net.ActorId
+--- Returns the `area_id` for the area the actor is currently in.
+---@param actor_id Net.ActorId
 ---@return string
-function Net.get_bot_name(bot_id) end
+function Net.get_actor_area(actor_id) end
 
---- Sets the name shown to players for the bot.
----@param bot_id Net.ActorId
+--- Returns the name shown to players for the actor.
+---
+--- For player actors, this will default to "Nickname" in config.
+---@param actor_id Net.ActorId
+---@return string
+function Net.get_actor_name(actor_id) end
+
+--- Sets the name shown to players for the actor.
+---@param actor_id Net.ActorId
 ---@param name string
-function Net.set_bot_name(bot_id, name) end
+function Net.set_actor_name(actor_id, name) end
 
---- Returns the facing direction of the bot.
----@param bot_id Net.ActorId
+--- Returns the facing direction of the actor.
+---@param actor_id Net.ActorId
 ---@return string
-function Net.get_bot_direction(bot_id) end
+function Net.get_actor_direction(actor_id) end
 
---- Sets the facing direction of the bot.
+--- Sets the facing direction of the actor.
+---
+--- This is immediate for bots, delayed by a network round trip for player actors.
 ---@param bot_id Net.ActorId
 ---@param direction string
-function Net.set_bot_direction(bot_id, direction) end
+function Net.set_actor_direction(bot_id, direction) end
 
 --- Returns [Net.Position](https://docs.hubos.dev/server/lua-api/misc#netposition)
----@param bot_id Net.ActorId
+---@param actor_id Net.ActorId
 ---@return Net.Position
-function Net.get_bot_position(bot_id) end
+function Net.get_actor_position(actor_id) end
 
---- Returns the bot's position using multi-values.
----
---- ```lua
---- local x, y, z = Net.get_bot_position_multi(bot_id)
---- ```
----@param bot_id Net.ActorId
+--- Returns the actor's position using multi-values.
+---@param actor_id Net.ActorId
 ---@return number, number, number
-function Net.get_bot_position_multi(bot_id) end
+function Net.get_actor_position_multi(actor_id) end
 
---- Sets the position of the bot, will play a warp animation on the clients if the bot is moving too fast.
----@param bot_id Net.ActorId
+--- Moves the actor, will play a warp animation on the clients if the actor is moving too fast.
+---
+--- This is immediate for bots, delayed by a network round trip for player actors.
+---@param actor_id Net.ActorId
 ---@param x number
 ---@param y number
 ---@param z number
-function Net.move_bot(bot_id, x, y, z) end
+---@param direction? string
+function Net.move_actor(actor_id, x, y, z, direction) end
 
---- Sets the area and position of the bot.
----@param bot_id Net.ActorId
+--- If the actor belongs to a player, it will play a warp animation for the movement on that player's client, otherwise works identically to `Net.move_actor()`
+---
+--- This is immediate for bots, delayed by a network round trip for player actors.
+---@param actor_id Net.ActorId
+---@param x number
+---@param y number
+---@param z number
+---@param direction? string
+function Net.warp_actor(actor_id, x, y, z, direction) end
+
+--- Sends the actor to a different area.
+---
+--- This is immediate for bots, delayed by a network round trip for player actors.
+---
+--- ```lua
+--- local x, y, z = Net.get_actor_position_multi(actor_id)
+--- ```
+---@param player_id Net.ActorId
 ---@param area_id string
 ---@param warp_in? boolean
 ---@param x? number
 ---@param y? number
 ---@param z? number
-function Net.transfer_bot(bot_id, area_id, warp_in, x, y, z) end
+---@param direction? string
+function Net.transfer_actor(player_id, area_id, warp_in, x, y, z, direction) end
 
---- Not implemented.
----@param bot_id Net.ActorId
----@param solid boolean
-function Net.set_bot_solid(bot_id, solid) end
-
---- Sets texture and animation files used to display the bot.
----@param bot_id Net.ActorId
+--- Sets texture and animation files used to display the actor.
+---@param actor_id Net.ActorId
 ---@param texture_path string
 ---@param animation_path string
-function Net.set_bot_avatar(bot_id, texture_path, animation_path) end
+function Net.set_actor_avatar(actor_id, texture_path, animation_path) end
 
---- Displays an emote above the bot. `emote_id` is the name of an animation state in the emotes animation.
+--- Displays an emote above the actor. `emote_id` is the name of an animation state in the emotes animation.
 ---
 --- An invalid `emote_id` will hide an existing emote.
----@param bot_id Net.ActorId
+---@param actor_id Net.ActorId
 ---@param emote_id string
-function Net.set_bot_emote(bot_id, emote_id) end
+function Net.set_actor_emote(actor_id, emote_id) end
 
---- Sets the animation state for the bot, the default states will be used if the bot moves.
----@param bot_id Net.ActorId
+--- Sets the animation state for the actor, the default states will be used if the actor moves.
+---@param actor_id Net.ActorId
 ---@param state_name string
 ---@param loop? boolean
-function Net.animate_bot(bot_id, state_name, loop) end
+function Net.animate_actor(actor_id, state_name, loop) end
 
---- - `keyframes`: [Net.ActorKeyframe[]](https://docs.hubos.dev/server/lua-api/actor-property-animations#netactorkeyframe)
+--- - `keyframes`: [Net.ActorKeyframe[]](https://docs.hubos.dev/server/lua-api/actor-api#netactorkeyframe)
 ---
---- Interpolated animation for fancy effects.
+--- Interpolated animations for fancy effects.
 ---
 --- If a keyframe at duration 0 does not exist for a property, the client will default to initial values or a blank value. Ex: X/Y/Z will use the actor's current position, and "Sound Effect" would use blank / play no sounds.
 ---
 --- If the position is not animated, the player can control their actor while the animations play.
 ---
---- The final state of the animation will stick to the player, excluding sounds.
+--- The final state of the animation will stick to the actor, excluding sounds.
 ---
 --- ```lua
 --- Net:on("tile_interaction", function(event)
----   local position = Net.get_player_position(event.player_id)
+---   local position = Net.get_actor_position(event.player_id)
 ---
----   -- a stretched jump. if the player disappears, you may need to add a new tile layer
+---   -- a stretched jump. if the actor disappears, you may need to add a new tile layer
 ---   local keyframes = {
 ---     {
 ---       properties = {
@@ -1604,51 +1541,14 @@ function Net.animate_bot(bot_id, state_name, loop) end
 ---     }
 ---   }
 ---
----   Net.animate_player_properties(event.player_id, keyframes)
+---   Net.animate_actor_properties(event.player_id, keyframes)
 --- end)
 --- ```
 ---
 --- If you need something to happen when the animation ends, you should use [Async.sleep()](https://docs.hubos.dev/server/lua-api/async#asyncsleepseconds)
----@param player_id Net.ActorId
+---@param actor_id Net.ActorId
 ---@param keyframes Net.ActorKeyframe[]
-function Net.animate_player_properties(player_id, keyframes) end
-
---- - `keyframes`: [Net.ActorKeyframe[]](https://docs.hubos.dev/server/lua-api/actor-property-animations#netactorkeyframe)
----
---- Interpolated animation for fancy effects.
----
---- If a keyframe at duration 0 does not exist for a property, the client will default to initial values or a blank value. Ex: X/Y/Z will use the actor's current position, and "Sound Effect" would use blank / play no sounds.
----
---- The final state of the animation will stick to the bot, excluding sounds.
----
---- ```lua
---- local position = Net.get_bot_position(bot_id)
----
---- -- a stretched jump. if the bot disappears, you may need to add a new tile layer
---- local keyframes = {
----   {
----     properties = {
----       { property = "Z",      value = position.z + 1, ease = "Out" },
----       { property = "ScaleY", value = 1.5,            ease = "Out" }
----     },
----     duration = 0.5
----   },
----   {
----     properties = {
----       { property = "Z",      value = position.z, ease = "In" },
----       { property = "ScaleY", value = 1,          ease = "In" }
----     },
----     duration = 0.5
----   }
---- }
----
---- Net.animate_bot_properties(bot_id, keyframes)
---- ```
----
---- If you need something to happen when the animation ends, you should use [Async.sleep()](https://docs.hubos.dev/server/lua-api/async#asyncsleepseconds)
----@param bot_id Net.ActorId
----@param keyframes Net.ActorKeyframe[]
-function Net.animate_bot_properties(bot_id, keyframes) end
+function Net.animate_actor_properties(actor_id, keyframes) end
 
 --- - `content`: `string`
 ---

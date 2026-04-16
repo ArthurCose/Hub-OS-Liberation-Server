@@ -104,7 +104,7 @@ function BlizzardMan:take_turn(actor)
       end
     end
 
-    self.selection:move(actor, Net.get_bot_direction(actor.id))
+    self.selection:move(actor, Net.get_actor_direction(actor.id))
 
     local caught_players = self.selection:detect_players()
 
@@ -153,7 +153,7 @@ function BlizzardMan:take_turn(actor)
             z = player_z + 8.5
           })
 
-          Net.animate_bot_properties(snowball_bot_id, {
+          Net.animate_actor_properties(snowball_bot_id, {
             {
               properties = {
                 { property = "Animation", value = "FALL" },

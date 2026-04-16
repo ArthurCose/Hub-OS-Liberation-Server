@@ -21,7 +21,7 @@ function Poof.spawn(area_id, state, x, y, z)
       z = z
     })
 
-    Net.animate_bot_properties(bot_id, {
+    Net.animate_actor_properties(bot_id, {
       {
         properties = {
           { property = "Z", value = z + 3, ease = "Linear" }

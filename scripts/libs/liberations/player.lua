@@ -96,14 +96,14 @@ function Player:emote_state()
   if Net.is_player_battling(self.id) then
     -- the client will send emotes for this
   elseif self._completed_turn then
-    Net.set_player_emote(self.id, Emotes.GREEN_CHECK)
+    Net.set_actor_emote(self.id, Emotes.GREEN_CHECK)
   elseif self.spectate_next_battle then
-    Net.set_player_emote(self.id, Emotes.POPCORN_AND_SODA)
+    Net.set_actor_emote(self.id, Emotes.POPCORN_AND_SODA)
   elseif self.invincible then
-    Net.set_player_emote(self.id, "HORSE")
+    Net.set_actor_emote(self.id, "HORSE")
   else
     -- clear emote
-    Net.set_player_emote(self.id, "")
+    Net.set_actor_emote(self.id, "")
   end
 
   self.emote_delay = 1
@@ -134,11 +134,11 @@ function Player:direction()
     return self.disconnected_direction --[[@as string]]
   end
 
-  return Net.get_player_direction(self.id)
+  return Net.get_actor_direction(self.id)
 end
 
 function Player:position()
-  local x, y, z = Net.get_player_position_multi(self.id)
+  local x, y, z = self:position_multi()
   return { x = x, y = y, z = z }
 end
 
@@ -148,7 +148,7 @@ function Player:position_multi()
     return position.x, position.y, position.z
   end
 
-  return Net.get_player_position_multi(self.id)
+  return Net.get_actor_position_multi(self.id)
 end
 
 function Player:floored_position()
@@ -572,7 +572,7 @@ function Player:hurt(amount)
 
   -- spawn damage numbers
   local instance = self._instance
-  local x, y, z = Net.get_player_position_multi(self.id)
+  local x, y, z = Net.get_actor_position_multi(self.id)
   DamageNumbers.spawn(
     instance.area_id,
     prev_health - self._health,
@@ -878,7 +878,7 @@ function Player:animate_search(panels)
       duration = KEY_FRAME_DURATION,
     }
 
-    Net.animate_bot_properties(bot_id, keyframes)
+    Net.animate_actor_properties(bot_id, keyframes)
 
     -- wait for the animation to finish before
     Async.await(Async.sleep(3 * #panels * KEY_FRAME_DURATION + 0.5))
@@ -1237,7 +1237,7 @@ function Player:try_reconnect(player_id)
   -- restore client data
   local position = self.disconnected_position --[[@as Net.Position]]
   local direction = self.disconnected_direction
-  Net.transfer_player(player_id, instance.area_id, true, position.x, position.y, position.z, direction)
+  Net.transfer_actor(player_id, instance.area_id, true, position.x, position.y, position.z, direction)
   Net.set_player_health(player_id, self._health)
 
   for _, defense in ipairs(self._defenses) do

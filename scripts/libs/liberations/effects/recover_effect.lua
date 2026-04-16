@@ -17,15 +17,8 @@ local function internal_new(actor_id, area_wide_sfx, texture_path)
   setmetatable(recover_effect, self)
   self.__index = self
 
-  local area_id, position
-
-  if Net.is_bot(actor_id) then
-    area_id = Net.get_bot_area(actor_id)
-    position = Net.get_bot_position(actor_id)
-  elseif Net.is_player(actor_id) then
-    area_id = Net.get_player_area(actor_id)
-    position = Net.get_player_position(actor_id)
-  end
+  local area_id = Net.get_actor_area(actor_id)
+  local position = Net.get_actor_position(actor_id)
 
   if area_wide_sfx then
     Net.play_sound(area_id, SFX_PATH)
@@ -43,7 +36,7 @@ local function internal_new(actor_id, area_wide_sfx, texture_path)
     z = position.z,
   })
 
-  Net.animate_bot(recover_bot_id, "DEFAULT")
+  Net.animate_actor(recover_bot_id, "DEFAULT")
 
   Async.sleep(.5).and_then(function()
     Net.remove_bot(recover_bot_id)

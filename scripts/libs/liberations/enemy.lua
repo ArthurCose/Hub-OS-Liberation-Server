@@ -51,19 +51,19 @@ local direction_suffix_map = {
 }
 
 function Enemy:play_attack_animation()
-  local direction = Net.get_bot_direction(self.id)
+  local direction = Net.get_actor_direction(self.id)
   local suffix = direction_suffix_map[direction]
   local animation = "ATTACK_" .. suffix
 
-  Net.animate_bot(self.id, animation)
+  Net.animate_actor(self.id, animation)
 end
 
 function Enemy:play_idle_animation()
-  local direction = Net.get_bot_direction(self.id)
+  local direction = Net.get_actor_direction(self.id)
   local suffix = direction_suffix_map[direction]
   local animation = "IDLE_" .. suffix
 
-  Net.animate_bot(self.id, animation, true)
+  Net.animate_actor(self.id, animation, true)
 end
 
 ---A copy of the floored position
@@ -99,7 +99,7 @@ function Enemy:face_position(x, y)
   x = x - (self.x + .5)
   y = y - (self.y + .5)
 
-  Net.set_bot_direction(self.id, Direction.diagonal_from_offset(x, y))
+  Net.set_actor_direction(self.id, Direction.diagonal_from_offset(x, y))
   self:play_idle_animation()
 end
 
@@ -161,7 +161,7 @@ function Enemy:move(x, y, z, direction)
 
     Async.await(Async.sleep(hold_time))
 
-    local area_id = Net.get_bot_area(self.id)
+    local area_id = Net.get_actor_area(self.id)
 
     -- create blur
     local blur_bot_id = Net.create_bot({
@@ -175,7 +175,7 @@ function Enemy:move(x, y, z, direction)
     })
 
     -- animate blur
-    Net.animate_bot(blur_bot_id, "DISAPPEAR")
+    Net.animate_actor(blur_bot_id, "DISAPPEAR")
 
     Net.play_sound(area_id, BLUR_SFX)
 
@@ -183,7 +183,7 @@ function Enemy:move(x, y, z, direction)
 
     -- move this bot off screen
     local area_width = Net.get_layer_width(area_id)
-    Net.transfer_bot(self.id, area_id, false, area_width + 100, 0, 0)
+    Net.transfer_actor(self.id, area_id, false, area_width + 100, 0, 0)
 
     Async.await(Async.sleep(16 / 60))
 
@@ -194,7 +194,7 @@ function Enemy:move(x, y, z, direction)
     Async.await(Async.sleep(slide_time + startup_time))
 
     -- animate blur
-    Net.transfer_bot(
+    Net.transfer_actor(
       blur_bot_id,
       area_id,
       false,
@@ -202,7 +202,7 @@ function Enemy:move(x, y, z, direction)
       y + .5,
       z + 1
     )
-    Net.animate_bot(blur_bot_id, "APPEAR")
+    Net.animate_actor(blur_bot_id, "APPEAR")
 
     Net.play_sound(area_id, BLUR_SFX)
 
@@ -210,11 +210,11 @@ function Enemy:move(x, y, z, direction)
 
     -- move the enemy
     if direction then
-      Net.set_bot_direction(self.id, direction)
+      Net.set_actor_direction(self.id, direction)
       self:play_idle_animation()
     end
 
-    Net.transfer_bot(self.id, area_id, false, x + .5, y + .5, z)
+    Net.transfer_actor(self.id, area_id, false, x + .5, y + .5, z)
 
     Async.await(Async.sleep(hold_time))
 

@@ -211,7 +211,7 @@ function ShadeMan:take_turn(actor)
         )
       )
     else
-      Net.set_bot_direction(actor.id, self.direction)
+      Net.set_actor_direction(actor.id, self.direction)
       actor:play_idle_animation()
     end
 

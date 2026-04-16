@@ -30,7 +30,7 @@ local recovery_data = {}
 local players_in_mission = {}
 
 local function transfer_to_lobby(player_id, warp_out)
-  Net.transfer_player(
+  Net.transfer_actor(
     player_id,
     LOBBY_AREA,
     warp_out,
@@ -272,7 +272,7 @@ local IMMEDIATE_TOKEN = "\x04"
 
 Net:on("tile_interaction", function(event)
   local player_id = event.player_id
-  local area_id = Net.get_player_area(event.player_id)
+  local area_id = Net.get_actor_area(event.player_id)
 
   if area_id ~= LOBBY_AREA or event.button ~= 0 then
     return
@@ -294,7 +294,7 @@ end)
 
 Net:on("object_interaction", function(event)
   local player_id = event.player_id
-  local area_id = Net.get_player_area(player_id)
+  local area_id = Net.get_actor_area(player_id)
 
   if area_id == LOBBY_AREA then
     detect_door_interaction(player_id, event.object_id, event.button)
@@ -304,14 +304,14 @@ end)
 Net:on("actor_interaction", function(event)
   local player_id = event.player_id
   local other_player_id = event.actor_id
-  local area_id = Net.get_player_area(player_id)
+  local area_id = Net.get_actor_area(player_id)
 
   if area_id ~= LOBBY_AREA or event.button ~= 0 then return end
 
   if Net.is_bot(other_player_id) then return end
 
   local textbox_options = { mug = Net.get_player_mugshot(player_id) }
-  local other_name = Net.get_player_name(other_player_id)
+  local other_name = Net.get_actor_name(other_player_id)
 
   if Parties.is_in_same_party(player_id, other_player_id) then
     Net.message_player(player_id, other_name .. " is already in our party.", textbox_options)

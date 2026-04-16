@@ -47,7 +47,7 @@ function EnemyBuilder:build_from_require()
   -- display health
   HealthSprites.update_sprite(enemy.id, enemy.health)
 
-  Net.set_bot_map_color(enemy.id, GUARDIAN_MINIMAP_MARKER)
+  Net.set_actor_map_color(enemy.id, GUARDIAN_MINIMAP_MARKER)
 
   return enemy
 end

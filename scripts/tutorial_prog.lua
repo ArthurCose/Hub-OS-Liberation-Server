@@ -29,7 +29,7 @@ local LIBERATIONS_SCRIPT = {
   "TO LIBERATE A PANEL YOU MUST WIN A BATTLE WITHIN THREE TURNS.",
   "ONCE YOU'VE COMPLETED YOUR ACTION FOR THE TURN, A CHECKMARK WILL APPEAR OVER YOUR HEAD. LIKE THIS:",
   function(player_id)
-    Net.exclusive_player_emote(player_id, player_id, Emotes.GREEN_CHECK)
+    Net.exclusive_actor_emote_for_player(player_id, player_id, Emotes.GREEN_CHECK)
     Async.await(Async.sleep(2))
   end,
   "YOU WILL BE UNABLE TO MOVE UNTIL ALL PLAYERS HAVE COMPLETED THEIR TURN FOR THE PHASE.",
@@ -49,14 +49,14 @@ local PARTIES_SCRIPT = {
   end,
   "IF YOU SELECT YES, THE OTHER PLAYER WILL SEE A ? ABOVE YOUR HEAD. LIKE THIS:",
   function(player_id)
-    Net.exclusive_player_emote(player_id, id, Emotes.QUESTION)
+    Net.exclusive_actor_emote_for_player(player_id, id, Emotes.QUESTION)
     Async.await(Async.sleep(2))
   end,
   "WHEN YOU SEE A PLAYER WITH A ? ABOVE THEIR HEAD, INTERACTING WITH THAT PLAYER WILL ALLOW YOU TO RESPOND TO THEIR REQUEST.",
   "IF YOU ACCEPT YOU WILL BE ADDED TO THEIR PARTY AND BOTH MEMBERS WILL BE NOTIFIED THROUGH THIS INDICATOR:",
   function(player_id)
-    Net.exclusive_player_emote(player_id, id, Emotes.HAPPY)
-    Net.exclusive_player_emote(player_id, player_id, Emotes.HAPPY)
+    Net.exclusive_actor_emote_for_player(player_id, id, Emotes.HAPPY)
+    Net.exclusive_actor_emote_for_player(player_id, player_id, Emotes.HAPPY)
     Async.await(Async.sleep(2))
   end
 }
@@ -140,8 +140,8 @@ Net:on("actor_interaction", function(event)
 
   if receiving_help[player_id] then return end
 
-  local player_pos = Net.get_player_position(player_id)
-  Net.set_bot_direction(id, Direction.from_points(spawn, player_pos))
+  local player_pos = Net.get_actor_position(player_id)
+  Net.set_actor_direction(id, Direction.from_points(spawn, player_pos))
 
   receiving_help[player_id] = true
   help(player_id)

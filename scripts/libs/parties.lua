@@ -191,7 +191,7 @@ function Parties.invite(inviter_id, invited_id)
     return
   end
 
-  Net.exclusive_player_emote(invited_id, inviter_id, REQUEST_EMOTE)
+  Net.exclusive_actor_emote_for_player(invited_id, inviter_id, REQUEST_EMOTE)
 
   -- create invite
   local invites = pending_invites[invited_key]
@@ -297,10 +297,10 @@ function Parties.accept(invited_id, inviter_id)
   delete_invite(inviter_key, invited_key)
 
   -- join visual
-  Net.exclusive_player_emote(invited_id, inviter_id, ACCEPT_EMOTE)
-  Net.exclusive_player_emote(inviter_id, invited_id, ACCEPT_EMOTE)
-  Net.exclusive_player_emote(invited_id, invited_id, ACCEPT_EMOTE)
-  Net.exclusive_player_emote(inviter_id, inviter_id, ACCEPT_EMOTE)
+  Net.exclusive_actor_emote_for_player(invited_id, inviter_id, ACCEPT_EMOTE)
+  Net.exclusive_actor_emote_for_player(inviter_id, invited_id, ACCEPT_EMOTE)
+  Net.exclusive_actor_emote_for_player(invited_id, invited_id, ACCEPT_EMOTE)
+  Net.exclusive_actor_emote_for_player(inviter_id, inviter_id, ACCEPT_EMOTE)
 
   -- leave existing party to join the new one
   Parties.leave(invited_id)
@@ -333,7 +333,7 @@ function Parties.leave(player_id)
   remove_by_value(member_keys, key)
 
   -- let everyone know you left
-  local name = Net.get_player_name(player_id)
+  local name = Net.get_actor_name(player_id)
 
   for _, member_key in ipairs(member_keys) do
     local member_id = resolve_player_id(member_key)
@@ -381,7 +381,7 @@ Net:on("player_request", function(event)
     local members = Parties.list_online_members(event.player_id)
 
     local resolved_id = resolve_player_id(key)
-    local message = Net.get_player_name(event.player_id) .. " reconnected!"
+    local message = Net.get_actor_name(event.player_id) .. " reconnected!"
 
     for _, member_id in ipairs(members) do
       if member_id ~= resolved_id then
@@ -448,7 +448,7 @@ Net:on("player_disconnect", function(event)
 
   if DISCONNECT_NOTIFICATIONS then
     -- notify the party about the disconnect
-    local message = Net.get_player_name(event.player_id) .. " disconnected!"
+    local message = Net.get_actor_name(event.player_id) .. " disconnected!"
 
     for _, member_id in ipairs(members) do
       Net.message_player(member_id, message)

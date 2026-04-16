@@ -165,7 +165,7 @@ end
 ---@param actor Liberation.Enemy
 local function attempt_attack(self, actor)
   return Async.create_scope(function()
-    self.selection:move(actor, Net.get_bot_direction(actor.id))
+    self.selection:move(actor, Net.get_actor_direction(actor.id))
 
     local caught_players = self.selection:detect_players()
 

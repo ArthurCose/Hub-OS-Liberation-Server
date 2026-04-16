@@ -317,7 +317,7 @@ local function spawn_item_bot(bot_data, property_animation)
 
   local id = Net.create_bot(bot_data)
 
-  Net.animate_bot_properties(id, property_animation)
+  Net.animate_actor_properties(id, property_animation)
 
   local function cleanup()
     Net.remove_bot(shadow_id)

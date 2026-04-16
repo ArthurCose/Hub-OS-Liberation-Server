@@ -75,7 +75,7 @@ end
 function PlayerSelection:select_panel(panel_object)
   self._root_panel = panel_object
 
-  local player_pos = Net.get_player_position(self.player.id)
+  local player_pos = Net.get_actor_position(self.player.id)
   local direction = resolve_selection_direction(player_pos, panel_object)
   self.selection:move(player_pos, direction)
   self.selection:set_shape({ { 1 } })

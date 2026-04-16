@@ -107,7 +107,7 @@ Ability.register({
         return
       end
 
-      Net.animate_player_properties(player.id, {
+      Net.animate_actor_properties(player.id, {
         {
           properties = {
             { property = "X",         value = original_position.x, ease = "Ceil" },
@@ -119,7 +119,7 @@ Ability.register({
         }
       })
 
-      Net.animate_player_properties(swapped_player.id, {
+      Net.animate_actor_properties(swapped_player.id, {
         {
           properties = {
             { property = "X",         value = swapped_position.x, ease = "Ceil" },
@@ -180,7 +180,7 @@ Ability.register({
         position_offset.x = position_offset.x * 0.25
         position_offset.y = position_offset.y * 0.25
 
-        Net.animate_player_properties(player.id, {
+        Net.animate_actor_properties(player.id, {
           {
             properties = {
               -- jump in front
@@ -194,7 +194,7 @@ Ability.register({
           }
         })
 
-        Net.animate_player_properties(swapped_player.id, {
+        Net.animate_actor_properties(swapped_player.id, {
           {
             properties = {
               -- move aside

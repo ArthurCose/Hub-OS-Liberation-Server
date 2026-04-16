@@ -19,7 +19,7 @@ local loaded_data = {}
 function PlayerSaveData.fetch(player_id)
   return Async.create_promise(function(resolve)
     local identity = Net.get_player_secret(player_id)
-    local nickname = Net.get_player_name(player_id)
+    local nickname = Net.get_actor_name(player_id)
     local data = loaded_data[identity]
 
     if data then
