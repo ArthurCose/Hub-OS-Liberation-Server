@@ -169,9 +169,9 @@ local function liberate_panel(self, player)
       if panel.custom_properties["Message"] ~= nil then
         Async.await(player:message_with_mug(panel.custom_properties["Message"]))
       elseif panel.class == PanelClass.DARK_HOLE then
-        Async.await(player:message_with_mug("A Dark Hole! Begin liberation!"))
+        Async.await(player:message_with_mug("A Dark Hole!\nBegin liberation!"))
       else
-        Async.await(player:message_with_mug("Let's do it! Liberate panels!"))
+        Async.await(player:message_with_mug("Let's do it!\nLiberate panels!"))
       end
 
       local encounter_path = panel.custom_properties["Encounter"] or self.default_encounter
