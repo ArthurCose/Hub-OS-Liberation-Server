@@ -9,12 +9,14 @@
 
 local SHOP_LIST = {
   {
-    name = "LongSwrd",
+    name = "LongSword",
+    short_name = "LongSwrd",
     description = "Liberate a 1x2 ahead.",
     price = 0,
   },
   {
-    name = "WideSwrd",
+    name = "WideSword",
+    short_name = "WideSwrd",
     description = "Liberate in a 3x1 ahead.",
     price = 15,
   },
@@ -35,13 +37,13 @@ local SHOP_LIST = {
     name = "TomahawkSwing",
     short_name = "ThwkSwng",
     description = "Liberate in a 3x2 ahead.",
-    requires = "WideSwrd",
+    requires = "WideSword",
     price = 30,
   },
   {
     name = "Napalm",
     description = "Liberate up to four panels ahead, destroys items.",
-    requires = "WideSwrd",
+    requires = "WideSword",
     price = 35,
   },
   -- Planned, but not implemented

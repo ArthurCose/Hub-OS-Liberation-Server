@@ -80,9 +80,9 @@ Async.ensure_dir(PLAYER_DATA_DIR)
 Net:on("player_connect", function(event)
   PlayerSaveData.fetch(event.player_id)
       .and_then(function(data)
-        if data.inventory.LongSwrd ~= 1 then
-          data.inventory.LongSwrd = 1
-          data.ability = "LongSwrd"
+        if data.inventory.LongSword ~= 1 then
+          data.inventory.LongSword = 1
+          data.ability = "LongSword"
           data:save(event.player_id)
         end
 

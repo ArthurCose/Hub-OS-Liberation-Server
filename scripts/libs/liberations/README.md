@@ -233,13 +233,13 @@ local function start_mission(scripts, base_area, player_ids)
   -- create a new liberation mission:
   local mission = Mission:new(area_id)
 
-  -- load players, we'll just give everyone LongSwrd
+  -- load players, we'll just give everyone LongSword
   -- but you can pass:
   -- - preset abilities from Ability
   -- - custom abilities that conform to the Liberation.Ability type
   -- - or nil for no ability
   for _, player_id in ipairs(player_ids) do
-    mission:transfer_player(player_id, Ability.LongSwrd)
+    mission:transfer_player(player_id, Ability.LongSword)
   end
 
   -- handling events:

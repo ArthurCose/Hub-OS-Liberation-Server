@@ -95,7 +95,7 @@ local function transfer_players_to_new_instance(base_area, player_ids, save_data
     Net.close_board(player_id)
 
     -- resolve ability from items
-    local ability = Ability.LongSwrd
+    local ability = Ability.LongSword
     local stored_ability = Ability[save_data.ability]
 
     if stored_ability then

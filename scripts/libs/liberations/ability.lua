@@ -104,7 +104,7 @@ Ability.register({
 })
 
 Ability.register({
-  name = "LongSwrd",
+  name = "LongSword",
   question = "Use LongSwrd?",
   cost = 1,
   generate_shape = static_shape_generator(0, 0, {
@@ -115,7 +115,7 @@ Ability.register({
 })
 
 Ability.register({
-  name = "WideSwrd",
+  name = "WideSword",
   question = "Use WideSwrd?",
   cost = 1,
   generate_shape = static_shape_generator(0, 0, {
