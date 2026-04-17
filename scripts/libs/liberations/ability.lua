@@ -92,6 +92,118 @@ Ability.register = function(ability)
   Ability[ability.name] = ability
 end
 
+Ability.register({
+  name = "ShadowStep",
+  shadow_step = true
+})
+
+Ability.register({
+  name = "LongSwrd",
+  question = "Use LongSwrd?",
+  cost = 1,
+  generate_shape = static_shape_generator(0, 0, {
+    { 1 },
+    { 1 }
+  }),
+  activate = battle_to_liberate_and_loot
+})
+
+Ability.register({
+  name = "WideSwrd",
+  question = "Use WideSwrd?",
+  cost = 1,
+  generate_shape = static_shape_generator(0, 0, {
+    { 1, 1, 1 },
+  }),
+  activate = battle_to_liberate_and_loot
+})
+
+Ability.register({
+  name = "TomahawkSwing",
+  question = "Want to chop around this area?",
+  cost = 1,
+  generate_shape = static_shape_generator(0, 0, {
+    { 1, 1, 1 },
+    { 1, 1, 1 },
+  }),
+  activate = battle_to_liberate_and_loot
+})
+
+Ability.register({
+  name = "Napalm",
+  question = "Use Napalm?",
+  cost = 1,
+  generate_shape = static_shape_generator(0, 0, {
+    { 0, 1, 0 },
+    { 0, 1, 0 },
+    { 1, 1, 1 },
+    { 0, 1, 0 },
+  }),
+  activate = function(player)
+    battle_to_liberate_and_loot(player, { destroy_items = true, silent = true })
+  end
+})
+
+Ability.register({
+  name = "PanelSearch",
+  question = "Search in this area?",
+  cost = 1,
+  generate_shape = function(player)
+    local instance = player:instance()
+    local shape = {}
+
+    local root_panel = player:selection():root_panel()
+    local player_x, player_y = player:position_multi()
+
+    local direction = Direction.diagonal_from_offset(
+      root_panel.x - math.floor(player_x),
+      root_panel.y - math.floor(player_y)
+    )
+
+    local x_step, y_step = Direction.vector_multi(direction)
+
+    if x_step == 0 and y_step == 0 then
+      warn("Failed to resolve direction for PanelSearch")
+      return shape, 0, 0
+    end
+
+    local x = root_panel.x
+    local y = root_panel.y
+    local z = root_panel.z
+
+    while true do
+      local panel = instance:get_panel_at(x, y, z)
+
+      if not panel or panel.class == PanelClass.DARK_HOLE then
+        break
+      end
+
+      if instance:get_enemy_at(x, y, z) then
+        break
+      end
+
+      shape[#shape + 1] = { 1 }
+
+      x = x + x_step
+      y = y + y_step
+    end
+
+    return shape, 0, 0
+  end,
+  activate = panel_search
+})
+
+Ability.register({
+  name = "NumberCheck",
+  question = "Remove traps and get items?",
+  cost = 1,
+  generate_shape = static_shape_generator(0, 0, {
+    { 1, 1, 1 },
+    { 1, 1, 1 },
+  }),
+  activate = panel_search
+})
+
 -- passive, knightman's ability
 Ability.register({
   name = "KnightGuard",
@@ -220,118 +332,6 @@ Ability.register({
     }
     player:add_defense(defense)
   end
-})
-
-Ability.register({
-  name = "ShadowStep",
-  shadow_step = true
-})
-
-Ability.register({
-  name = "LongSwrd",
-  question = "Use LongSwrd?",
-  cost = 1,
-  generate_shape = static_shape_generator(0, 0, {
-    { 1 },
-    { 1 }
-  }),
-  activate = battle_to_liberate_and_loot
-})
-
-Ability.register({
-  name = "WideSwrd",
-  question = "Use WideSwrd?",
-  cost = 1,
-  generate_shape = static_shape_generator(0, 0, {
-    { 1, 1, 1 },
-  }),
-  activate = battle_to_liberate_and_loot
-})
-
-Ability.register({
-  name = "TomahawkSwing",
-  question = "Want to chop around this area?",
-  cost = 1,
-  generate_shape = static_shape_generator(0, 0, {
-    { 1, 1, 1 },
-    { 1, 1, 1 },
-  }),
-  activate = battle_to_liberate_and_loot
-})
-
-Ability.register({
-  name = "Napalm",
-  question = "Use Napalm?",
-  cost = 1,
-  generate_shape = static_shape_generator(0, 0, {
-    { 0, 1, 0 },
-    { 0, 1, 0 },
-    { 1, 1, 1 },
-    { 0, 1, 0 },
-  }),
-  activate = function(player)
-    battle_to_liberate_and_loot(player, { destroy_items = true, silent = true })
-  end
-})
-
-Ability.register({
-  name = "PanelSearch",
-  question = "Search in this area?",
-  cost = 1,
-  generate_shape = function(player)
-    local instance = player:instance()
-    local shape = {}
-
-    local root_panel = player:selection():root_panel()
-    local player_x, player_y = player:position_multi()
-
-    local direction = Direction.diagonal_from_offset(
-      root_panel.x - math.floor(player_x),
-      root_panel.y - math.floor(player_y)
-    )
-
-    local x_step, y_step = Direction.vector_multi(direction)
-
-    if x_step == 0 and y_step == 0 then
-      warn("Failed to resolve direction for PanelSearch")
-      return shape, 0, 0
-    end
-
-    local x = root_panel.x
-    local y = root_panel.y
-    local z = root_panel.z
-
-    while true do
-      local panel = instance:get_panel_at(x, y, z)
-
-      if not panel or panel.class == PanelClass.DARK_HOLE then
-        break
-      end
-
-      if instance:get_enemy_at(x, y, z) then
-        break
-      end
-
-      shape[#shape + 1] = { 1 }
-
-      x = x + x_step
-      y = y + y_step
-    end
-
-    return shape, 0, 0
-  end,
-  activate = panel_search
-})
-
-Ability.register({
-  name = "NumberCheck",
-  question = "Remove traps and get items?",
-  cost = 1,
-  generate_shape = static_shape_generator(0, 0, {
-    { 1, 1, 1 },
-    { 1, 1, 1 },
-  }),
-  activate = panel_search
 })
 
 return Ability
