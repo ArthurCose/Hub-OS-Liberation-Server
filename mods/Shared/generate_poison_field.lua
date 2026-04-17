@@ -82,4 +82,6 @@ return function()
     if math.random(1, 2) == 1 then
         FieldUtil.mirror_tile_states()
     end
+
+    FieldUtil.apply()
 end
