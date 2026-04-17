@@ -1684,8 +1684,9 @@ function Async.await(async_iterator) end
 
 --- Can only be used within an async scope or coroutine.
 ---
---- Takes a list of promises and returns a list of values.
+--- Returns a list of resolved values.
 ---@param promises Net.Promise<any>[]
+---@return any[]
 function Async.await_all(promises) end
 
 --- Returns a promise, resolves to the return value.

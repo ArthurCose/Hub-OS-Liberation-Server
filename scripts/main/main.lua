@@ -1,3 +1,6 @@
+require("scripts/main/debug")
+require("scripts/main/shop")
+
 local ScriptNodes = require("scripts/libs/script_nodes")
 local scripts = ScriptNodes:new()
 
@@ -41,7 +44,9 @@ local function transfer_to_lobby(player_id, warp_out)
   )
 end
 
-local function transfer_players_to_new_instance(base_area, player_ids)
+---@param player_ids Net.ActorId[]
+---@param save_datas LiberationServer.PlayerSaveData[]
+local function transfer_players_to_new_instance(base_area, player_ids, save_datas)
   active_missions = active_missions + 1
   print("Active Missions: " .. active_missions)
 
@@ -74,7 +79,9 @@ local function transfer_players_to_new_instance(base_area, player_ids)
     end
   end
 
-  for _, player_id in ipairs(player_ids) do
+  for i, player_id in ipairs(player_ids) do
+    local save_data = save_datas[i]
+
     if players_in_mission[player_id] then
       -- already in a mission
       goto continue
@@ -85,12 +92,10 @@ local function transfer_players_to_new_instance(base_area, player_ids)
 
     -- resolve ability from items
     local ability = Ability.LongSwrd
+    local stored_ability = Ability[save_data.ability]
 
-    for _, ability_value in ipairs(Ability.ALL) do
-      if Net.get_player_item_count(player_id, ability_value.name) > 0 then
-        ability = ability_value
-        break
-      end
+    if stored_ability then
+      ability = stored_ability
     end
 
     -- lock equipment
@@ -260,7 +265,18 @@ local function detect_door_interaction(player_id, object_id, button)
 
       local area_id = event.post_id
       local members = Parties.list_online_members(player_id)
-      transfer_players_to_new_instance(area_id, members)
+
+      -- load save data
+      local data_promises = {}
+
+      for _, member_id in ipairs(members) do
+        data_promises[#data_promises + 1] = PlayerData.fetch(member_id)
+      end
+
+      local save_datas = Async.await_all(data_promises)
+
+      -- transfer players
+      transfer_players_to_new_instance(area_id, members, save_datas)
 
       ::continue::
     end

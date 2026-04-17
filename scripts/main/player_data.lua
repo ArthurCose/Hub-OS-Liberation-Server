@@ -67,6 +67,9 @@ end
 
 ---@param player_id Net.ActorId
 function PlayerSaveData:save(player_id)
+  -- cap zenny
+  self.money = math.min(self.money, 10000)
+
   local identity = Net.get_player_secret(player_id)
   local path = PLAYER_DATA_DIR .. Net.encode_uri_component(identity)
   Async.write_file(path, json.encode(self))
@@ -77,7 +80,11 @@ Async.ensure_dir(PLAYER_DATA_DIR)
 Net:on("player_connect", function(event)
   PlayerSaveData.fetch(event.player_id)
       .and_then(function(data)
-        if not data then return end
+        if data.inventory.LongSwrd ~= 1 then
+          data.inventory.LongSwrd = 1
+          data.ability = "LongSwrd"
+          data:save(event.player_id)
+        end
 
         Net.set_player_money(event.player_id, data.money)
 
