@@ -117,6 +117,17 @@ local function open_ability_shop(player_id)
           price = 0
         })
 
+        -- remove asterisk from any items depending on this purchase
+        for _, other_data in ipairs(ShopData.LIST) do
+          if other_data.requires == data.id then
+            Net.update_shop_item(player_id, {
+              id = other_data.id,
+              name = other_data.name,
+              price = other_data.price
+            })
+          end
+        end
+
         save_data.money = save_data.money - data.price
         save_data.inventory[data.id] = 1
 
