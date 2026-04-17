@@ -155,6 +155,12 @@ local function transfer_players_to_new_instance(base_area, player_ids, save_data
 
         -- reward 5z for winning
         data.money = data.money + 5
+
+        if mission:phase() < mission:target_phase() then
+          -- award an additional 5z for a victory under par
+          data.money = data.money + 5
+        end
+
         Net.set_player_money(player_id, data.money)
 
         data:save(player_id)
