@@ -1,13 +1,14 @@
 local Emotes = require("scripts/libs/emotes")
 
--- enabling tracks by actor id instead of secret,
--- making it easier to join a party from the same PC.
--- this will make restoring parties fail.
-local DEBUG = false
-local DISCONNECT_NOTIFICATIONS = false
-local REQUEST_EMOTE = Emotes.QUESTION
-local ACCEPT_EMOTE = Emotes.HAPPY
-
+local Parties = {
+  --- Enabling tracks by actor id instead of secret,
+  --- making it easier to join a party from the same PC.
+  --- This will cause automatic reparty on rejoin to fail.
+  DEBUG = false,
+  DISCONNECT_NOTIFICATIONS = false,
+  REQUEST_EMOTE = Emotes.QUESTION,
+  ACCEPT_EMOTE = Emotes.HAPPY,
+}
 
 ---@type table<string, Net.ActorId[]>
 local player_ids_by_key = {}
@@ -21,7 +22,7 @@ local function resolve_player_id(key)
 end
 
 local function resolve_player_key(id)
-  if not DEBUG then
+  if not Parties.DEBUG then
     return Net.get_player_secret(id)
   elseif Net.is_player(id) then
     return id
@@ -55,8 +56,6 @@ local outgoing_invites = {}
 ---@type table<table, any> values stored in parties_by_key are keys for this table
 local party_data = {}
 local events = Net.EventEmitter.new()
-
-local Parties = {}
 
 ---Events:
 --- - "player_dropped", { key }
@@ -191,7 +190,7 @@ function Parties.invite(inviter_id, invited_id)
     return
   end
 
-  Net.exclusive_actor_emote_for_player(invited_id, inviter_id, REQUEST_EMOTE)
+  Net.exclusive_actor_emote_for_player(invited_id, inviter_id, Parties.REQUEST_EMOTE)
 
   -- create invite
   local invites = pending_invites[invited_key]
@@ -297,10 +296,10 @@ function Parties.accept(invited_id, inviter_id)
   delete_invite(inviter_key, invited_key)
 
   -- join visual
-  Net.exclusive_actor_emote_for_player(invited_id, inviter_id, ACCEPT_EMOTE)
-  Net.exclusive_actor_emote_for_player(inviter_id, invited_id, ACCEPT_EMOTE)
-  Net.exclusive_actor_emote_for_player(invited_id, invited_id, ACCEPT_EMOTE)
-  Net.exclusive_actor_emote_for_player(inviter_id, inviter_id, ACCEPT_EMOTE)
+  Net.exclusive_actor_emote_for_player(invited_id, inviter_id, Parties.ACCEPT_EMOTE)
+  Net.exclusive_actor_emote_for_player(inviter_id, invited_id, Parties.ACCEPT_EMOTE)
+  Net.exclusive_actor_emote_for_player(invited_id, invited_id, Parties.ACCEPT_EMOTE)
+  Net.exclusive_actor_emote_for_player(inviter_id, inviter_id, Parties.ACCEPT_EMOTE)
 
   -- leave existing party to join the new one
   Parties.leave(invited_id)
@@ -376,7 +375,7 @@ Net:on("player_request", function(event)
     return
   end
 
-  if DISCONNECT_NOTIFICATIONS then
+  if Parties.DISCONNECT_NOTIFICATIONS then
     -- notify party that you've reconnected
     local members = Parties.list_online_members(event.player_id)
 
@@ -446,7 +445,7 @@ Net:on("player_disconnect", function(event)
     return
   end
 
-  if DISCONNECT_NOTIFICATIONS then
+  if Parties.DISCONNECT_NOTIFICATIONS then
     -- notify the party about the disconnect
     local message = Net.get_actor_name(event.player_id) .. " disconnected!"
 
