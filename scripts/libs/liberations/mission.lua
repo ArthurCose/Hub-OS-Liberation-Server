@@ -279,14 +279,14 @@ local function liberate_panel(self, player)
       local panels = selection:get_panels()
 
       -- Allow time for the player to see the liberation range
-      Async.await(Async.sleep(1))
+      Async.await(Async.sleep(0.5))
 
       -- destroy enemy
       if targetted_enemy then
         Async.await(targetted_enemy:destroy())
       else
         -- we can slow down a little
-        Async.await(Async.sleep(0.5))
+        Async.await(Async.sleep(1.0))
       end
 
       Async.await(player:liberate_panels(panels, results))
@@ -1013,110 +1013,87 @@ function MissionInstance:handle_tile_interaction(player_id, x, y, z, button)
 
   player:lock_movement()
 
-  if
-      not panel or
-      (panel_already_selected or not PanelClass.LIBERATABLE[panel.class]) or
-      not is_adjacent(player_position, { x = x, y = y, z = z })
-  then
-    -- not interactable
-    local spectate_text
+  -- resolve options
+  local options = {}
+  local liberate_option = "Liberation"
+  local pass_turn_option = "Pass Turn"
+  local cancel_option = "Close"
+  local spectate_option
 
-    if player.spectate_next_battle then
-      spectate_text = "Cancel Spectating"
-    else
-      spectate_text = "Spectate Next Battle"
-    end
-
-    local quiz_promise = player:quiz(
-      IMMEDIATE_TOKEN .. spectate_text,
-      IMMEDIATE_TOKEN .. "Pass Turn",
-      IMMEDIATE_TOKEN .. "Close",
-      {
-        cancel_response = 2
-      }
-    )
-
-    quiz_promise.and_then(function(response)
-      if response == 0 then
-        -- Toggle Spectating
-        player.spectate_next_battle = not player.spectate_next_battle
-        player:emote_state()
-        player:unlock_movement()
-      elseif response == 1 then
-        -- Pass
-        player:get_pass_turn_permission()
-      elseif response == 2 then
-        -- Cancel
-        player:unlock_movement()
-      end
-    end)
-
-    return
+  if player.spectate_next_battle then
+    spectate_option = "Cancel Spectating"
+  else
+    spectate_option = "Spectate Next Battle"
   end
+
+  if
+      panel and
+      PanelClass.LIBERATABLE[panel.class] and
+      not panel_already_selected and
+      is_adjacent(player_position, { x = x, y = y, z = z })
+  then
+    options[1] = liberate_option
+    player:selection():select_panel(panel)
+  else
+    -- no panel or not interactable
+    options[1] = spectate_option
+  end
+
+  options[2] = pass_turn_option
+  options[3] = cancel_option
 
   local ability = player.ability
   local can_use_ability = (
     ability ~= nil and
     ability.question and                                 -- no question = passive ability
+    panel and
     not self:get_enemy_at(panel.x, panel.y, panel.z) and -- cant have an enemy standing on this tile
     self.order_points >= ability.cost and
     PanelClass.ABILITY_ACTIONABLE[panel.class]
   )
 
-  player:selection():select_panel(panel)
-
   if ability and can_use_ability then
-    local quiz_promise = player:quiz(
-      IMMEDIATE_TOKEN .. "Liberation",
-      IMMEDIATE_TOKEN .. ability.name,
-      IMMEDIATE_TOKEN .. "Pass Turn",
-      {
-        cancel_response = 3
-      }
-    )
-
-    quiz_promise.and_then(function(response)
-      if response == 0 then
-        -- Liberate
-        liberate_panel(self, player)
-      elseif response == 1 then
-        -- Ability
-        local selection_shape, shape_offset_x, shape_offset_y = ability.generate_shape(player)
-        player:selection():set_shape(selection_shape, shape_offset_x, shape_offset_y)
-
-        -- ask if we should use the ability
-        player:get_ability_permission()
-      elseif response == 2 then
-        -- Pass
-        player:selection():clear()
-        player:get_pass_turn_permission()
-      else
-        -- Cancel
-        player:selection():clear()
-        player:unlock_movement()
-      end
-    end)
-    return
+    table.insert(options, 2, ability.name)
   end
 
+  -- display menu
   local quiz_promise = player:quiz(
-    IMMEDIATE_TOKEN .. "Liberation",
-    IMMEDIATE_TOKEN .. "Pass Turn",
-    IMMEDIATE_TOKEN .. "Cancel",
+    IMMEDIATE_TOKEN .. options[1],
+    IMMEDIATE_TOKEN .. options[2],
+    IMMEDIATE_TOKEN .. options[3],
     {
-      cancel_response = 2
+      cancel_response = #options + 1
     }
   )
 
   quiz_promise.and_then(function(response)
-    if response == 0 then
-      -- Liberation
+    if not response then
+      return
+    end
+
+    local option = options[response + 1]
+
+    if option == liberate_option then
+      -- Liberate
       liberate_panel(self, player)
-    elseif response == 1 then
+    elseif ability and option == ability.name then
+      -- Ability
+      local selection_shape, shape_offset_x, shape_offset_y = ability.generate_shape(player)
+      player:selection():set_shape(selection_shape, shape_offset_x, shape_offset_y)
+
+      -- ask if we should use the ability
+      player:get_ability_permission()
+    elseif option == pass_turn_option then
       -- Pass
       player:selection():clear()
       player:get_pass_turn_permission()
-    elseif response == 2 then
+    elseif option == spectate_option then
+      -- Toggle Spectating
+      player.spectate_next_battle = not player.spectate_next_battle
+      player:emote_state()
+      player:unlock_movement()
+      player:selection():clear()
+    else
       -- Cancel
       player:selection():clear()
       player:unlock_movement()
