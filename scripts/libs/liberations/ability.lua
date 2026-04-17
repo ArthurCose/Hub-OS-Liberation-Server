@@ -82,6 +82,7 @@ end
 ---@class Liberation.ActiveAbility: Liberation.PassiveAbility
 ---@field question string
 ---@field cost number
+---@field per_turn_limit number?
 ---@field generate_shape (fun(player: Liberation.Player): number[][], number, number)?
 ---@field activate fun(player: Liberation.Player)
 
@@ -338,6 +339,122 @@ Ability.register({
   end
 })
 
+---@param player Liberation.Player
+---@param health number
+---@param state string
+local function create_barrier(player, health, state)
+  local instance = player:instance()
+
+  for _, player in ipairs(instance.players) do
+    local sprite_id = Net.create_sprite({
+      parent_id = player.id,
+      layer = 1,
+      texture_path = BARRIER_TEXTURE,
+      animation_path = BARRIER_ANIM_PATH,
+      animation = state,
+      loop_animation = true
+    })
+
+    ---@type Liberation.Player.Defense
+    local defense = {
+      priority = Player.DefensePriority.Barrier
+    }
+
+    defense.defend = function(damage)
+      health = health - damage
+
+      if health <= 0 then
+        player:remove_defense(defense)
+      end
+
+      return 0
+    end
+
+    -- remove the defense on disconnect
+    defense.on_disconnect = function()
+      player:remove_defense(defense)
+    end
+
+    -- remove after phase end
+    local phase_end_listener = function(event)
+      if event.team ~= "darkloid" then
+        return
+      end
+
+      player:remove_defense(defense)
+    end
+
+    instance:events():on("phase_end", phase_end_listener)
+
+    defense.on_remove = function()
+      instance:events():remove_listener("phase_end", phase_end_listener)
+      Net.remove_sprite(sprite_id)
+    end
+
+    player:add_defense(defense)
+  end
+end
+
+Ability.register({
+  name = "Barrier",
+  question = "Use Barrier?",
+  cost = 1,
+  per_turn_limit = 1,
+  activate = function(primary_player)
+    local instance = primary_player:instance()
+
+    Async.sleep(0.5).and_then(function()
+      Net.play_sound(instance.area_id, BARRIER_SFX)
+
+      for _, player in ipairs(instance.players) do
+        create_barrier(player, 10, "10")
+      end
+
+      primary_player:unlock_movement()
+    end)
+  end
+})
+
+Ability.register({
+  name = "Barrier100",
+  question = "Use Barrier100?",
+  cost = 1,
+  per_turn_limit = 1,
+  activate = function(primary_player)
+    local instance = primary_player:instance()
+
+    Async.sleep(0.5).and_then(function()
+      Net.play_sound(instance.area_id, BARRIER_SFX)
+
+      for _, player in ipairs(instance.players) do
+        create_barrier(player, 100, "100")
+      end
+
+      primary_player:unlock_movement()
+    end)
+  end
+})
+
+Ability.register({
+  name = "Barrier200",
+  question = "Use Barrier200?",
+  cost = 1,
+  per_turn_limit = 1,
+  activate = function(primary_player)
+    local instance = primary_player:instance()
+
+    Async.sleep(0.5).and_then(function()
+      Net.play_sound(instance.area_id, BARRIER_SFX)
+
+      for _, player in ipairs(instance.players) do
+        create_barrier(player, 200, "200")
+      end
+
+      primary_player:unlock_movement()
+    end)
+  end
+})
+
 Ability.register({
   name = "MagnetBarrier",
   question = "Use MagnetBarrier?",
@@ -346,51 +463,15 @@ Ability.register({
     local instance = primary_player:instance()
 
     Async.sleep(0.5).and_then(function()
-      primary_player:complete_turn()
-
       Net.play_sound(instance.area_id, BARRIER_SFX)
 
       for _, player in ipairs(instance.players) do
-        local sprite_id = Net.create_sprite({
-          parent_id = player.id,
-          layer = 1,
-          texture_path = BARRIER_TEXTURE,
-          animation_path = BARRIER_ANIM_PATH,
-          animation = "DEFAULT",
-          loop_animation = true
-        })
-
-        ---@type Liberation.Player.Defense
-        local defense = {
-          priority = Player.DefensePriority.Barrier,
-          defend = function()
-            return 0
-          end
-        }
-
-        -- remove the defense on disconnect
-        defense.on_disconnect = function()
-          player:remove_defense(defense)
-        end
-
-        -- remove after phase end
-        local phase_end_listener = function(event)
-          if event.team ~= "darkloid" then
-            return
-          end
-
-          player:remove_defense(defense)
-        end
-
-        instance:events():on("phase_end", phase_end_listener)
-
-        defense.on_remove = function()
-          instance:events():remove_listener("phase_end", phase_end_listener)
-          Net.remove_sprite(sprite_id)
-        end
-
-        player:add_defense(defense)
+        create_barrier(player, math.huge, "DEFAULT")
       end
+
+      Async.sleep(0.5).and_then(function(value)
+        primary_player:complete_turn()
+      end)
     end)
   end
 })

@@ -36,13 +36,13 @@ local SHOP_LIST = {
     short_name = "ThwkSwng",
     description = "Liberate in a 3x2 ahead.",
     requires = "WideSwrd",
-    price = 25,
+    price = 30,
   },
   {
     name = "Napalm",
     description = "Liberate up to four panels ahead, destroys items.",
     requires = "WideSwrd",
-    price = 25,
+    price = 35,
   },
   -- Planned, but not implemented
   -- {
@@ -50,7 +50,7 @@ local SHOP_LIST = {
   --   short_name = "TwinLib",
   --   description = "Team up to liberate in a line ahead.",
   --   requires = "Napalm",
-  --   price = 35,
+  --   price = 40,
   -- },
   {
     name = "KnightGuard",
@@ -59,10 +59,15 @@ local SHOP_LIST = {
     price = 50,
   },
   {
+    name = "Barrier",
+    description = "Use order points to shield 10 damage on all allies.",
+    price = 35,
+  },
+  {
     name = "MagnetBarrier",
     short_name = "MagBarr",
-    description = "Use order points to shield all allies.",
-    requires = "KnightGuard",
+    description = "Use turn and points to shield all allies.",
+    requires = "Barrier",
     price = 35,
   },
 }

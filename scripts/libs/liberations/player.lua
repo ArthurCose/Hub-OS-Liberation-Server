@@ -27,6 +27,7 @@ local HURT_SFX = Preloader.add_asset("/server/assets/liberations/sounds/hurt.ogg
 ---@field package paralysis_counter number
 ---@field package emote_delay number
 ---@field package order_points_sprite_id Net.SpriteId?
+---@field package _ability_activations number The amount of times the set ability was used during the player's turn
 ---@field package _completed_turn boolean
 ---@field package _selection Liberation.PlayerSelection
 ---@field package movement_locked boolean
@@ -57,6 +58,7 @@ function Player:new(instance, player_id)
     invincible = false,
     _completed_turn = false,
     ability = nil,
+    _ability_activations = 0,
     spectate_next_battle = false,
     movement_locked = false,
     stacked_movement_locks = 0,
@@ -274,6 +276,37 @@ function Player:quiz(a, b, c, textbox_options)
   end)
 end
 
+---@param panel Liberation.PanelObject?
+function Player:can_use_active_ability(panel)
+  local instance = self._instance
+  local ability = self.ability
+
+  if not ability then
+    return false
+  end
+
+  if not ability.question then
+    -- no question = passive ability
+    return false
+  end
+
+  if ability.per_turn_limit and self._ability_activations >= ability.per_turn_limit then
+    return false
+  end
+
+  if instance.order_points < ability.cost then
+    return false
+  end
+
+  if not ability.generate_shape then
+    -- usable anywhere
+    return true
+  end
+
+  -- must have an actionable panel without an enemy blocking access
+  return panel and PanelClass.ABILITY_ACTIONABLE[panel.class] and not instance:get_enemy_at(panel.x, panel.y, panel.z)
+end
+
 function Player:get_ability_permission()
   local question_promise = self:question_with_mug(self.ability.question)
 
@@ -299,6 +332,8 @@ function Player:get_ability_permission()
     for _, p in ipairs(instance.players) do
       p:update_order_points_hud()
     end
+
+    self._ability_activations = self._ability_activations + 1
 
     self.ability.activate(self)
   end)
@@ -760,6 +795,7 @@ function Player:give_turn()
   end
 
   self._completed_turn = false
+  self._ability_activations = 0
   self.invincible = false
 
   if self.paralysis_counter > 0 then

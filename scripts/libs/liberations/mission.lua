@@ -969,28 +969,6 @@ end
 
 local IMMEDIATE_TOKEN = "\x04"
 
----@param self Liberation.MissionInstance
----@param panel Liberation.PanelObject?
----@param ability Liberation.Ability
-local function can_use_active_ability(self, panel, ability)
-  if not ability.question then
-    -- no question = passive ability
-    return false
-  end
-
-  if self.order_points < ability.cost then
-    return false
-  end
-
-  if not ability.generate_shape then
-    -- usable anywhere
-    return true
-  end
-
-  -- must have an actionable panel without an enemy blocking access
-  return panel and PanelClass.ABILITY_ACTIONABLE[panel.class] and not self:get_enemy_at(panel.x, panel.y, panel.z)
-end
-
 ---@package
 function MissionInstance:handle_tile_interaction(player_id, x, y, z, button)
   local player = self.player_map[player_id]
@@ -1066,7 +1044,7 @@ function MissionInstance:handle_tile_interaction(player_id, x, y, z, button)
 
   local ability = player.ability
 
-  if ability and can_use_active_ability(self, panel, ability) then
+  if ability and player:can_use_active_ability(panel) then
     table.insert(options, 2, ability.name)
   end
 
