@@ -98,8 +98,6 @@ function ShadeMan:take_turn(actor)
 
       -- allow time for the players to read this message
       Async.await(Async.sleep(3))
-
-      return
     end
 
     local possible_targets = {}
@@ -143,19 +141,21 @@ function ShadeMan:take_turn(actor)
 
     local player_position = player:position()
 
-    Async.await(Async.sleep(0.5))
+    if instance:phase() ~= 1 then
+      Async.await(Async.sleep(0.5))
 
-    -- message all players.
-    for _, players in ipairs(instance.players) do
-      Async.message_player_auto(players.id,
-        "Don't underestimate\nthe Darkloids!",
-        0.8,
-        actor.mug.texture_path,
-        actor.mug.animation_path
-      )
+      -- message all players.
+      for _, players in ipairs(instance.players) do
+        Async.message_player_auto(players.id,
+          "Don't underestimate\nthe Darkloids!",
+          0.8,
+          actor.mug.texture_path,
+          actor.mug.animation_path
+        )
+      end
+
+      Async.await(Async.sleep(2))
     end
-
-    Async.await(Async.sleep(2))
 
     -- resolve movement
     local warp_back_pos = actor:floored_position()
