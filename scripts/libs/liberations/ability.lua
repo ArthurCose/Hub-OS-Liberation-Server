@@ -1,6 +1,11 @@
 local PanelClass = require("scripts/libs/liberations/panel_class")
 local Player = require("scripts/libs/liberations/player")
+local Preloader = require("scripts/libs/liberations/preloader")
 local Direction = require("scripts/libs/direction")
+
+local BARRIER_TEXTURE = Preloader.add_asset("/server/assets/liberations/bots/barrier.png")
+local BARRIER_ANIM_PATH = Preloader.add_asset("/server/assets/liberations/bots/barrier.animation")
+local BARRIER_SFX = Preloader.add_asset("/server/assets/liberations/sounds/barrier.ogg")
 
 local function static_shape_generator(offset_x, offset_y, shape)
   return function()
@@ -77,7 +82,7 @@ end
 ---@class Liberation.ActiveAbility: Liberation.PassiveAbility
 ---@field question string
 ---@field cost number
----@field generate_shape fun(player: Liberation.Player): number[][], number, number
+---@field generate_shape (fun(player: Liberation.Player): number[][], number, number)?
 ---@field activate fun(player: Liberation.Player)
 
 ---@type table<string, Liberation.Ability>
@@ -204,7 +209,6 @@ Ability.register({
   activate = panel_search
 })
 
--- passive, knightman's ability
 Ability.register({
   name = "KnightGuard",
   init = function(player)
@@ -331,6 +335,63 @@ Ability.register({
       on_disconnect = relax
     }
     player:add_defense(defense)
+  end
+})
+
+Ability.register({
+  name = "MagnetBarrier",
+  question = "Use MagnetBarrier?",
+  cost = 1,
+  activate = function(primary_player)
+    local instance = primary_player:instance()
+
+    Async.sleep(0.5).and_then(function()
+      primary_player:complete_turn()
+
+      Net.play_sound(instance.area_id, BARRIER_SFX)
+
+      for _, player in ipairs(instance.players) do
+        local sprite_id = Net.create_sprite({
+          parent_id = player.id,
+          layer = 1,
+          texture_path = BARRIER_TEXTURE,
+          animation_path = BARRIER_ANIM_PATH,
+          animation = "DEFAULT",
+          loop_animation = true
+        })
+
+        ---@type Liberation.Player.Defense
+        local defense = {
+          priority = Player.DefensePriority.Barrier,
+          defend = function()
+            return 0
+          end
+        }
+
+        -- remove the defense on disconnect
+        defense.on_disconnect = function()
+          player:remove_defense(defense)
+        end
+
+        -- remove after phase end
+        local phase_end_listener = function(event)
+          if event.team ~= "darkloid" then
+            return
+          end
+
+          player:remove_defense(defense)
+        end
+
+        instance:events():on("phase_end", phase_end_listener)
+
+        defense.on_remove = function()
+          instance:events():remove_listener("phase_end", phase_end_listener)
+          Net.remove_sprite(sprite_id)
+        end
+
+        player:add_defense(defense)
+      end
+    end)
   end
 })
 

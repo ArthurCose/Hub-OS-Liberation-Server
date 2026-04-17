@@ -969,6 +969,28 @@ end
 
 local IMMEDIATE_TOKEN = "\x04"
 
+---@param self Liberation.MissionInstance
+---@param panel Liberation.PanelObject?
+---@param ability Liberation.Ability
+local function can_use_active_ability(self, panel, ability)
+  if not ability.question then
+    -- no question = passive ability
+    return false
+  end
+
+  if self.order_points < ability.cost then
+    return false
+  end
+
+  if not ability.generate_shape then
+    -- usable anywhere
+    return true
+  end
+
+  -- must have an actionable panel without an enemy blocking access
+  return panel and PanelClass.ABILITY_ACTIONABLE[panel.class] and not self:get_enemy_at(panel.x, panel.y, panel.z)
+end
+
 ---@package
 function MissionInstance:handle_tile_interaction(player_id, x, y, z, button)
   local player = self.player_map[player_id]
@@ -1043,16 +1065,8 @@ function MissionInstance:handle_tile_interaction(player_id, x, y, z, button)
   options[3] = cancel_option
 
   local ability = player.ability
-  local can_use_ability = (
-    ability ~= nil and
-    ability.question and                                 -- no question = passive ability
-    panel and
-    not self:get_enemy_at(panel.x, panel.y, panel.z) and -- cant have an enemy standing on this tile
-    self.order_points >= ability.cost and
-    PanelClass.ABILITY_ACTIONABLE[panel.class]
-  )
 
-  if ability and can_use_ability then
+  if ability and can_use_active_ability(self, panel, ability) then
     table.insert(options, 2, ability.name)
   end
 
@@ -1078,8 +1092,12 @@ function MissionInstance:handle_tile_interaction(player_id, x, y, z, button)
       liberate_panel(self, player)
     elseif ability and option == ability.name then
       -- Ability
-      local selection_shape, shape_offset_x, shape_offset_y = ability.generate_shape(player)
-      player:selection():set_shape(selection_shape, shape_offset_x, shape_offset_y)
+      if ability.generate_shape then
+        local selection_shape, shape_offset_x, shape_offset_y = ability.generate_shape(player)
+        player:selection():set_shape(selection_shape, shape_offset_x, shape_offset_y)
+      else
+        player:selection():clear()
+      end
 
       -- ask if we should use the ability
       player:get_ability_permission()

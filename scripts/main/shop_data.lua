@@ -58,14 +58,13 @@ local SHOP_LIST = {
     description = "Avoid damage and shield one nearby ally.",
     price = 50,
   },
-  -- Planned, but not implemented
-  -- {
-  --   name = "MagnetBarrier",
-  --   short_name = "MagBarr",
-  --   description = "Use order points to shield all allies.",
-  --   requires = "KnightGuard",
-  --   price = 35,
-  -- },
+  {
+    name = "MagnetBarrier",
+    short_name = "MagBarr",
+    description = "Use order points to shield all allies.",
+    requires = "KnightGuard",
+    price = 35,
+  },
 }
 
 local SHOP_MAP = {}

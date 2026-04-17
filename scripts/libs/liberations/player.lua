@@ -552,7 +552,7 @@ function Player:hurt(amount)
   if self.invincible then
     amount = 0
   else
-    -- copy to protect against additions + removal during loop
+    -- clone to protect against additions + removal during loop
     local defenses_copy = table.pack(table.unpack(self._defenses))
 
     for _, defense in ipairs(defenses_copy) do
@@ -676,7 +676,10 @@ end
 ---@param enemy Liberation.Enemy
 ---@param targets Liberation.Player[]
 function Player:prepare_for_attack(enemy, targets)
-  for _, defense in ipairs(self._defenses) do
+  -- clone to protect against additions + removal during loop
+  local defenses = table.pack(table.unpack(self._defenses))
+
+  for _, defense in ipairs(defenses) do
     if defense.prepare then
       local new_targets = defense.prepare(enemy, targets)
 
@@ -691,7 +694,10 @@ end
 
 ---Automatically called by enemy:attack()
 function Player:relax_after_attack()
-  for _, defense in ipairs(self._defenses) do
+  -- clone to protect against additions + removal during loop
+  local defenses = table.pack(table.unpack(self._defenses))
+
+  for _, defense in ipairs(defenses) do
     if defense.relax then
       defense.relax()
     end
@@ -1178,7 +1184,10 @@ function Player:handle_disconnect()
     Net.track_with_player_camera(self.id, self.id)
   end
 
-  for _, defense in ipairs(self._defenses) do
+  -- clone defenses to protect against additions + removal during loop
+  local defenses = table.pack(table.unpack(self._defenses))
+
+  for _, defense in ipairs(defenses) do
     if defense.on_disconnect then
       defense.on_disconnect()
     end
@@ -1240,7 +1249,10 @@ function Player:try_reconnect(player_id)
   Net.transfer_actor(player_id, instance.area_id, true, position.x, position.y, position.z, direction)
   Net.set_player_health(player_id, self._health)
 
-  for _, defense in ipairs(self._defenses) do
+  -- clone defenses to protect against additions + removal during loop
+  local defenses = table.pack(table.unpack(self._defenses))
+
+  for _, defense in ipairs(defenses) do
     if defense.on_rejoin then
       defense.on_rejoin()
     end
