@@ -93,7 +93,7 @@ function BlizzardMan:take_turn(actor)
   return Async.create_scope(function()
     local instance = actor:instance()
 
-    if not debug and instance.phase == 1 then
+    if not debug and instance:phase() == 1 then
       for _, player in ipairs(instance.players) do
         player:message_auto(
           "I'll turn this area into a Nebula ski resort! Got it?",

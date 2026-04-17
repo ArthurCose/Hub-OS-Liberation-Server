@@ -75,8 +75,8 @@ local function liberate(self)
 
   local victory_message =
       self.area_name .. " Liberated\n" ..
-      "Target: " .. self.target_phase:calculate() .. "\n" ..
-      "Actual: " .. self.phase
+      "Target: " .. self._target_phase:calculate() .. "\n" ..
+      "Actual: " .. self._phase
 
   for _, player in ipairs(self.players) do
     player:message(victory_message).and_then(function()
@@ -493,7 +493,7 @@ local function take_enemy_turn(self)
     end
 
     self._events:emit("phase_end", { team = "darkloid" })
-    self.phase = self.phase + 1
+    self._phase = self._phase + 1
   end)
       .and_then(function()
         self._taking_enemy_turn = false
@@ -525,9 +525,9 @@ end
 ---@field area_id string
 ---@field area_name string
 ---@field default_encounter string
----@field package target_phase Liberation._TargetPhase
+---@field package _phase number
+---@field package _target_phase Liberation._TargetPhase
 ---@field liberated boolean
----@field phase number
 ---@field ready_count number
 ---@field order_points number
 ---@field MAX_ORDER_POINTS number
@@ -559,9 +559,9 @@ function MissionInstance:new(area_id)
     area_id = area_id,
     area_name = Net.get_area_name(area_id),
     default_encounter = Net.get_area_custom_property(area_id, "Liberation Encounter"),
-    target_phase = TargetPhase:new(area_id),
+    _phase = 1,
+    _target_phase = TargetPhase:new(area_id),
     liberated = false,
-    phase = 1,
     ready_count = 0,
     order_points = 3,
     MAX_ORDER_POINTS = 8,
@@ -876,6 +876,15 @@ function MissionInstance:events()
   return self._events
 end
 
+function MissionInstance:phase()
+  return self._phase
+end
+
+---Calculates the target phase based on the total amount of players that have joined the mission
+function MissionInstance:target_phase()
+  return self._target_phase:calculate()
+end
+
 ---@param player_id Net.ActorId
 ---@param ability Liberation.Ability?
 function MissionInstance:transfer_player(player_id, ability)
@@ -886,7 +895,7 @@ function MissionInstance:transfer_player(player_id, ability)
 
   self.players[#self.players + 1] = player
   self.player_map[player_id] = player
-  self.target_phase.players_joined = self.target_phase.players_joined + 1
+  self._target_phase.players_joined = self._target_phase.players_joined + 1
 
   Net.transfer_actor(
     player.id,

@@ -84,7 +84,7 @@ function ShadeMan:take_turn(actor)
   return Async.create_scope(function()
     local instance = actor:instance()
 
-    if instance.phase == 1 then
+    if instance:phase() == 1 then
       Async.await(Async.sleep(0.5))
 
       for _, player in ipairs(instance.players) do
