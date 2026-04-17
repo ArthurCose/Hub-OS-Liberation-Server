@@ -1,4 +1,4 @@
-require("scripts/main/debug")
+local Debug = require("scripts/main/debug")
 require("scripts/main/shop")
 
 local ScriptNodes = require("scripts/libs/script_nodes")
@@ -20,6 +20,10 @@ local MISSION_AREAS = {
   "acdc3",
   "oran_area_3",
 }
+
+if Debug.ENABLED then
+  table.insert(MISSION_AREAS, "test_area")
+end
 
 local LOBBY_AREA = "default"
 local door = Net.get_object_by_name(LOBBY_AREA, "Door")
