@@ -48,10 +48,7 @@ local function battle_to_liberate_and_loot(player, loot_options)
       -- avoid ending this player's turn to allow them to retry
       player:unlock_movement()
       player:selection():clear()
-      -- return order points
-      if player.ability.cost then
-        instance:add_order_points(player.ability.cost)
-      end
+      player:refund_ability()
     elseif battle_results.won then
       if battle_results.turns == 1 then
         player:selection():merge_bonus_shape()
@@ -65,9 +62,8 @@ local function battle_to_liberate_and_loot(player, loot_options)
       Async.await(player:loot_panels(panels, loot_options))
       player:complete_turn()
     else
-      Async.sleep(1).and_then(function()
-        player:complete_turn()
-      end)
+      Async.await(Async.sleep(1))
+      player:complete_turn()
     end
   end)
 end
@@ -84,6 +80,7 @@ end
 ---@field cost number
 ---@field per_turn_limit number?
 ---@field generate_shape (fun(player: Liberation.Player): number[][], number, number)?
+---@field indicate (fun(player: Liberation.Player): fun(activating: boolean)?)? Return a function to handle cleanup
 ---@field activate fun(player: Liberation.Player)
 
 ---@type table<string, Liberation.Ability>

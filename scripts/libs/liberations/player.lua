@@ -7,6 +7,7 @@ local DamageNumbers = require("scripts/libs/liberations/effects/damage_numbers")
 local Poof = require("scripts/libs/liberations/effects/poof")
 local PanelClass = require("scripts/libs/liberations/panel_class")
 local Emotes = require("scripts/libs/emotes")
+local Direction = require("scripts/libs/direction")
 local Preloader = require("scripts/libs/liberations/preloader")
 local Debug = require("scripts/main/debug")
 
@@ -139,6 +140,31 @@ function Player:direction()
   end
 
   return Net.get_actor_direction(self.id)
+end
+
+function Player:diagonal_direction()
+  local x, y = self:position_multi()
+  local direction = self:direction()
+
+  if direction == Direction.UP or direction == Direction.DOWN then
+    local screen_x = ((x - math.floor(x)) - (y - math.floor(y)) + 1) * 0.5
+
+    if screen_x < 0.5 then
+      direction = Direction.join(direction, Direction.LEFT)
+    else
+      direction = Direction.join(direction, Direction.RIGHT)
+    end
+  elseif direction == Direction.LEFT or direction == Direction.RIGHT then
+    local screen_y = (x + y - math.floor(x) - math.floor(y)) * 0.5
+
+    if screen_y < 0.5 then
+      direction = Direction.join(direction, Direction.UP)
+    else
+      direction = Direction.join(direction, Direction.DOWN)
+    end
+  end
+
+  return direction
 end
 
 function Player:position()
@@ -310,23 +336,21 @@ function Player:can_use_active_ability(panel)
 end
 
 function Player:get_ability_permission()
-  local question_promise = self:question_with_mug(self.ability.question)
+  return Async.create_scope(function()
+    local response = Async.await(self:question_with_mug(self.ability.question))
 
-  question_promise.and_then(function(response)
-    if response == 0 then
-      -- No
+    if response ~= 1 then
       self._selection:clear()
       self:unlock_movement()
-      return
+      return false
     end
 
     local instance = self._instance
 
-    -- Yes
     if instance.order_points < self.ability.cost then
       -- not enough order points
       self:message("Not enough Order Pts!")
-      return
+      return false
     end
 
     instance.order_points = instance.order_points - self.ability.cost
@@ -337,8 +361,23 @@ function Player:get_ability_permission()
 
     self._ability_activations = self._ability_activations + 1
 
-    self.ability.activate(self)
+    return true
   end)
+end
+
+--- Returns order points and allows the abilities with per turn limits to be used again
+function Player:refund_ability()
+  if self._ability_activations <= 0 then
+    warn("Player:cancel_ability() called, but the ability wasn't used this turn?")
+    return
+  end
+
+  -- return order points
+  if self.ability.cost then
+    self._instance:add_order_points(self.ability.cost)
+  end
+
+  self._ability_activations = self._ability_activations - 1
 end
 
 function Player:get_pass_turn_permission()

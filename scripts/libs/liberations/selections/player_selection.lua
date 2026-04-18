@@ -6,9 +6,9 @@ local TEXTURE_PATH = "/server/assets/liberations/bots/selection.png"
 local ANIMATION_PATH = "/server/assets/liberations/bots/selection.animation"
 
 -- private functions
-local function resolve_selection_direction(panel_object, player_x, player_y)
-  local x_diff = panel_object.x + panel_object.height / 2 - player_x
-  local y_diff = panel_object.y + panel_object.height / 2 - player_y
+local function resolve_selection_direction(panel, player_x, player_y)
+  local x_diff = panel.x + panel.height / 2 - player_x
+  local y_diff = panel.y + panel.height / 2 - player_y
   return Direction.diagonal_from_offset(x_diff, y_diff)
 end
 
@@ -72,11 +72,19 @@ function PlayerSelection:indicator_template()
   return self.selection:indicator_template()
 end
 
-function PlayerSelection:select_panel(panel_object)
-  self._root_panel = panel_object
+---@param panel Liberation.PanelObject
+---@param player_x number?
+---@param player_y number?
+---@param player_z number?
+function PlayerSelection:select_panel(panel, player_x, player_y, player_z)
+  self._root_panel = panel
 
-  local player_x, player_y, player_z = self.player:floored_position_multi()
-  local direction = resolve_selection_direction(panel_object, player_x, player_y)
+  if not player_x or not player_y or not player_z then
+    player_x, player_y, player_z = self.player:floored_position_multi()
+  end
+
+  local direction = resolve_selection_direction(panel, player_x, player_y)
+
   self.selection:move(player_x, player_y, player_z, direction)
   self.selection:set_shape({ { 1 } })
   self.selection:remove_indicators()

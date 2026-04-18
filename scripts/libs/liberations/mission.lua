@@ -830,7 +830,9 @@ function MissionInstance:handle_tile_interaction(player_id, x, y, z, button)
     }
   )
 
-  quiz_promise.and_then(function(response)
+  Async.create_scope(function()
+    local response = Async.await(quiz_promise)
+
     if not response then
       return
     end
@@ -849,8 +851,22 @@ function MissionInstance:handle_tile_interaction(player_id, x, y, z, button)
         player:selection():clear()
       end
 
+      local indicate_cleanup
+
+      if ability.indicate then
+        indicate_cleanup = ability.indicate(player)
+      end
+
       -- ask if we should use the ability
-      player:get_ability_permission()
+      local received_permission = Async.await(player:get_ability_permission())
+
+      if indicate_cleanup then
+        indicate_cleanup(received_permission)
+      end
+
+      if received_permission then
+        ability.activate(player)
+      end
     elseif option == pass_turn_option then
       -- Pass
       player:selection():clear()
