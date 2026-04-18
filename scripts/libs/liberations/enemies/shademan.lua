@@ -137,10 +137,6 @@ function ShadeMan:take_turn(actor)
       return
     end
 
-    local player = possible_targets[math.random(#possible_targets)]
-
-    local player_position = player:position()
-
     if instance:phase() ~= 1 then
       Async.await(Async.sleep(0.5))
 
@@ -157,13 +153,17 @@ function ShadeMan:take_turn(actor)
       Async.await(Async.sleep(2))
     end
 
-    -- resolve movement
     local warp_back_pos = actor:floored_position()
     local warp_back_direction = self.direction
-    local target_x, target_y = math.floor(player_position.x), math.floor(player_position.y)
 
-    local x_enemy = instance:get_enemy_at(target_x - 1, target_y, player_position.z)
-    local y_enemy = instance:get_enemy_at(target_x, target_y - 1, player_position.z)
+    local player = possible_targets[math.random(#possible_targets)]
+    local player_x, player_y, player_z = player:floored_position_multi()
+
+    -- resolve movement
+    local target_x, target_y = player_x, player_y
+
+    local x_enemy = instance:get_enemy_at(target_x - 1, target_y, player_z)
+    local y_enemy = instance:get_enemy_at(target_x, target_y - 1, player_z)
 
     if not (x_enemy and x_enemy ~= self) and ((y_enemy and y_enemy ~= self) or math.random(2) == 1) then
       target_x = target_x - 1
@@ -175,17 +175,17 @@ function ShadeMan:take_turn(actor)
 
     if moving then
       local target_direction = Direction.diagonal_from_offset(
-        player_position.x - target_x,
-        player_position.y - target_y
+        player_x - target_x,
+        player_y - target_y
       )
 
-      Async.await(actor:move(target_x, target_y, player_position.z, target_direction))
+      Async.await(actor:move(target_x, target_y, player_z, target_direction))
     else
-      actor:face_position(player_position.x, player_position.y)
+      actor:face_position(player_x, player_y)
     end
 
     -- indicate and attack
-    self.selection:move(player_position, Direction.None)
+    self.selection:move(player_x, player_y, player_z, Direction.None)
     self.selection:indicate()
 
     actor:attack({ player }, function(targets)
@@ -199,6 +199,7 @@ function ShadeMan:take_turn(actor)
 
       Async.await(Async.sleep(.5))
     end)
+
 
     if moving then
       -- warp back

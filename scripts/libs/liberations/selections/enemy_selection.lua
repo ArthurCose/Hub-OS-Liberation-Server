@@ -43,10 +43,12 @@ function EnemySelection:set_shape(shape, shape_offset_x, shape_offset_y)
   self.selection:set_shape(shape, shape_offset_x, shape_offset_y)
 end
 
----@param position Net.Position
+---@param x number
+---@param y number
+---@param z number
 ---@param direction string
-function EnemySelection:move(position, direction)
-  self.selection:move(position, direction)
+function EnemySelection:move(x, y, z, direction)
+  self.selection:move(x, y, z, direction)
 end
 
 -- returns players that collide

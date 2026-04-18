@@ -68,12 +68,11 @@ function Bladia:take_turn(actor)
 
     local instance = actor:instance()
 
-    local player_position = player:position()
     local player_x, player_y, player_z = player:position_multi()
 
     -- local distance = EnemyHelpers.chebyshev_tile_distance(self, player_x, player_y, player_z)
     -- if distance > 5 then return end --Player too far. Don't bother.
-    self.selection:move(player_position, Direction.None)
+    self.selection:move(player_x, player_y, player_z, Direction.None)
     local targetx = player_x
     local targety = player_y
     local original_coordinates = { x = targetx, y = targety, z = player_z }

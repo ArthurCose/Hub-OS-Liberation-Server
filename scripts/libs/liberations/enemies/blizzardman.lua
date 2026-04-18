@@ -104,7 +104,7 @@ function BlizzardMan:take_turn(actor)
       end
     end
 
-    self.selection:move(actor, Net.get_actor_direction(actor.id))
+    self.selection:move(actor.x, actor.y, actor.z, Net.get_actor_direction(actor.id))
 
     local caught_players = self.selection:detect_players()
 

@@ -185,12 +185,14 @@ function Selection:to_string()
   return output
 end
 
----@param position Net.Position
+---@param x number
+---@param y number
+---@param z number
 ---@param direction string
-function Selection:move(position, direction)
-  self.position.x = math.floor(position.x)
-  self.position.y = math.floor(position.y)
-  self.position.z = math.floor(position.z)
+function Selection:move(x, y, z, direction)
+  self.position.x = math.floor(x)
+  self.position.y = math.floor(y)
+  self.position.z = math.floor(z)
   self.direction = direction
 end
 

@@ -136,15 +136,10 @@ local function attempt_move(self, actor)
 
     -- see which panels we can jump to, to strike a player
     self.selection:set_shape(ATTACK_SHAPE, 0, -4)
-    local test_position = {}
 
     for _, tuple in ipairs(valid_panels) do
       local panel = tuple[4]
-      test_position.x = panel.x
-      test_position.y = panel.y
-      test_position.z = panel.z
-
-      self.selection:move(test_position, Direction.DOWN_LEFT)
+      self.selection:move(panel.x, panel.y, panel.z, Direction.DOWN_LEFT)
       tuple[1] = self.selection:is_within(player_x, player_y, actor.z)
     end
 
@@ -189,7 +184,7 @@ end
 ---@param actor Liberation.Enemy
 local function attempt_attack(self, actor)
   return Async.create_scope(function()
-    self.selection:move(actor, Net.get_actor_direction(actor.id))
+    self.selection:move(actor.x, actor.y, actor.z, Net.get_actor_direction(actor.id))
 
     -- find target
     local caught_players = self.selection:detect_players()
