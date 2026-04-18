@@ -4,11 +4,14 @@ local HitParticle = require("scripts/libs/liberations/effects/hit_particle")
 local DamageNumbers = require("scripts/libs/liberations/effects/damage_numbers")
 local Preloader = require("scripts/libs/liberations/preloader")
 
-local ITEM_ASSET_PATH = Preloader.add_asset("/server/assets/liberations/bots/item.png")
-local ITEM_ANIMATION_PATH = Preloader.add_asset("/server/assets/liberations/bots/item.animation")
+local ITEM_TEXTURE = Preloader.add_asset("/server/assets/liberations/bots/item.png")
+local ITEM_ANIM_PATH = Preloader.add_asset("/server/assets/liberations/bots/item.animation")
 
 local RECOVER_POINTS_SFX = Preloader.add_asset("/server/assets/liberations/sounds/recover_points.ogg")
 local HIT_ENEMY_SFX = Preloader.add_asset("/server/assets/liberations/sounds/hit_impact.ogg")
+
+local ALERT_TEXTURE = Preloader.add_asset("/server/assets/liberations/bots/trap_alert.png")
+local ALERT_ANIM_PATH = Preloader.add_asset("/server/assets/liberations/bots/trap_alert.animation")
 
 ---@class Liberation.Loot
 ---@field animation string
@@ -305,8 +308,8 @@ local function spawn_item_bot(bot_data, property_animation)
   local shadow_id = Net.create_bot(
     {
       area_id = bot_data.area_id,
-      texture_path = ITEM_ASSET_PATH,
-      animation_path = ITEM_ANIMATION_PATH,
+      texture_path = ITEM_TEXTURE,
+      animation_path = ITEM_ANIM_PATH,
       animation = "SHADOW",
       warp_in = false,
       x = bot_data.x - (1 / 32),
@@ -339,8 +342,8 @@ end
 function Loot.spawn_item_bot(item, area_id, x, y, z)
   local bot_data = {
     area_id = area_id,
-    texture_path = ITEM_ASSET_PATH,
-    animation_path = ITEM_ANIMATION_PATH,
+    texture_path = ITEM_TEXTURE,
+    animation_path = ITEM_ANIM_PATH,
     animation = item.animation,
     warp_in = false,
     x = x,
@@ -364,6 +367,27 @@ function Loot.spawn_item_bot(item, area_id, x, y, z)
     Async.sleep(RISE_DURATION).and_then(function()
       resolve(cleanup)
     end)
+  end)
+end
+
+---@param area_id string
+---@param x number
+---@param y number
+---@param z number
+function Loot.spawn_alert_bot(area_id, x, y, z)
+  local id = Net.create_bot({
+    area_id = area_id,
+    texture_path = ALERT_TEXTURE,
+    animation_path = ALERT_ANIM_PATH,
+    animation = "DEFAULT",
+    warp_in = false,
+    x = x,
+    y = y,
+    z = z + 2,
+  })
+
+  Async.sleep(1).and_then(function(value)
+    Net.remove_bot(id)
   end)
 end
 
@@ -402,8 +426,8 @@ function Loot.spawn_randomized_item_bot(loot_pool, item_index_or_state, area_id,
 
   local bot_data = {
     area_id = area_id,
-    texture_path = ITEM_ASSET_PATH,
-    animation_path = ITEM_ANIMATION_PATH,
+    texture_path = ITEM_TEXTURE,
+    animation_path = ITEM_ANIM_PATH,
     animation = loot_pool[start_index].animation,
     warp_in = false,
     x = x,

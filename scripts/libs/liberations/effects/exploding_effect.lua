@@ -89,6 +89,7 @@ end
 ---@field area_id? string
 local ExplodingEffect = {}
 
+---@return Liberation.ExplodingEffect
 function ExplodingEffect:new(actor_id)
   local exploding_effect = {
     tracked_actor_id = actor_id,

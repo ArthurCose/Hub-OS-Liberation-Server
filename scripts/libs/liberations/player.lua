@@ -16,6 +16,7 @@ local ORDER_POINTS_ANIMATION_PATH = Preloader.add_asset("/server/assets/liberati
 
 local GUARD_SFX = Preloader.add_asset("/server/assets/liberations/sounds/guard.ogg")
 local HURT_SFX = Preloader.add_asset("/server/assets/liberations/sounds/hurt.ogg")
+local TRAP_SFX = Preloader.add_asset("/server/assets/liberations/sounds/trap.ogg")
 local SILENT_MUSIC = Preloader.add_asset("/server/assets/liberations/sounds/silent.ogg")
 
 ---@class Liberation.Player
@@ -1237,6 +1238,12 @@ function Player:loot_panels(panels, options)
 
           Async.await(Async.sleep(1))
         elseif trap_damage then
+          convert_loot_panel(instance, panel)
+
+          Loot.spawn_alert_bot(instance.area_id, panel.x + 0.5, panel.y + 0.5, panel.z)
+          Net.play_sound_for_player(self.id, TRAP_SFX)
+          Async.await(Async.sleep(0.5))
+
           if panel.custom_properties["Message"] ~= nil then
             Async.await(self:message_with_mug(panel.custom_properties["Message"]))
           else
@@ -1246,10 +1253,15 @@ function Player:loot_panels(panels, options)
           Async.await(Async.sleep(0.25))
 
           self:hurt(trap_damage)
-          convert_loot_panel(instance, panel)
 
           Async.await(Async.sleep(1))
         else
+          convert_loot_panel(instance, panel)
+
+          Loot.spawn_alert_bot(instance.area_id, panel.x + 0.5, panel.y + 0.5, panel.z)
+          Net.play_sound_for_player(self.id, TRAP_SFX)
+          Async.await(Async.sleep(0.5))
+
           if panel.custom_properties["Message"] ~= nil then
             Async.await(self:message_with_mug(panel.custom_properties["Message"]))
           else
@@ -1257,7 +1269,6 @@ function Player:loot_panels(panels, options)
           end
 
           self:paralyze()
-          convert_loot_panel(instance, panel)
 
           Async.await(Async.sleep(1))
         end
