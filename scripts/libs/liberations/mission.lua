@@ -7,6 +7,7 @@ local PanelClass = require("scripts/libs/liberations/panel_class")
 local TargetPhase = require("scripts/libs/liberations/target_phase")
 local Preloader = require("scripts/libs/liberations/preloader")
 local HealthSprites = require("scripts/libs/liberations/effects/health_sprites")
+local Direction = require("scripts/libs/direction")
 
 local MARKERS_TEXTURE_PATH = Preloader.add_asset("/server/assets/liberations/ui/markers.png")
 local MARKERS_ANIMATION_PATH = Preloader.add_asset("/server/assets/liberations/ui/markers.animation")
@@ -772,6 +773,18 @@ function MissionInstance:handle_tile_interaction(player_id, x, y, z, button)
   end
 
   local panel = self:get_panel_at(x, y, z)
+
+  if not panel then
+    -- try to increase our reach, but this may have issues with lagging players
+    local direction = player:diagonal_direction()
+    local x_offset, y_offset = Direction.vector_multi(direction)
+    panel = self:get_panel_at(
+      player_position.x + x_offset * 0.5,
+      player_position.y + y_offset * 0.5,
+      z
+    )
+  end
+
   local panel_already_selected = false
 
   if panel then
@@ -802,7 +815,7 @@ function MissionInstance:handle_tile_interaction(player_id, x, y, z, button)
       panel and
       PanelClass.LIBERATABLE[panel.class] and
       not panel_already_selected and
-      is_adjacent(player_position, { x = x, y = y, z = z })
+      is_adjacent(player_position, { x = panel.x, y = panel.y, z = panel.z })
   then
     options[1] = liberate_option
     player:selection():select_panel(panel)
