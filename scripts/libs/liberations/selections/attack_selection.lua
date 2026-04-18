@@ -3,43 +3,43 @@ local Selection = require("scripts/libs/liberations/selections/selection")
 local TEXTURE_PATH = "/server/assets/liberations/bots/selection.png"
 local ANIMATION_PATH = "/server/assets/liberations/bots/selection.animation"
 
----@class Liberation.EnemySelection
+---@class Liberation.AttackSelection
 ---@field package instance Liberation.MissionInstance
 ---@field package selection Liberation.Selection
-local EnemySelection = {}
+local AttackSelection = {}
 
----@return Liberation.EnemySelection
-function EnemySelection:new(instance)
-  local enemy_selection = {
+---@return Liberation.AttackSelection
+function AttackSelection:new(instance)
+  local attack_selection = {
     instance = instance,
     selection = Selection:new(instance)
   }
 
-  setmetatable(enemy_selection, self)
+  setmetatable(attack_selection, self)
   self.__index = self
 
-  enemy_selection.selection:set_filter(function(x, y, z)
+  attack_selection.selection:set_filter(function(x, y, z)
     local tile = Net.get_tile(instance.area_id, x, y, z)
 
     return tile.gid > 0
   end)
 
   --set indicator may need offset_y to adjust with a z input
-  enemy_selection.selection:set_indicator({
+  attack_selection.selection:set_indicator({
     texture_path = TEXTURE_PATH,
     animation_path = ANIMATION_PATH,
-    state = "ENEMY_ATTACK",
+    state = "ATTACK",
     offset_x = 1,
     offset_y = 1,
   })
 
-  return enemy_selection
+  return attack_selection
 end
 
 ---@param shape number[][] [m][n] bool array, n being odd, just below bottom center is the enemy position
 ---@param shape_offset_x number
 ---@param shape_offset_y number
-function EnemySelection:set_shape(shape, shape_offset_x, shape_offset_y)
+function AttackSelection:set_shape(shape, shape_offset_x, shape_offset_y)
   self.selection:set_shape(shape, shape_offset_x, shape_offset_y)
 end
 
@@ -47,13 +47,13 @@ end
 ---@param y number
 ---@param z number
 ---@param direction string
-function EnemySelection:move(x, y, z, direction)
+function AttackSelection:move(x, y, z, direction)
   self.selection:move(x, y, z, direction)
 end
 
 -- returns players that collide
 ---@return Liberation.Player[]
-function EnemySelection:detect_players()
+function AttackSelection:detect_players()
   local players = {}
 
   for _, player in ipairs(self.instance.players) do
@@ -67,23 +67,23 @@ function EnemySelection:detect_players()
   return players
 end
 
-function EnemySelection:indicate()
+function AttackSelection:indicate()
   self.selection:indicate()
 end
 
-function EnemySelection:remove_indicators()
+function AttackSelection:remove_indicators()
   -- delete objects
   self.selection:remove_indicators()
 end
 
-function EnemySelection:is_within(x, y, z)
+function AttackSelection:is_within(x, y, z)
   return self.selection:is_within(x, y, z)
 end
 
 ---@param callback fun(x: number, y: number, z: number)
-function EnemySelection:for_each_tile(callback)
+function AttackSelection:for_each_tile(callback)
   self.selection:for_each_tile(callback)
 end
 
 -- exports
-return EnemySelection
+return AttackSelection

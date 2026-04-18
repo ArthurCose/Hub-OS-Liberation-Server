@@ -1,4 +1,4 @@
-local EnemySelection = require("scripts/libs/liberations/selections/enemy_selection")
+local AttackSelection = require("scripts/libs/liberations/selections/attack_selection")
 local Preloader = require("scripts/libs/liberations/preloader")
 local Direction = require("scripts/libs/direction")
 
@@ -8,7 +8,7 @@ local BEAST_BREATH_SFX = Preloader.add_asset("/server/assets/liberations/sounds/
 
 ---@class Liberation.Enemies.BigBrute: Liberation.EnemyAi
 ---@field package damage number
----@field package selection Liberation.EnemySelection
+---@field package selection Liberation.AttackSelection
 local BigBrute = {}
 
 --Setup ranked health and damage
@@ -43,7 +43,7 @@ function BigBrute:new(builder)
   ---@type Liberation.Enemies.BigBrute
   local bigbrute = {
     damage = mob_damage[rank_index],
-    selection = EnemySelection:new(builder.instance),
+    selection = AttackSelection:new(builder.instance),
   }
 
   setmetatable(bigbrute, self)

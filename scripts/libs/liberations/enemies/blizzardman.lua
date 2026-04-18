@@ -1,4 +1,4 @@
-local EnemySelection = require("scripts/libs/liberations/selections/enemy_selection")
+local AttackSelection = require("scripts/libs/liberations/selections/attack_selection")
 local Preloader = require("scripts/libs/liberations/preloader")
 
 local SNOWBALL_TEXTURE_PATH = Preloader.add_asset("/server/assets/liberations/bots/snowball.png")
@@ -6,7 +6,7 @@ local SNOWBALL_ANIMATION_PATH = Preloader.add_asset("/server/assets/liberations/
 
 ---@class Liberation.Enemies.BlizzardMan: Liberation.EnemyAi
 ---@field damage number
----@field selection Liberation.EnemySelection
+---@field selection Liberation.AttackSelection
 ---@field is_engaged boolean
 local BlizzardMan = {}
 
@@ -31,7 +31,7 @@ function BlizzardMan:new(builder)
   ---@type Liberation.Enemies.BlizzardMan
   local blizzardman = {
     damage = mob_damage[rank_index],
-    selection = EnemySelection:new(builder.instance),
+    selection = AttackSelection:new(builder.instance),
     is_engaged = false
   }
 

@@ -1,11 +1,11 @@
-local EnemySelection = require("scripts/libs/liberations/selections/enemy_selection")
+local AttackSelection = require("scripts/libs/liberations/selections/attack_selection")
 local Preloader = require("scripts/libs/liberations/preloader")
 local Direction = require("scripts/libs/direction")
 
 local ATTACK_SFX = Preloader.add_asset("/server/assets/liberations/sounds/tinhawk_attack.ogg")
 
 ---@class Liberation.Enemies.TinHawk: Liberation.EnemyAi
----@field package selection Liberation.EnemySelection
+---@field package selection Liberation.AttackSelection
 ---@field package damage number
 local TinHawk = {}
 
@@ -60,7 +60,7 @@ function TinHawk:new(builder)
 
   ---@type Liberation.Enemies.TinHawk
   local tinhawk = {
-    selection = EnemySelection:new(builder.instance),
+    selection = AttackSelection:new(builder.instance),
     damage = mob_damage[rank_index],
   }
 

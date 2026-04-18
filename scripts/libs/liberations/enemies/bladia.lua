@@ -1,10 +1,10 @@
-local EnemySelection = require("scripts/libs/liberations/selections/enemy_selection")
+local AttackSelection = require("scripts/libs/liberations/selections/attack_selection")
 local PanelClass = require("scripts/libs/liberations/panel_class")
 local Direction = require("scripts/libs/direction")
 
 ---@class Liberation.Enemies.Bladia: Liberation.EnemyAi
 ---@field damage number
----@field selection Liberation.EnemySelection
+---@field selection Liberation.AttackSelection
 local Bladia = {}
 
 --Setup ranked health and damage
@@ -28,7 +28,7 @@ function Bladia:new(builder)
   ---@type Liberation.Enemies.Bladia
   local bladia = {
     damage = mob_damage[rank_index],
-    selection = EnemySelection:new(builder.instance)
+    selection = AttackSelection:new(builder.instance)
   }
 
   setmetatable(bladia, self)

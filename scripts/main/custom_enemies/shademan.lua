@@ -1,10 +1,10 @@
 -- Attacks every player, instead of a single one
 
-local EnemySelection = require("scripts/libs/liberations/selections/enemy_selection")
+local AttackSelection = require("scripts/libs/liberations/selections/attack_selection")
 local Direction = require("scripts/libs/direction")
 
 ---@class LiberationServer.CustomEnemies.ShadeMan: Liberation.EnemyAi
----@field selection Liberation.EnemySelection
+---@field selection Liberation.AttackSelection
 ---@field damage number
 ---@field direction string
 ---@field is_engaged boolean
@@ -30,7 +30,7 @@ function ShadeMan:new(builder)
 
   ---@type LiberationServer.CustomEnemies.ShadeMan
   local shademan = {
-    selection = EnemySelection:new(builder.instance),
+    selection = AttackSelection:new(builder.instance),
     damage = mob_damage[rank_index],
     direction = builder.direction,
     is_engaged = false
