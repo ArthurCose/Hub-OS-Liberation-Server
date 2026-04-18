@@ -166,7 +166,9 @@ function Selection:merge_shape(shape, shape_offset_x, shape_offset_y)
 
     if y >= start_y and y <= end_y then
       for x = start_x, end_x do
-        row[x] = shape[y - start_y + 1][x - start_x + 1]
+        if row[x] == 0 then
+          row[x] = shape[y - start_y + 1][x - start_x + 1]
+        end
       end
     end
   end
