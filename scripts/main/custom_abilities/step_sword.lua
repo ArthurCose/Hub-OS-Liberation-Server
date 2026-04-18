@@ -86,6 +86,12 @@ local function animate_jump(player, direction, old_properties, new_properties)
     keyframes[#keyframes + 1] = new_frame
   end
 
+  -- linger at the new position to avoid the warp animation
+  keyframes[#keyframes + 1] = {
+    properties = new_properties,
+    duration = 40 * f
+  }
+
   Net.animate_actor_properties(player.id, keyframes)
 end
 
