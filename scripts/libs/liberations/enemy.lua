@@ -309,33 +309,32 @@ function Enemy:find_closest_player(max_distance)
 end
 
 ---Pans the camera to the enemy, returns the camera and unlocks it when the callback is completed
----@param callback fun() called within an async scope
+---@param callback fun(focused_players: table<Net.ActorId, boolean?>) called within an async scope
 function Enemy:focus(callback)
   return Async.create_scope(function()
     local slide_time = .2
 
-    local involved_players = {}
+    local focused_players = {}
 
     -- moving every player's camera to the enemy
     local instance = self._instance
 
     for _, player in ipairs(instance.players) do
-      player:stack_lock_movement()
-
-      if not Net.is_player_battling(player.id) then
+      if not player:busy() then
+        player:stack_lock_movement()
         Net.slide_player_camera(player.id, self.x + .5, self.y + .5, self.z, slide_time)
-        involved_players[player.id] = true
+        focused_players[player.id] = true
       end
     end
 
     Async.await(Async.sleep(slide_time))
 
     -- execute callback
-    callback()
+    callback(focused_players)
 
     -- return camera to players
     for _, player in ipairs(instance.players) do
-      if involved_players[player.id] then
+      if focused_players[player.id] then
         local player_x, player_y, player_z = player:position_multi()
         Net.slide_player_camera(player.id, player_x, player_y, player_z, slide_time)
         Net.unlock_player_camera(player.id)
@@ -350,7 +349,9 @@ function Enemy:focus(callback)
 
     -- unlock players
     for _, player in ipairs(instance.players) do
-      player:unstack_lock_movement()
+      if focused_players[player.id] then
+        player:unstack_lock_movement()
+      end
     end
   end)
 end
@@ -378,14 +379,14 @@ function Enemy:destroy()
     -- begin exploding the enemy
     local explosions = ExplodingEffect:new(self.id)
 
-    Async.await(self:focus(function()
+    Async.await(self:focus(function(focused_players)
       -- display death message
       local message = self.ai:get_final_message(self)
       local texture_path = self.mug and self.mug.texture_path
       local animation_path = self.mug and self.mug.animation_path
       if message ~= nil then
         for _, player in ipairs(instance.players) do
-          if not Net.is_player_busy(player.id) then
+          if focused_players[player.id] then
             player:message(message, texture_path, animation_path)
           end
         end
@@ -434,7 +435,7 @@ function Enemy:destroy_in_focus()
     local animation_path = self.mug and self.mug.animation_path
     if message ~= nil then
       for _, player in ipairs(instance.players) do
-        if not Net.is_player_busy(player.id) then
+        if not player:busy() then
           player:message(message, texture_path, animation_path)
         end
       end

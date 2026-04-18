@@ -40,6 +40,7 @@ local SILENT_MUSIC = Preloader.add_asset("/server/assets/liberations/sounds/sile
 ---@field package total_kick_votes number
 ---@field package kick_vote_successful? boolean
 ---@field package unresolved_promises table
+---@field package _not_busy boolean
 ---@field package disconnected boolean
 ---@field package disconnected_position Net.Position?
 ---@field package disconnected_direction string?
@@ -69,6 +70,7 @@ function Player:new(instance, player_id)
     kick_votes = {},
     total_kick_votes = 0,
     unresolved_promises = {},
+    _not_busy = false,
     disconnected = false,
   }
 
@@ -304,6 +306,29 @@ function Player:quiz(a, b, c, textbox_options)
   end)
 end
 
+function Player:busy()
+  if self.disconnected then
+    return true
+  end
+
+  if self._not_busy then
+    -- expecting this check
+    return false
+  end
+
+  if not self._completed_turn and Net.is_player_movement_locked(self.id) then
+    -- likely taking an action
+    return true
+  end
+
+  return Net.is_player_busy(self.id)
+end
+
+---@param not_busy boolean
+function Player:override_busy(not_busy)
+  self._not_busy = not_busy
+end
+
 ---@param panel Liberation.PanelObject?
 function Player:can_use_active_ability(panel)
   local instance = self._instance
@@ -512,6 +537,7 @@ function Player:initiate_encounter(encounter_path, data)
     end
 
     if Net.is_player_movement_locked(player.id) then
+      -- already taking an action
       goto continue
     end
 
@@ -691,7 +717,9 @@ function Player:initiate_panel_encounter(panel, loot_options)
       Async.await(Async.sleep(1))
 
       if enemy and enemy.health <= 0 then
+        self:override_busy(true)
         Async.await(enemy:destroy())
+        self:override_busy(false)
 
         if enemy == instance.boss then
           -- we saw the delete animation,
@@ -720,7 +748,9 @@ function Player:initiate_panel_encounter(panel, loot_options)
 
     -- destroy enemy
     if targetted_enemy then
+      self:override_busy(true)
       Async.await(targetted_enemy:destroy())
+      self:override_busy(false)
     else
       -- we can slow down a little
       Async.await(Async.sleep(1.0))
