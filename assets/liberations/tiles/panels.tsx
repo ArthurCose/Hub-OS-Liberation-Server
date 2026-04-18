@@ -2,6 +2,9 @@
 <tileset version="1.10" tiledversion="1.12.1" name="panels" tilewidth="50" tileheight="30" tilecount="42" columns="7" objectalignment="top">
  <tileoffset x="0" y="1"/>
  <grid orientation="isometric" width="64" height="32"/>
+ <properties>
+  <property name="Layer" type="int" value="10"/>
+ </properties>
  <image source="panels.png" width="350" height="180"/>
  <tile id="0">
   <animation>
