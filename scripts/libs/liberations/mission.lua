@@ -14,9 +14,6 @@ local BOSS_MINIMAP_COLOR = { 200, 15, 67 }
 
 local ENEMY_TURN_SFX = Preloader.add_asset("/server/assets/liberations/sounds/enemy_turn.ogg")
 local MISSION_SUCCESS_SFX = Preloader.add_asset("/server/assets/liberations/sounds/mission_success.ogg")
-local SILENT_MUSIC = Preloader.add_asset("/server/assets/liberations/sounds/silent.ogg")
-
-local DEBUG_AUTO_WIN = false
 
 -- private functions
 
@@ -29,119 +26,6 @@ local function is_adjacent(position_a, position_b)
   local y_diff = math.abs(math.floor(position_a.y) - math.floor(position_b.y))
 
   return x_diff + y_diff == 1
-end
-
----Expects to be called within an async scope
----@param self Liberation.MissionInstance
-local function liberate(self)
-  self.liberated = true
-
-  for _, layer in pairs(self.panels) do
-    for _, row in pairs(layer) do
-      for _, panel in pairs(row) do
-        Net.remove_object(self.area_id, panel.id)
-
-        if panel.collision_id then
-          Net.remove_object(self.area_id, panel.collision_id)
-        end
-      end
-    end
-  end
-
-  self.panels = {}
-  self.dark_holes = {}
-
-  for _, enemy in ipairs(self.enemies) do
-    Net.remove_bot(enemy.id, false)
-  end
-
-  self.enemies = {}
-
-  local area_properties = Net.get_area_custom_properties(self.area_id)
-
-  if area_properties["Victory Background Texture"] then
-    Net.set_background(
-      self.area_id,
-      area_properties["Victory Background Texture"],
-      area_properties["Victory Background Animation"],
-      tonumber(area_properties["Victory Background Vel X"]),
-      tonumber(area_properties["Victory Background Vel Y"])
-    )
-  end
-
-  Net.play_sound(self.area_id, MISSION_SUCCESS_SFX)
-
-  Async.await(Async.sleep(3))
-
-  local victory_message =
-      self.area_name .. " Liberated\n" ..
-      "Target: " .. self._target_phase:calculate() .. "\n" ..
-      "Actual: " .. self._phase
-
-  for _, player in ipairs(self.players) do
-    player:message(victory_message).and_then(function()
-      self:kick_player(player.id, "success")
-    end)
-  end
-end
-
-local DARK_HOLE_SHAPE = {
-  { 1, 1, 1 },
-  { 1, 1, 1 },
-  { 1, 1, 1 },
-}
-
--- expects execution in a coroutine
----@param self Liberation.MissionInstance
-local function convert_indestructible_panels(self)
-  local slide_time = .5
-  local hold_time = 2
-
-  -- notify players
-  for _, player in ipairs(self.players) do
-    player:message("No more DarkHoles! Nothing will save the Darkloids now!")
-    local player_x, player_y, player_z = player:position_multi()
-
-    player:stack_lock_movement()
-
-    Net.slide_player_camera(player.id, self.boss.x, self.boss.y, self.boss.z, slide_time)
-
-    -- hold the camera
-    Net.move_player_camera(player.id, self.boss.x, self.boss.y, self.boss.z, hold_time)
-
-    -- return the camera
-    Net.slide_player_camera(player.id, player_x, player_y, player_z, slide_time)
-    Net.unlock_player_camera(player.id)
-  end
-
-  Async.await(Async.sleep(slide_time + hold_time / 2))
-
-  -- convert panels
-  for _, panel in ipairs(self.indestructible_panels) do
-    panel.class = PanelClass.DARK
-
-    -- update visual
-    local dark_templates = self.panel_template_map[PanelClass.DARK]
-
-    panel.data = dark_templates[math.random(#dark_templates)].data
-    Net.set_object_data(self.area_id, panel.id, panel.data)
-
-    -- add collision since base dark panels don't have collision for shadow step
-    self.collision_template.x = panel.x
-    self.collision_template.y = panel.y
-    self.collision_template.z = panel.z
-
-    panel.collision_id = Net.create_object(self.area_id, self.collision_template)
-  end
-
-  self.indestructible_panels = {}
-
-  Async.await(Async.sleep(hold_time / 2 + slide_time))
-
-  -- returning control
-  for _, player in ipairs(self.players) do
-    player:unstack_lock_movement()
-  end
 end
 
 ---@param self Liberation.MissionInstance
@@ -174,133 +58,12 @@ local function liberate_panel(self, player)
         Async.await(player:message_with_mug("Let's do it!\nLiberate panels!"))
       end
 
-      local encounter_path = panel.custom_properties["Encounter"] or self.default_encounter
-      local data = {}
+      local results = Async.await(player:initiate_panel_encounter(panel))
 
-      -- Obtain enemy
-      local enemy = self:get_enemy_at(panel.x, panel.y, panel.z)
-
-      -- If an overworld enemy exists, set facing & data
-      if enemy then
-        local player_x, player_y = player:position_multi()
-
-        enemy:face_position(player_x, player_y)
-        encounter_path = enemy.encounter
-        data.health = enemy.health
-        data.max_health = enemy.max_health
-        data.rank = enemy.rank
-
-        Async.await(enemy.ai:banter(enemy, player))
-      elseif panel.enemy then
-        -- hidden enemy within dark panel
-        local hidden_enemy = panel.enemy
-        -- spawn fully healed
-        data.health = hidden_enemy.max_health
-        data.max_health = hidden_enemy.max_health
-        data.rank = hidden_enemy.rank
-        -- override encounter
-        encounter_path = panel.custom_properties["Direct Encounter"] or hidden_enemy.encounter
-      end
-
-      ---@type (Net.BattleResults | { success: boolean })?
-      local results
-      local final_enemy_health = enemy and enemy.health or 0
-
-      if DEBUG_AUTO_WIN then
-        results = { won = true, turns = 1 }
-      else
-        local promise, emitter = player:initiate_encounter(encounter_path, data)
-
-        emitter:on("battle_message", function(event)
-          -- use the latest enemy health value
-          -- might be affected by network speed, but we're just accepting this fact
-          if event.data then
-            final_enemy_health = tonumber(event.data.health) or final_enemy_health
-          end
-        end)
-
-        results = Async.await(promise)
-      end
-
-      if results and results.connection_failed then
+      if results.connection_failed then
         -- avoid ending this player's turn to allow them to retry
         player:unlock_movement()
         selection:clear()
-        return
-      end
-
-      -- update enemy health before transitions end
-      if enemy and Enemy.is_alive(enemy) then
-        enemy.health = final_enemy_health
-
-        if enemy.health == 0 then
-          HealthSprites.remove_sprite(enemy.id)
-        else
-          HealthSprites.update_sprite(enemy.id, enemy.health)
-        end
-      end
-
-      local targetted_enemy = enemy or panel.enemy
-
-      if targetted_enemy == self.boss and (targetted_enemy.health == 0 or (results and results.won)) then
-        -- silence for boss deletion
-        Net.set_music(self.area_id, SILENT_MUSIC)
-      end
-
-      if not results or not results.won then
-        -- delay to allow the return transition to end
-        Async.await(Async.sleep(1))
-
-        if enemy and enemy.health <= 0 then
-          Async.await(enemy:destroy())
-
-          if enemy == self.boss then
-            -- we saw the delete animation,
-            -- so we'll allow the players to complete the mission
-            liberate(self)
-            return
-          end
-        end
-
-        player:complete_turn()
-        return
-      end
-
-      if panel.class == PanelClass.DARK_HOLE then
-        selection:set_shape(DARK_HOLE_SHAPE, 0, -1)
-      end
-
-      if not results.won then
-        selection:clear()
-      elseif results.turns == 1 then
-        selection:merge_bonus_shape()
-      end
-
-      local panels = selection:get_panels()
-
-      -- Allow time for the player to see the liberation range
-      Async.await(Async.sleep(0.5))
-
-      -- destroy enemy
-      if targetted_enemy then
-        Async.await(targetted_enemy:destroy())
-      else
-        -- we can slow down a little
-        Async.await(Async.sleep(1.0))
-      end
-
-      Async.await(player:liberate_panels(panels, results))
-
-      if panel.class == PanelClass.DARK_HOLE and #self.dark_holes == 0 then
-        convert_indestructible_panels(self)
-      end
-
-      -- loot
-      Async.await(player:loot_panels(panels))
-
-      -- figure out if we've won
-      if enemy == self.boss then
-        liberate(self)
       else
         player:complete_turn()
       end
@@ -1401,6 +1164,113 @@ function MissionInstance:add_order_points(points)
   for _, p in ipairs(self.players) do
     p:update_order_points_hud()
   end
+end
+
+function MissionInstance:convert_indestructible_panels()
+  return Async.create_scope(function()
+    local slide_time = .5
+    local hold_time = 2
+
+    -- notify players
+    for _, player in ipairs(self.players) do
+      player:message("No more DarkHoles! Nothing will save the Darkloids now!")
+      local player_x, player_y, player_z = player:position_multi()
+
+      player:stack_lock_movement()
+
+      Net.slide_player_camera(player.id, self.boss.x, self.boss.y, self.boss.z, slide_time)
+
+      -- hold the camera
+      Net.move_player_camera(player.id, self.boss.x, self.boss.y, self.boss.z, hold_time)
+
+      -- return the camera
+      Net.slide_player_camera(player.id, player_x, player_y, player_z, slide_time)
+      Net.unlock_player_camera(player.id)
+    end
+
+    Async.await(Async.sleep(slide_time + hold_time / 2))
+
+    -- convert panels
+    for _, panel in ipairs(self.indestructible_panels) do
+      panel.class = PanelClass.DARK
+
+      -- update visual
+      local dark_templates = self.panel_template_map[PanelClass.DARK]
+
+      panel.data = dark_templates[math.random(#dark_templates)].data
+      Net.set_object_data(self.area_id, panel.id, panel.data)
+
+      -- add collision since base dark panels don't have collision for shadow step
+      self.collision_template.x = panel.x
+      self.collision_template.y = panel.y
+      self.collision_template.z = panel.z
+
+      panel.collision_id = Net.create_object(self.area_id, self.collision_template)
+    end
+
+    self.indestructible_panels = {}
+
+    Async.await(Async.sleep(hold_time / 2 + slide_time))
+
+    -- returning control
+    for _, player in ipairs(self.players) do
+      player:unstack_lock_movement()
+    end
+  end)
+end
+
+function MissionInstance:liberate_area()
+  self.liberated = true
+
+  return Async.create_scope(function()
+    for _, layer in pairs(self.panels) do
+      for _, row in pairs(layer) do
+        for _, panel in pairs(row) do
+          Net.remove_object(self.area_id, panel.id)
+
+          if panel.collision_id then
+            Net.remove_object(self.area_id, panel.collision_id)
+          end
+        end
+      end
+    end
+
+    self.panels = {}
+    self.dark_holes = {}
+
+    for _, enemy in ipairs(self.enemies) do
+      Net.remove_bot(enemy.id, false)
+    end
+
+    self.enemies = {}
+
+    local area_properties = Net.get_area_custom_properties(self.area_id)
+
+    if area_properties["Victory Background Texture"] then
+      Net.set_background(
+        self.area_id,
+        area_properties["Victory Background Texture"],
+        area_properties["Victory Background Animation"],
+        tonumber(area_properties["Victory Background Vel X"]),
+        tonumber(area_properties["Victory Background Vel Y"])
+      )
+    end
+
+    Net.play_sound(self.area_id, MISSION_SUCCESS_SFX)
+
+    Async.await(Async.sleep(3))
+
+    local victory_message =
+        self.area_name .. " Liberated\n" ..
+        "Target: " .. self._target_phase:calculate() .. "\n" ..
+        "Actual: " .. self._phase
+
+    for _, player in ipairs(self.players) do
+      player:message(victory_message).and_then(function()
+        self:kick_player(player.id, "success")
+      end)
+    end
+  end)
 end
 
 -- exporting

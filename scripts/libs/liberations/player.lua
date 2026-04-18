@@ -8,12 +8,14 @@ local Poof = require("scripts/libs/liberations/effects/poof")
 local PanelClass = require("scripts/libs/liberations/panel_class")
 local Emotes = require("scripts/libs/emotes")
 local Preloader = require("scripts/libs/liberations/preloader")
+local Debug = require("scripts/main/debug")
 
 local ORDER_POINTS_TEXTURE_PATH = Preloader.add_asset("/server/assets/liberations/ui/order_points.png")
 local ORDER_POINTS_ANIMATION_PATH = Preloader.add_asset("/server/assets/liberations/ui/order_points.animation")
 
 local GUARD_SFX = Preloader.add_asset("/server/assets/liberations/sounds/guard.ogg")
 local HURT_SFX = Preloader.add_asset("/server/assets/liberations/sounds/hurt.ogg")
+local SILENT_MUSIC = Preloader.add_asset("/server/assets/liberations/sounds/silent.ogg")
 
 ---@class Liberation.Player
 ---@field _instance Liberation.MissionInstance
@@ -551,6 +553,156 @@ function Player:initiate_encounter(encounter_path, data)
   end)
 
   return promise, emitter
+end
+
+local DARK_HOLE_SHAPE = {
+  { 1, 1, 1 },
+  { 1, 1, 1 },
+  { 1, 1, 1 },
+}
+
+---@param panel Liberation.PanelObject
+---@param loot_options Liberation.Player.LootPanelsOptions?
+---@return Net.Promise<Liberation.BattleResults>
+function Player:initiate_panel_encounter(panel, loot_options)
+  return Async.create_scope(function()
+    local instance = self._instance
+    local selection = self._selection
+
+    local encounter_path = panel.custom_properties["Encounter"] or instance.default_encounter
+    local data = {}
+
+    -- Obtain enemy
+    local enemy = instance:get_enemy_at(panel.x, panel.y, panel.z)
+
+    -- If an overworld enemy exists, set facing & data
+    if enemy then
+      local player_x, player_y = self:position_multi()
+
+      enemy:face_position(player_x, player_y)
+      encounter_path = enemy.encounter
+      data.health = enemy.health
+      data.max_health = enemy.max_health
+      data.rank = enemy.rank
+
+      Async.await(enemy.ai:banter(enemy, self))
+    elseif panel.enemy then
+      -- hidden enemy within dark panel
+      local hidden_enemy = panel.enemy
+      -- spawn fully healed
+      data.health = hidden_enemy.max_health
+      data.max_health = hidden_enemy.max_health
+      data.rank = hidden_enemy.rank
+      -- override encounter
+      encounter_path = panel.custom_properties["Direct Encounter"] or hidden_enemy.encounter
+    end
+
+    ---@type Liberation.BattleResults
+    local results
+    local final_enemy_health = enemy and enemy.health or 0
+
+    if Debug.AUTO_WIN then
+      results = { connection_failed = false, won = true, turns = 1 }
+    else
+      local promise, emitter = self:initiate_encounter(encounter_path, data)
+
+      emitter:on("battle_message", function(event)
+        -- use the latest enemy health value
+        -- might be affected by network speed, but we're just accepting this fact
+        if event.data then
+          final_enemy_health = tonumber(event.data.health) or final_enemy_health
+        end
+      end)
+
+      results = Async.await(promise)
+    end
+
+    if not results then
+      results = {
+        connection_failed = true,
+        won = false,
+        turns = 3
+      }
+    end
+
+    if results.connection_failed then
+      return results
+    end
+
+    -- update enemy health before transitions end
+    if enemy and enemy:is_alive() then
+      enemy.health = final_enemy_health
+
+      if enemy.health == 0 then
+        HealthSprites.remove_sprite(enemy.id)
+      else
+        HealthSprites.update_sprite(enemy.id, enemy.health)
+      end
+    end
+
+    local targetted_enemy = enemy or panel.enemy
+
+    if targetted_enemy == instance.boss and (targetted_enemy.health == 0 or (results and results.won)) then
+      -- silence for boss deletion
+      Net.set_music(instance.area_id, SILENT_MUSIC)
+    end
+
+    if not results.won then
+      -- delay to allow the return transition to end
+      Async.await(Async.sleep(1))
+
+      if enemy and enemy.health <= 0 then
+        Async.await(enemy:destroy())
+
+        if enemy == instance.boss then
+          -- we saw the delete animation,
+          -- so we'll allow the players to complete the mission
+          Async.await(instance:liberate_area())
+        end
+      end
+
+      return results
+    end
+
+    if panel.class == PanelClass.DARK_HOLE then
+      selection:set_shape(DARK_HOLE_SHAPE, 0, -1)
+    end
+
+    if not results.won then
+      selection:clear()
+    elseif results.turns == 1 then
+      selection:merge_bonus_shape()
+    end
+
+    local panels = selection:get_panels()
+
+    -- Allow time for the player to see the liberation range
+    Async.await(Async.sleep(0.5))
+
+    -- destroy enemy
+    if targetted_enemy then
+      Async.await(targetted_enemy:destroy())
+    else
+      -- we can slow down a little
+      Async.await(Async.sleep(1.0))
+    end
+
+    Async.await(self:liberate_panels(panels, results))
+
+    if panel.class == PanelClass.DARK_HOLE and #instance.dark_holes == 0 then
+      Async.await(instance:convert_indestructible_panels())
+    end
+
+    -- loot
+    Async.await(self:loot_panels(panels, loot_options))
+
+    -- figure out if we've won
+    if enemy == instance.boss then
+      Async.await(instance:liberate_area())
+    end
+
+    return results
+  end)
 end
 
 function Player:health()

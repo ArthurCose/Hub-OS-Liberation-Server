@@ -2,7 +2,8 @@ local ShopData = require("scripts/main/shop_data")
 local Parties = require("scripts/libs/parties")
 
 local Debug = {
-  ENABLED = false
+  ENABLED = false,
+  AUTO_WIN = false
 }
 
 if not Debug.ENABLED then
