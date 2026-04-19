@@ -72,7 +72,21 @@ local SHOP_LIST = {
     requires = "Barrier",
     price = 35,
   },
-}
+
+if Debug.ENABLED then
+  SHOP_LIST[#SHOP_LIST + 1] = {
+    name = "ShadowStep",
+    short_name = "ShdwStep",
+    description = "",
+    price = 0
+  }
+
+  Net:on("player_connect", function(event)
+    for _, item in ipairs(SHOP_LIST) do
+      Net.give_player_item(event.player_id, item.id)
+    end
+  end)
+end
 
 local SHOP_MAP = {}
 
