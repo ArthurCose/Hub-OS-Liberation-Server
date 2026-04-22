@@ -12,10 +12,10 @@ encounters = [
   "BattleNetwork5.Drixol",
 ]
 characters = [
-  "BattleNetwork5.Batty.Enemy",
+  "BattleNetwork5.Gnarly.Enemy",
   "BattleNetwork6.Mettaur.Enemy",
   "BattleNetwork5.Cacter.Enemy",
-  "BattleNetwork5.Bugtank.Enemy",
+  "BattleNetwork5.Bugtank3.Enemy",
   "BattleNetwork5.Drixa.Enemy"
 ]
 libraries = [
