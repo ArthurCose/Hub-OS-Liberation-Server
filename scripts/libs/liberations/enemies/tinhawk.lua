@@ -168,13 +168,14 @@ local function attempt_move(self, actor)
       return false
     end
 
+    actor:face_position(panel.x, panel.y)
+
     Async.await(actor:move(
       panel.x,
       panel.y,
-      panel.z
+      panel.z,
+      Direction.diagonal_from_offset(player_x - panel.x, player_y - panel.y)
     ))
-
-    actor:face_position(player_x, player_y)
 
     return true
   end)
