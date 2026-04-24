@@ -93,15 +93,17 @@ function BlizzardMan:take_turn(actor)
   return Async.create_scope(function()
     local instance = actor:instance()
 
-    if not debug and instance:phase() == 1 then
-      for _, player in ipairs(instance.players) do
-        player:message_auto(
-          "I'll turn this area into a Nebula ski resort! Got it?",
-          2,
-          actor.mug.texture_path,
-          actor.mug.animation_path
-        )
-      end
+    if instance:phase() == 1 then
+      Async.await(Async.sleep(0.25))
+
+      Async.await(instance:announce(
+        "I'll turn this area into a Nebula ski resort! Got it?",
+        1.5,
+        actor.mug.texture_path,
+        actor.mug.animation_path
+      ))
+
+      Async.await(Async.sleep(0.5))
     end
 
     self.selection:move(actor.x, actor.y, actor.z, Net.get_actor_direction(actor.id))

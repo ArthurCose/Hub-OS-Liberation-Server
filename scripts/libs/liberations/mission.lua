@@ -1225,6 +1225,43 @@ function MissionInstance:add_order_points(points)
   end
 end
 
+---@param message string
+---@param close_delay number
+---@param texture_path? string
+---@param animation_path? string
+function MissionInstance:announce(message, close_delay, texture_path, animation_path)
+  local pending = #self.players
+
+  local resolve
+  local promise = Async.create_promise(function(r)
+    resolve = r
+  end)
+
+  for _, player in ipairs(self.players) do
+    player:message_auto(
+      message,
+      close_delay,
+      texture_path,
+      animation_path
+    ).and_then(function()
+      pending = pending - 1
+
+      if pending == 0 then
+        resolve()
+      end
+    end)
+  end
+
+  if pending == 0 then
+    resolve()
+  end
+
+  -- avoid waiting for disconnecting players to fully drop
+  Async.sleep(5).and_then(resolve)
+
+  return promise
+end
+
 function MissionInstance:convert_indestructible_panels()
   return Async.create_scope(function()
     local slide_time = .5
