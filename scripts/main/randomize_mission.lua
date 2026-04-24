@@ -70,7 +70,7 @@ local function randomize_mission(base_area_id, area_id)
   for _, object_id in ipairs(Net.list_objects(area_id)) do
     local object = Net.get_object_by_id(area_id, object_id)
 
-    if object.class == "Item Panel" or object.class == "Trap Panel" and not object.custom_properties["Specific Loot"] then
+    if (object.class == "Item Panel" or object.class == "Trap Panel") and not object.custom_properties["Specific Loot"] then
       -- specify loot
       if math.random(3) == 1 then
         -- 100 damage trap
