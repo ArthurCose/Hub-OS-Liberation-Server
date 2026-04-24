@@ -118,22 +118,18 @@ function BlizzardMan:take_turn(actor)
 
     Async.await(Async.sleep(1))
 
-    for _, player in ipairs(instance.players) do
-      player:message_auto(
-        "Shiver in my\ndeep winter!",
-        1.5,
-        actor.mug.texture_path,
-        actor.mug.animation_path
-      )
-      player:message_auto(
-        "Snowball!",
-        1.5,
-        actor.mug.texture_path,
-        actor.mug.animation_path
-      )
-    end
-
-    Async.await(Async.sleep(4.5))
+    Async.await(instance:announce(
+      "Shiver in my\ndeep winter!",
+      1.5,
+      actor.mug.texture_path,
+      actor.mug.animation_path
+    ))
+    Async.await(instance:announce(
+      "Snowball!",
+      1.5,
+      actor.mug.texture_path,
+      actor.mug.animation_path
+    ))
 
     actor:attack(caught_players, function(targets)
       actor:play_attack_animation()

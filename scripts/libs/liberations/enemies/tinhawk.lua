@@ -226,12 +226,7 @@ local function attempt_attack(self, actor)
     -- delay before speaking
     Async.await(Async.sleep(1))
 
-    for _, player in ipairs(instance.players) do
-      Net.message_player_auto(player.id, "Gyaaaah!\nHawkAttack!", 0.8)
-    end
-
-    -- delay before attacking
-    Async.await(Async.sleep(2))
+    Async.await(instance:announce("Gyaaaah!\nHawkAttack!", 0.8))
 
     -- resolve movement
     local warp_back_pos = { x = actor.x, y = actor.y, z = actor.z }

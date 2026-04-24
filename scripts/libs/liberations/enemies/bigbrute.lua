@@ -187,11 +187,8 @@ local function attempt_attack(self, actor)
     Async.await(Async.sleep(1))
 
     local instance = actor:instance()
-    for _, player in ipairs(instance.players) do
-      Net.message_player_auto(player.id, "Grrrowl!\nBeastBreath!", 0.8)
-    end
 
-    Async.await(Async.sleep(2))
+    Async.await(instance:announce("Grrrowl!\nBeastBreath!", 0.8))
 
     actor:attack(caught_players, function(targets)
       local spawned_bots = {}

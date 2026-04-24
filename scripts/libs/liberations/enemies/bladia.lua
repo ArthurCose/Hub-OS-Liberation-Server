@@ -112,12 +112,7 @@ local function try_attack(self, actor, moved)
 
     local instance = actor:instance()
 
-    for _, player in ipairs(instance.players) do
-      Net.message_player_auto(player.id, "Get out of here,\nyou fools!\nDarkSlash!", 0.8)
-    end
-
-    -- delay before attacking
-    Async.await(Async.sleep(2))
+    Async.await(instance:announce("Get out of here,\nyou fools!\nDarkSlash!", 0.8))
 
     -- attack players
     actor:attack({ player }, function(targets)
