@@ -28,8 +28,10 @@ local package_ids = {
   "BattleNetwork6.TileStates.Poison",
   "BattleNetwork3.TileStates.Sand",
   "BattleNetwork6.Statuses.Uninstall",
+  "BattleNetwork6.Statuses.Cage",
   "BattleNetwork6.Libraries.CubesAndBoulders",
   "dev.konstinople.library.sliding_obstacle",
+  "dev.konstinople.library.field_math",
   -- Grab Revenge
   "BattleNetwork6.Class01.Standard.167",
   "BattleNetwork6.Libraries.PanelGrab",
