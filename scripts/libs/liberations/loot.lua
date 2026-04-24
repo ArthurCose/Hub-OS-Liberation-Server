@@ -174,34 +174,23 @@ Loot.MAJOR_HIT = {
 
 ---@param player Liberation.Player
 ---@param key_id string
-local function find_matching_gates(player, key_id)
+local function take_matching_gates(player, key_id)
   local gates = {}
 
   local instance = player:instance()
-  for i = 1, #instance.gate_panels do
+  for i = #instance.gate_panels, 1, -1 do
     local gate = instance.gate_panels[i]
 
     if gate.custom_properties["Gate Key"] == key_id then
       table.insert(gates, gate)
+
+      -- swap remove
+      instance.gate_panels[i] = instance.gate_panels[#instance.gate_panels]
+      instance.gate_panels[#instance.gate_panels] = nil
     end
   end
 
   return gates
-end
-
----@param instance Liberation.MissionInstance
----@param key_id string
-local function find_gate_points(instance, key_id)
-  local points = {}
-
-  for i = 1, #instance.points_of_interest, 1 do
-    local prospective_point = instance.points_of_interest[i]
-    if prospective_point.custom_properties["Gate ID"] == key_id then
-      table.insert(points, prospective_point)
-    end
-  end
-
-  return points
 end
 
 ---@type Liberation.Loot
@@ -215,7 +204,7 @@ Loot.KEY = {
       Async.await(player:message_with_mug("I found a Key!"))
 
       local key_id = panel.custom_properties["Gate Key"]
-      local gates = find_matching_gates(player, key_id)
+      local gates = take_matching_gates(player, key_id)
 
       if #gates == 0 then
         Async.await(player:message_with_mug("But it doesn't open anything..."))
@@ -223,7 +212,20 @@ Loot.KEY = {
       end
 
       local instance = player:instance()
-      local points = find_gate_points(instance, key_id)
+
+      local points = {}
+      local point_object = panel --[[@as Net.Object]]
+
+      while point_object do
+        local next_point_id = point_object.custom_properties["Next Point"]
+
+        if not next_point_id then
+          break
+        end
+
+        point_object = Net.get_object_by_id(instance.area_id, next_point_id)
+        points[#points + 1] = point_object
+      end
 
       local function unlock_gates()
         for i = 1, #gates, 1 do
@@ -232,7 +234,7 @@ Loot.KEY = {
       end
 
       if #points > 0 then
-        local hold_time = .4
+        local hold_time = .5
         local slide_time = .4
         local camera_time = 0
 
@@ -255,13 +257,14 @@ Loot.KEY = {
             Net.move_player_camera(player.id, point.x, point.y, point.z, hold_time)
 
             -- intentionally resetting here
-            camera_time = hold_time
+            camera_time = 0
           end
         end
 
-        camera_time = camera_time + slide_time
+        camera_time = camera_time + 1
 
         Net.slide_player_camera(player.id, player_x, player_y, player_z, slide_time)
+        Net.unlock_player_camera(player.id)
 
         Async.await(Async.sleep(camera_time))
       else

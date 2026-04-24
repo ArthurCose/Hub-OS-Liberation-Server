@@ -202,6 +202,7 @@ Additional custom properties are supported by loot.
 - `MAJOR_HIT` - Destroys a nearby Guardian. Won’t destroy bosses.
 - `KEY`
   - `Gate Key` unlocks every `Gate Panel` with a matching value in the `Gate Key` property
+  - `Next Point` object, the camera will move to this point when retrieving this key, and read for another `Next Point` on each object.
 
 ## Misc
 

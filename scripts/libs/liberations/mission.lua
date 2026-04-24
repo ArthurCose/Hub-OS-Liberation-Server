@@ -325,7 +325,6 @@ end
 ---@field ready_count number
 ---@field order_points number
 ---@field MAX_ORDER_POINTS number
----@field points_of_interest Net.Object[]
 ---@field players Liberation.Player[]
 ---@field player_map table<Net.ActorId, Liberation.Player>
 ---@field package internal_player_data table<Net.ActorId, Liberation.MissionInstance._InternalPlayerData>
@@ -359,7 +358,6 @@ function MissionInstance:new(area_id)
     ready_count = 0,
     order_points = 3,
     MAX_ORDER_POINTS = 8,
-    points_of_interest = {},
     players = {},
     player_map = {},
     internal_player_data = {},
@@ -437,12 +435,7 @@ function MissionInstance:new(area_id)
       goto continue
     end
 
-    if object.name == "Point of Interest" then
-      -- track points of interest for the camera
-      mission.points_of_interest[#mission.points_of_interest + 1] = object
-      -- delete to reduce map size
-      Net.remove_object(mission.area_id, object_id)
-    elseif object.name == "Abandon Point" then
+    if object.name == "Abandon Point" then
       -- delete to reduce map size
       Net.remove_object(mission.area_id, object_id)
 
