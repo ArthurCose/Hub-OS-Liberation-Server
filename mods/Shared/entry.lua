@@ -1,6 +1,12 @@
 ---@class dev.konstinople.LiberationServer.Shared
 local Lib = {}
 
+local function small_health_buff(entity)
+    -- buff by 1.5x to account for stronger chips
+    entity:boost_max_health(entity:max_health() // 2)
+    entity:set_health(entity:max_health())
+end
+
 ---@param encounter Encounter
 ---@param pool [number, string, Rank][] will subtract and delete exhausted options
 ---@param tile Tile
@@ -19,6 +25,7 @@ local function spawn_from_pool(encounter, pool, tile)
 
     encounter:create_spawner(id, rank)
         :spawn_at(tile:x(), tile:y())
+        :mutate(small_health_buff)
 end
 
 ---Returns unused enemy tiles for spawning obstacles
@@ -121,6 +128,10 @@ function Lib.spawn_viruses(encounter, data, pool)
 
         local spawns = 0
         while spawns < 3 do
+            if #col_pool == 0 then
+                break
+            end
+
             local x = table.remove(col_pool, math.random(#col_pool))
 
             if claim_in_col(x) then
@@ -168,15 +179,19 @@ function Lib.shuffle_dark_hole_guardians(encounter, id, rank)
     if math.random(2) == 1 then
         encounter:create_spawner(id, rank)
             :spawn_at(1, 1)
+            :mutate(small_health_buff)
 
         encounter:create_spawner(id, rank_b)
             :spawn_at(6, 3)
+            :mutate(small_health_buff)
     else
         encounter:create_spawner(id, rank)
             :spawn_at(1, 3)
+            :mutate(small_health_buff)
 
         encounter:create_spawner(id, rank_b)
             :spawn_at(6, 1)
+            :mutate(small_health_buff)
     end
 end
 
