@@ -14,6 +14,9 @@ local package_ids = {
   "BattleNetwork5.Batty",
   "BattleNetwork5.Bugtank",
   "BattleNetwork5.Drixol",
+  "BattleNetwork5.Draggin",
+  "BattleNetwork5.Whirly",
+  "BattleNetwork3.Virus.KillerEye",
   -- "BattleNetwork5.Powie",
   -- libraries
   "BattleNetwork.Assets",
@@ -23,7 +26,10 @@ local package_ids = {
   "dev.konstinople.library.turn_based",
   "BattleNetwork6.TileStates.Ice",
   "BattleNetwork6.TileStates.Poison",
+  "BattleNetwork3.TileStates.Sand",
   "BattleNetwork6.Statuses.Uninstall",
+  "BattleNetwork6.Libraries.CubesAndBoulders",
+  "dev.konstinople.library.sliding_obstacle",
   -- Grab Revenge
   "BattleNetwork6.Class01.Standard.167",
   "BattleNetwork6.Libraries.PanelGrab",

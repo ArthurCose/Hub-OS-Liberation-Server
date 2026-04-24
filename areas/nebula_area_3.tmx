@@ -3,7 +3,7 @@
  <properties>
   <property name="Background Animation" value="/server/assets/backgrounds/nebula.animation"/>
   <property name="Background Texture" value="/server/assets/backgrounds/nebula_unliberated.png"/>
-  <property name="Liberation Encounter" value="/server/mods/ShadeManViruses"/>
+  <property name="Liberation Encounter" value="/server/mods/CloudManViruses"/>
   <property name="Music" value="/server/assets/music/mission.ogg"/>
   <property name="Name" value="NebulaArea3"/>
   <property name="Short Name" value="Nebula3"/>

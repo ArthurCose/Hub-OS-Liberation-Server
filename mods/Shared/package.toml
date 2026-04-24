@@ -7,5 +7,6 @@ name = "Default Liberation"
 cards = ["BattleNetwork6.Class01.Standard.167"]
 tile_states = [
   "BattleNetwork6.TileStates.Ice",
-  "BattleNetwork6.TileStates.Poison"
+  "BattleNetwork6.TileStates.Poison",
+  "BattleNetwork3.TileStates.Sand",
 ]

@@ -28,6 +28,7 @@ function Lib.spawn_viruses(encounter, data, pool)
     local FIELD_W = Field.width()
     local claimed_tiles = {}
     local pending_spawn = {}
+    local reserved = {}
 
     ---@param x number
     ---@param y number
@@ -40,6 +41,13 @@ function Lib.spawn_viruses(encounter, data, pool)
         return hash_position(tile:x(), tile:y())
     end
 
+    Field.find_tiles(function(tile)
+        if tile:is_reserved() then
+            reserved[hash_tile(tile)] = true
+        end
+        return false
+    end)
+
     local function claim_in_col(x)
         local remaining_checks = { 1, 2, 3 }
 
@@ -50,6 +58,7 @@ function Lib.spawn_viruses(encounter, data, pool)
 
             -- avoid sharing a row with direct neighbors
             if
+                not reserved[hash] and
                 not claimed_tiles[hash] and
                 not claimed_tiles[hash_position(x - 1, y)] and
                 not claimed_tiles[hash_position(x + 1, y)] and
@@ -66,12 +75,24 @@ function Lib.spawn_viruses(encounter, data, pool)
     end
 
     if data.terrain == "advantage" then
+        local attempts = 1
+
         local function claim_v_formation(col_a, col_b)
             local tiles = {
                 Field.tile_at(col_a, 1),
                 Field.tile_at(col_b, 2),
                 Field.tile_at(col_a, 3),
             }
+
+            if attempts == 1 then
+                for _, tile in ipairs(tiles) do
+                    if tile:is_reserved() then
+                        attempts = 2
+                        claim_v_formation(col_b, col_a)
+                        return
+                    end
+                end
+            end
 
             for _, tile in ipairs(tiles) do
                 local hash = hash_tile(tile)
@@ -280,6 +301,31 @@ end
 
 function Lib.generate_poison_field()
     require("generate_poison_field")()
+end
+
+function Lib.generate_beach_field()
+    require("generate_beach_field")()
+end
+
+function Lib.add_boulders()
+    require("add_boulders")()
+end
+
+function Lib.crack_panels(n)
+    ---@type Tile[]
+    local tiles = {}
+
+    for y = 1, 3 do
+        for x = 1, 6 do
+            tiles[#tiles + 1] = Field.tile_at(x, y)
+        end
+    end
+
+    n = n or 6
+    for _ = 1, n do
+        local tile = table.remove(tiles, math.random(#tiles))
+        tile:set_state(TileState.Cracked)
+    end
 end
 
 return Lib

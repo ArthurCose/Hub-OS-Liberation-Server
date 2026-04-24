@@ -1,0 +1,24 @@
+[package]
+category = "encounter"
+id = "dev.konstinople.LiberationServer.CloudManViruses"
+name = "CloudMan Virus Encounters"
+
+[dependencies]
+encounters = [
+  "BattleNetwork5.Batty",
+  "BattleNetwork5.Whirly",
+  "BattleNetwork5.Draggin",
+  "BattleNetwork3.Virus.KillerEye",
+]
+characters = [
+  "BattleNetwork5.Batty.Enemy",
+  "BattleNetwork5.Spiraly.Enemy",
+  "BattleNetwork5.Draglet.Enemy",
+  "BattleNetwork3.enemy.KillerEye"
+]
+libraries = [
+  "dev.konstinople.library.liberation",
+  "dev.konstinople.LiberationServer.Shared",
+  "BattleNetwork6.Libraries.CubesAndBoulders",
+  "dev.konstinople.library.sliding_obstacle"
+]
