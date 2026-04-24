@@ -1,0 +1,9 @@
+[package]
+category = "encounter"
+id = "dev.konstinople.LiberationServer.Bladia"
+name = "Bladia"
+
+[dependencies]
+encounters = ["BattleNetwork5.Bladia"]
+characters = ["BattleNetwork5.Bladia.Enemy"]
+libraries = ["dev.konstinople.library.liberation"]

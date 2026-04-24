@@ -7,7 +7,7 @@ local Direction = require("scripts/libs/direction")
 ---@field private shape_offset_y number
 ---@field private direction string?
 ---@field private bots Net.ActorId[]
----@field private filter? fun(x: number, y: number, z: number): boolean
+---@field private filter fun(x: number, y: number, z: number): boolean
 ---@field private indicator? Liberation.Selection.IndicatorOptions
 local Selection = {}
 
@@ -21,7 +21,7 @@ function Selection:new(instance)
     shape_offset_x = 0,
     shape_offset_y = 0,
     direction = nil,
-    filter = nil,
+    filter = function() return true end,
     bots = {},
     indicator = nil
   }
@@ -198,6 +198,9 @@ function Selection:move(x, y, z, direction)
   self.direction = direction
 end
 
+---@param x number
+---@param y number
+---@param z number
 function Selection:is_within(x, y, z)
   x = math.floor(x)
   y = math.floor(y)

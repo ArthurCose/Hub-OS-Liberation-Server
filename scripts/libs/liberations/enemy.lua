@@ -118,6 +118,19 @@ function Enemy:can_move_to(x, y, z)
     return false
   end
 
+  -- watching out for shadow step
+  for _, p in ipairs(instance.players) do
+    local p_x, p_y, p_z = p:floored_position_multi()
+
+    if
+        p_x == x and
+        p_y == y and
+        p_z == z
+    then
+      return false
+    end
+  end
+
   return true
 end
 
