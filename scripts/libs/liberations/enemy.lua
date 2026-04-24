@@ -154,7 +154,6 @@ local function set_panel_collision(self, enabled)
   end
 end
 
--- takes instance to move player cameras
 ---@param x number
 ---@param y number
 ---@param z number
@@ -227,7 +226,7 @@ function Enemy:move(x, y, z, direction)
       self:play_idle_animation()
     end
 
-    Net.transfer_actor(self.id, area_id, false, x + .5, y + .5, z)
+    Net.transfer_actor(self.id, area_id, false, x + .5, y + .5, z, direction)
 
     Async.await(Async.sleep(hold_time))
 

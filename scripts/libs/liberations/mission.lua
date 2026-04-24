@@ -211,11 +211,30 @@ local function take_enemy_turn(self)
       -- wait until the camera is done moving
       Async.await(Async.sleep(slide_time))
 
-      -- spawn a new enemy
+      -- resolve a new enemy to spawn
       local turn_order = dark_hole.enemy.turn_order
-      dark_hole.enemy = EnemyBuilder.from_panel(self, dark_hole):build_from_require()
-      dark_hole.enemy.turn_order = turn_order
-      self.enemies[#self.enemies + 1] = dark_hole.enemy
+      local enemy_builder = EnemyBuilder.from_panel(self, dark_hole)
+
+      -- resolve the initial facing directoin
+      local direction = enemy_builder.direction
+      local closest_player = dark_hole.enemy:find_closest_player()
+
+      if closest_player then
+        local player_x, player_y = closest_player:position_multi()
+        direction = Direction.diagonal_from_offset(
+          player_x - dark_hole.enemy.x,
+          player_y - dark_hole.enemy.y
+        )
+
+        enemy_builder.direction = direction
+      end
+
+      -- spawn enemy
+      local enemy = enemy_builder:build_from_require()
+
+      dark_hole.enemy = enemy
+      enemy.turn_order = turn_order
+      self.enemies[#self.enemies + 1] = enemy
 
       self:sort_enemies()
 
@@ -223,8 +242,19 @@ local function take_enemy_turn(self)
       local admire_time = .5
       Async.await(Async.sleep(admire_time))
 
-      -- move them out
-      Async.await(dark_hole.enemy:move(destination.x, destination.y, destination.z))
+      -- resolve facing direction for moving out of the dark hole
+      closest_player = enemy:find_closest_player()
+
+      if closest_player then
+        local player_x, player_y = closest_player:position_multi()
+        direction = Direction.diagonal_from_offset(
+          player_x - destination.x,
+          player_y - destination.y
+        )
+      end
+
+      -- move out of dark hole
+      Async.await(dark_hole.enemy:move(destination.x, destination.y, destination.z, direction))
 
       -- Needs more admiration
       Async.await(Async.sleep(admire_time))
