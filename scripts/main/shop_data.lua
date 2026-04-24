@@ -1,3 +1,5 @@
+local Debug = require("scripts/main/debug")
+
 ---@class LiberationServer.AbilityShopData
 ---@field id string
 ---@field name string
@@ -18,31 +20,38 @@ local SHOP_LIST = {
     name = "WideSword",
     short_name = "WideSwrd",
     description = "Liberate in a 3x1 ahead.",
-    price = 15,
+    price = 10,
   },
   {
     name = "PanelSearch",
     short_name = "PanlSrch",
     description = "Disarm traps and find items in a line ahead.",
-    price = 15,
+    price = 10,
   },
   {
     name = "NumberCheck",
     short_name = "NumCheck",
     description = "Disarm traps and find items in a 3x2 ahead.",
     requires = "PanelSearch",
-    price = 20,
+    price = 15,
   },
   {
     name = "TomahawkSwing",
     short_name = "ThwkSwng",
     description = "Liberate in a 3x2 ahead.",
     requires = "WideSword",
-    price = 30,
+    price = 25,
   },
   {
     name = "Napalm",
     description = "Liberate up to four panels ahead, destroys items.",
+    requires = "WideSword",
+    price = 30,
+  },
+  {
+    name = "StepSword",
+    short_name = "StepSwrd",
+    description = "Battle an enemy up to 3 panels away.",
     requires = "WideSword",
     price = 35,
   },
@@ -55,12 +64,6 @@ local SHOP_LIST = {
   --   price = 40,
   -- },
   {
-    name = "KnightGuard",
-    short_name = "KntGuard",
-    description = "Avoid damage and shield one nearby ally.",
-    price = 50,
-  },
-  {
     name = "Barrier",
     description = "Use order points to shield 10 damage on all allies.",
     price = 35,
@@ -69,18 +72,23 @@ local SHOP_LIST = {
     name = "MagnetBarrier",
     short_name = "MagBarr",
     description = "Use turn and points to shield all allies.",
-    requires = "Barrier",
     price = 35,
   },
-
-if Debug.ENABLED then
-  SHOP_LIST[#SHOP_LIST + 1] = {
+  {
+    name = "KnightGuard",
+    short_name = "KntGuard",
+    description = "Avoid damage and shield one nearby ally.",
+    price = 50,
+  },
+  {
     name = "ShadowStep",
     short_name = "ShdwStep",
-    description = "",
-    price = 0
-  }
+    description = "Cross dark panels.",
+    price = 45
+  },
+}
 
+if Debug.ENABLED then
   Net:on("player_connect", function(event)
     for _, item in ipairs(SHOP_LIST) do
       Net.give_player_item(event.player_id, item.id)
