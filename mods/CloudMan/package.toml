@@ -1,0 +1,12 @@
+[package]
+category = "encounter"
+id = "dev.konstinople.LiberationServer.CloudMan"
+name = "CloudMan"
+
+[dependencies]
+encounters = ["BattleNetwork5.CloudMan"]
+characters = ["BattleNetwork5.CloudMan.Enemy"]
+libraries = [
+  "dev.konstinople.library.liberation",
+  "dev.konstinople.LiberationServer.Shared"
+]

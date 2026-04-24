@@ -184,6 +184,7 @@ Converts into a Dark Panel when every `Dark Hole` is destroyed
 - `Bladia`
 - `BlizzardMan`
 - `ShadeMan`
+- `CloudMan`
 
 Custom enemies can be utilized by entering the require path of the enemy rather than the name, ex: `scripts/custom_enemies/custom_enemy`
 

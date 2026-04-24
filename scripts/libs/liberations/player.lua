@@ -966,7 +966,7 @@ function Player:paralyzed()
 end
 
 function Player:paralyze()
-  if self.disconnected then
+  if self.disconnected or self.paralysis_counter > 0 then
     return
   end
 

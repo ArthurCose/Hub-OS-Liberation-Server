@@ -9,6 +9,7 @@ local BUILT_IN_ENEMIES = {
   Bladia = require("scripts/libs/liberations/enemies/bladia"),
   BlizzardMan = require("scripts/libs/liberations/enemies/blizzardman"),
   ShadeMan = require("scripts/libs/liberations/enemies/shademan"),
+  CloudMan = require("scripts/libs/liberations/enemies/cloudman"),
 }
 
 ---@class Liberation.EnemyBuilder

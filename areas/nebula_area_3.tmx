@@ -96,9 +96,9 @@
   <object id="50" type="Dark Panel" gid="5" x="416" y="608" width="50" height="30"/>
   <object id="51" type="Dark Panel" gid="5" x="160" y="32" width="50" height="30">
    <properties>
-    <property name="Boss" value="ShadeMan"/>
+    <property name="Boss" value="CloudMan"/>
     <property name="Direction" value="Down Right"/>
-    <property name="Encounter" value="/server/mods/ShadeMan"/>
+    <property name="Encounter" value="/server/mods/CloudMan"/>
     <property name="Next Turn" type="object" value="237"/>
     <property name="Rank" value="Omega"/>
    </properties>

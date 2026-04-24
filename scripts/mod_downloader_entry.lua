@@ -4,6 +4,7 @@ local package_ids = {
   -- bosses
   "BattleNetwork5.BlizzardMan",
   "BattleNetwork5.ShadeMan",
+  "BattleNetwork5.CloudMan",
   "BattleNetwork5.Virus.BigBrute",
   "BattleNetwork5.Bladia",
   "BattleNetwork5.TinHawk",
