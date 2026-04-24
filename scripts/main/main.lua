@@ -1,4 +1,5 @@
 local Debug = require("scripts/main/debug")
+require("scripts/main/custom_abilities/step_sword")
 require("scripts/main/shop")
 
 local ScriptNodes = require("scripts/libs/script_nodes")
@@ -19,6 +20,7 @@ local MISSION_BOARD_COLOR = { r = 168, g = 128, b = 200 }
 local MISSION_AREAS = {
   "acdc3",
   "oran_area_3",
+  "nebula_area_3",
 }
 
 if Debug.ENABLED then
@@ -153,12 +155,12 @@ local function transfer_players_to_new_instance(base_area, player_ids, save_data
         -- mark as completed
         data.hidden_inventory["completed:" .. base_area] = 1
 
-        -- reward 5z for winning
-        data.money = data.money + 5
+        -- reward 10z for winning
+        data.money = data.money + 10
 
         if mission:phase() < mission:target_phase() then
-          -- award an additional 5z for a victory under par
-          data.money = data.money + 5
+          -- award an additional 10z for a victory under par
+          data.money = data.money + 10
         end
 
         Net.set_player_money(player_id, data.money)
