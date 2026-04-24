@@ -17,6 +17,7 @@ local BUILT_IN_ENEMIES = {
 ---@field position Net.Position
 ---@field direction string
 ---@field rank string
+---@field health_override? number
 ---@field encounter string
 local EnemyBuilder = {}
 EnemyBuilder.__index = EnemyBuilder
@@ -31,6 +32,7 @@ function EnemyBuilder.from_panel(instance, panel)
     position = { x = math.floor(panel.x), y = math.floor(panel.y), z = math.floor(panel.z) },
     direction = panel.custom_properties.Direction:upper(),
     rank = panel.custom_properties.Rank or "V1",
+    health_override = tonumber(panel.custom_properties.Health),
     encounter = panel.custom_properties.Encounter or instance.default_encounter,
   }
   setmetatable(builder, EnemyBuilder)
@@ -55,8 +57,8 @@ end
 ---@class Liberation.EnemyBuilderOptions
 ---@field ai Liberation.EnemyAi
 ---@field name string
----@field health number
----@field max_health number
+---@field health number Ignored if health_override is set
+---@field max_health number Ignored if health_override is set
 ---@field texture_path string
 ---@field animation_path string
 ---@field mug Net.TextureAnimationPair?
@@ -69,8 +71,8 @@ function EnemyBuilder:build(options)
     ai = options.ai,
     rank = self.rank,
     encounter = self.encounter,
-    health = options.health,
-    max_health = options.max_health,
+    health = self.health_override or options.health,
+    max_health = self.health_override or options.max_health,
     x = self.position.x,
     y = self.position.y,
     z = self.position.z,

@@ -210,6 +210,7 @@ Spawns a guardian without a dark hole.
 
 - `Direction` the direction the character spawned should face.
 - `Spawns` the name or require path of the enemy to spawn, panels containing this enemy will this panel's `Encounter` value.
+- `Health` the initial health for spawned guardians, optional.
 - `Encounter` the encounter for the dark hole and enemy, uses the map's default when missing.
 - `Next Turn` object, point to another dark hole or `Guardian` location, the mission will follow the chain to resolve the final turn order.
   - Ignored if this doesn't lead back to the panel that spawned the boss.

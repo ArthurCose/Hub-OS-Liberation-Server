@@ -22,6 +22,21 @@ local GUARDIAN_POOLS = {
   }
 }
 
+local GUARDIAN_HEALTH = {
+  BigBrute = { 240, 360, 440, 500, 600, 720 },
+  TinHawk = { 200, 300, 360, 400, 500, 600 },
+  Bladia = { 400, 460, 460, 600, 680, 800 },
+}
+
+local GUARDIAN_RANK_TO_INDEX = {
+  V1 = 1,
+  V2 = 2,
+  V3 = 3,
+  V4 = 4,
+  V5 = 5,
+  V6 = 6
+}
+
 local CUSTOM_BOSSES = {
   ShadeMan = "scripts/main/custom_enemies/shademan"
 }
@@ -74,13 +89,13 @@ local function randomize_mission(base_area_id, area_id)
 
       local guardian = object.custom_properties.Spawns
       local rank_list = guardians[guardian]
+      local rank
 
       if rank_list then
-        local rank = table.remove(rank_list, math.random(#rank_list))
+        rank = table.remove(rank_list, math.random(#rank_list))
         Net.set_object_custom_property(area_id, object_id, "Rank", rank)
       else
         local guardian_tuple = table.remove(guardians, math.random(#guardians))
-        local rank
         guardian, rank = table.unpack(guardian_tuple)
 
         Net.set_object_custom_property(area_id, object_id, "Spawns", guardian)
@@ -91,6 +106,10 @@ local function randomize_mission(base_area_id, area_id)
 
       Net.set_object_custom_property(area_id, object_id, "Direct Encounter", direct_encounter)
       Net.set_object_custom_property(area_id, object_id, "Encounter", encounter)
+
+      local rank_index = GUARDIAN_RANK_TO_INDEX[rank]
+      local health = GUARDIAN_HEALTH[guardian][rank_index]
+      Net.set_object_custom_property(area_id, object_id, "Health", tostring(health))
     end
 
     if object.custom_properties.Boss then
