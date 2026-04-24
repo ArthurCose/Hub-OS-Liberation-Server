@@ -1,6 +1,7 @@
 local GUARDIAN_ENCOUNTERS = {
   BigBrute = { "/server/mods/BigBruteDarkHole", "/server/mods/BigBrute" },
-  TinHawk = { "/server/mods/TinHawkDarkHole", "/server/mods/TinHawk" }
+  TinHawk = { "/server/mods/TinHawkDarkHole", "/server/mods/TinHawk" },
+  Bladia = { "/server/mods/BladiaDarkHole", "/server/mods/Bladia" },
 }
 
 local GUARDIAN_POOLS = {
@@ -9,11 +10,16 @@ local GUARDIAN_POOLS = {
     { "BigBrute", "V4" },
   },
   oran_area_3 = {
-    { "TinHawk",  "V5" },
-    { "TinHawk",  "V4" },
-    { "BigBrute", "V5" },
     { "BigBrute", "V4" },
+    { "BigBrute", "V5" },
+    { "TinHawk",  "V4" },
+    { "TinHawk",  "V5" },
   },
+  nebula_area_3 = {
+    BigBrute = { "V5", "V6" },
+    TinHawk = { "V5", "V6" },
+    Bladia = { "V4", "V5" },
+  }
 }
 
 local CUSTOM_BOSSES = {
@@ -42,8 +48,8 @@ local function randomize_mission(base_area_id, area_id)
 
   local guardians = {}
 
-  for i, option in ipairs(GUARDIAN_POOLS[base_area_id]) do
-    guardians[i] = table.pack(table.unpack(option))
+  for key, option in pairs(GUARDIAN_POOLS[base_area_id]) do
+    guardians[key] = table.pack(table.unpack(option))
   end
 
   for _, object_id in ipairs(Net.list_objects(area_id)) do
@@ -65,11 +71,21 @@ local function randomize_mission(base_area_id, area_id)
       Net.set_object_custom_property(area_id, object_id, "Specific Loot", loot)
     elseif object.class == "Dark Hole" or object.class == "Guardian" then
       -- randomize guardians
-      local guardian_tuple = table.remove(guardians, math.random(#guardians))
-      local guardian, rank = table.unpack(guardian_tuple)
 
-      Net.set_object_custom_property(area_id, object_id, "Spawns", guardian)
-      Net.set_object_custom_property(area_id, object_id, "Rank", rank)
+      local guardian = object.custom_properties.Spawns
+      local rank_list = guardians[guardian]
+
+      if rank_list then
+        local rank = table.remove(rank_list, math.random(#rank_list))
+        Net.set_object_custom_property(area_id, object_id, "Rank", rank)
+      else
+        local guardian_tuple = table.remove(guardians, math.random(#guardians))
+        local rank
+        guardian, rank = table.unpack(guardian_tuple)
+
+        Net.set_object_custom_property(area_id, object_id, "Spawns", guardian)
+        Net.set_object_custom_property(area_id, object_id, "Rank", rank)
+      end
 
       local direct_encounter, encounter = table.unpack(GUARDIAN_ENCOUNTERS[guardian])
 
