@@ -246,7 +246,7 @@ local function return_home(self, actor)
     end
 
     -- face home
-    actor:face_position(self.home.x, self.home.y)
+    actor:face_position(self.home.x + 0.5, self.home.y + 0.5)
 
     -- move
     Async.await(actor:move(self.home.x, self.home.y, self.home.z, self.home_direction))

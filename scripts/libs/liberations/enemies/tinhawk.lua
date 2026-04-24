@@ -168,7 +168,7 @@ local function attempt_move(self, actor)
       return false
     end
 
-    actor:face_position(panel.x, panel.y)
+    actor:face_position(panel.x + 0.5, panel.y + 0.5)
 
     Async.await(actor:move(
       panel.x,
