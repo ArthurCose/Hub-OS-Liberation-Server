@@ -28,6 +28,14 @@ local rank_to_index = {
 
 local mob_health = { 200, 230, 230, 300, 340, 400 }
 local mob_damage = { 50, 80, 120, 160, 200, 250 }
+local textures = {
+  "bladia.v1.png",
+  "bladia.v2.png",
+  "bladia.v3.png",
+  "bladia.v4.png",
+  "bladia.v5.png",
+  "bladia.v6.png",
+}
 
 local ATTACK_SHAPE = {
   { 1, 1, 1 },
@@ -68,7 +76,7 @@ function Bladia:new(builder)
     name = "Bladia",
     health = mob_health[rank_index],
     max_health = mob_health[rank_index],
-    texture_path = "/server/assets/liberations/bots/bladia.png",
+    texture_path = "/server/assets/liberations/bots/" .. textures[rank_index],
     animation_path = "/server/assets/liberations/bots/bladia.animation",
   })
 end
