@@ -72,12 +72,11 @@ function CloudMan:banter(actor, player)
 
     self.is_engaged = true
 
-    -- He doesn't say anything??
-    -- Async.await(player:message(
-    --   "I didn't think you would make it this far! *Whoosh*",
-    --   actor.mug.texture_path,
-    --   actor.mug.animation_path
-    -- ))
+    Async.await(player:message(
+      "Feel the wrath\nof my divine\npunishment!",
+      actor.mug.texture_path,
+      actor.mug.animation_path
+    ))
   end)
 end
 
