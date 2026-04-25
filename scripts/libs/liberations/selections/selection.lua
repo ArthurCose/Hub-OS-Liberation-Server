@@ -305,6 +305,7 @@ function Selection:indicate()
       x = x + self.indicator.offset_x / 32,
       y = y + self.indicator.offset_y / 32,
       z = z,
+      sprite_layer = 1,
       texture_path = self.indicator.texture_path,
       animation_path = self.indicator.animation_path,
       animation = self.indicator.state,

@@ -1111,6 +1111,7 @@ function Player:animate_search(panels)
     local bot_id = Net.create_bot({
       area_id = instance.area_id,
       x = -10000,
+      sprite_layer = 1,
       texture_path = indicator_template.texture_path,
       animation_path = indicator_template.animation_path,
       animation = "SEARCHING",
