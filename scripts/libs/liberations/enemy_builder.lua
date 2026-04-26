@@ -69,6 +69,7 @@ function EnemyBuilder:build(options)
   ---@type Liberation.Enemy
   local enemy = {
     _instance = self.instance,
+    _alive = true,
     ai = options.ai,
     rank = self.rank,
     encounter = self.encounter,

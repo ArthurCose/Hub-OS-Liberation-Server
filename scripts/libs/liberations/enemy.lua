@@ -19,6 +19,7 @@
 ---@field mug Net.TextureAnimationPair?
 ---@field encounter string
 ---@field package _instance Liberation.MissionInstance
+---@field package _alive boolean
 
 local RecoverEffect = require("scripts/libs/liberations/effects/recover_effect")
 local ExplodingEffect = require("scripts/libs/liberations/effects/exploding_effect")
@@ -40,7 +41,7 @@ function Enemy:instance()
 end
 
 function Enemy:is_alive()
-  return Net.is_bot(self.id)
+  return self._alive
 end
 
 local direction_suffix_map = {
@@ -375,6 +376,8 @@ function Enemy:destroy()
       return
     end
 
+    self._alive = false
+
     -- remove from the instance
     local instance = self._instance
 
@@ -425,6 +428,9 @@ function Enemy:destroy_in_focus()
       -- already died
       return
     end
+
+    self._alive = false
+
 
     -- remove from the instance
     local instance = self._instance
