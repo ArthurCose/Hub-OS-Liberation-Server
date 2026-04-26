@@ -65,13 +65,13 @@ local SHOP_LIST = {
   -- },
   {
     name = "Barrier",
-    description = "Use order points to shield 10 damage on all allies.",
+    description = "Use order points to apply a 10 HP barrier on all allies.",
     price = 35,
   },
   {
     name = "MagnetBarrier",
     short_name = "MagBarr",
-    description = "Use turn and points to shield all allies.",
+    description = "Use turn and points apply a strong barrier all allies.",
     price = 35,
   },
   {
