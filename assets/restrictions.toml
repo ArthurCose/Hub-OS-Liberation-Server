@@ -4,6 +4,7 @@ drives_enabled = false
 [packages]
 id_blacklist = [
   "BattleNetwork3.Program02.BreakBuster",
+  "LDR100.card.Navi.25.BlastMnΩ", # clears panels, flings obstacles
   "LDR100.card.stnd.22.LTGuardn", # pierces guard, hits the entire field, reggable
 
 ]
