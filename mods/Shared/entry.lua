@@ -243,11 +243,12 @@ end
 ---@param character Entity
 local function guard_area(character)
     local grab_revenge = CardProperties.from_package("BattleNetwork6.Class01.Standard.167")
-    local revenge_queued = false
+    local revenge_cooldown = 0
 
     local component = character:create_component(Lifetime.ActiveBattle)
     component.on_update_func = function()
-        if revenge_queued then
+        if revenge_cooldown > 0 then
+            revenge_cooldown = revenge_cooldown - 1
             return
         end
 
@@ -287,6 +288,8 @@ local function guard_area(character)
             return
         end
 
+        revenge_cooldown = 60
+
         local spell = Spell.new(character:team())
 
         spell.on_spawn_func = function()
@@ -296,17 +299,10 @@ local function guard_area(character)
         spell.on_update_func = function()
             if not spell:has_actions() then
                 spell:delete()
-                revenge_queued = false
             end
         end
 
-        spell:on_erase(function()
-            revenge_queued = false
-        end)
-
         Field.spawn(spell, 0, 0)
-
-        revenge_queued = true
     end
 end
 
