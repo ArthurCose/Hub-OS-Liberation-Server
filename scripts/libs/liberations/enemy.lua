@@ -136,6 +136,7 @@ function Enemy:can_move_to(x, y, z)
 end
 
 ---@param self Liberation.Enemy
+---@param enabled boolean
 local function set_panel_collision(self, enabled)
   local instance = self:instance()
   local panel = instance:get_panel_at(self.x, self.y, self.z)
@@ -410,6 +411,8 @@ function Enemy:destroy()
       -- hold
       Async.await(Async.sleep(3.5))
 
+      set_panel_collision(self, false)
+
       -- remove from the server
       Net.remove_bot(self.id)
 
@@ -430,7 +433,6 @@ function Enemy:destroy_in_focus()
     end
 
     self._alive = false
-
 
     -- remove from the instance
     local instance = self._instance
@@ -461,6 +463,8 @@ function Enemy:destroy_in_focus()
 
     -- hold
     Async.await(Async.sleep(3.5))
+
+    set_panel_collision(self, false)
 
     -- remove from the server
     Net.remove_bot(self.id)
