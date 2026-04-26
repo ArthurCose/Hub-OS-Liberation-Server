@@ -34,15 +34,15 @@ local POISON_LAYOUTS = {
         FieldUtil.set_tile_state(6, 3, TileState.Poison)
     end,
     function()
-        -- ><
-        FieldUtil.set_tile_state(2, 1, TileState.Poison)
+        -- _-^
+        FieldUtil.set_tile_state(1, 3, TileState.Poison)
         FieldUtil.set_tile_state(2, 3, TileState.Poison)
 
         FieldUtil.set_tile_state(3, 2, TileState.Poison)
         FieldUtil.set_tile_state(4, 2, TileState.Poison)
 
         FieldUtil.set_tile_state(5, 1, TileState.Poison)
-        FieldUtil.set_tile_state(5, 3, TileState.Poison)
+        FieldUtil.set_tile_state(6, 1, TileState.Poison)
     end,
     function()
         -- stalactite stalagmite
