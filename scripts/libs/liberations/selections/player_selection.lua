@@ -123,6 +123,32 @@ function PlayerSelection:merge_bonus_shape()
   self:merge_shape(BONUS_SHAPE, 0, -2)
 end
 
+function PlayerSelection:apply_dark_hole_shape()
+  local shape = {
+    { 1, 1, 1 },
+    { 1, 1, 1 },
+    { 1, 1, 1 },
+  }
+
+  local x = self._root_panel.x
+  local y = self._root_panel.y
+  local z = self._root_panel.z
+
+  for shape_y = 1, 3 do
+    for shape_x = 1, 3 do
+      local p_x, p_y = self.selection:transform_offset(shape_x - 2, shape_y - 2)
+
+      local panel = self.instance:get_panel_at(x + p_x, y + p_y, z)
+
+      if panel and panel.class == PanelClass.TRAP then
+        shape[shape_y][shape_x] = 0
+      end
+    end
+  end
+
+  self:set_shape(shape, 0, -1)
+end
+
 ---@return Liberation.PanelObject[]
 function PlayerSelection:get_panels()
   local panels = {}

@@ -621,12 +621,6 @@ function Player:initiate_encounter(encounter_path, data)
   return promise, emitter
 end
 
-local DARK_HOLE_SHAPE = {
-  { 1, 1, 1 },
-  { 1, 1, 1 },
-  { 1, 1, 1 },
-}
-
 ---@param panel Liberation.PanelObject
 ---@param loot_options Liberation.Player.LootPanelsOptions?
 ---@return Net.Promise<Liberation.BattleResults>
@@ -733,7 +727,7 @@ function Player:initiate_panel_encounter(panel, loot_options)
     end
 
     if panel.class == PanelClass.DARK_HOLE then
-      selection:set_shape(DARK_HOLE_SHAPE, 0, -1)
+      selection:apply_dark_hole_shape()
     end
 
     if not results.won then

@@ -198,6 +198,26 @@ function Selection:move(x, y, z, direction)
   self.direction = direction
 end
 
+--- Transforms a perspective relative offset to a world offset
+function Selection:transform_offset(x, y)
+  -- the default direction is UP RIGHT
+
+  if self.direction == Direction.DOWN_LEFT then
+    x = -x -- flipped
+    y = -y -- flipped
+  elseif self.direction == Direction.UP_LEFT then
+    local old_y = y
+    y = -x    -- 🤷
+    x = old_y -- negative for going left
+  elseif self.direction == Direction.DOWN_RIGHT then
+    local old_y = y
+    y = x      -- 🤷
+    x = -old_y -- positive for going right
+  end
+
+  return x, y
+end
+
 ---@param x number
 ---@param y number
 ---@param z number
@@ -213,21 +233,7 @@ function Selection:is_within(x, y, z)
   local offset_x = self.position.x - x
   local offset_y = self.position.y - y
 
-  -- transform the player position to fit into the shape
-  -- default direction is UP RIGHT
-
-  if self.direction == Direction.DOWN_LEFT then
-    offset_x = -offset_x -- flipped
-    offset_y = -offset_y -- flipped
-  elseif self.direction == Direction.UP_LEFT then
-    local old_offset_y = offset_y
-    offset_y = -offset_x    -- 🤷
-    offset_x = old_offset_y -- negative for going left
-  elseif self.direction == Direction.DOWN_RIGHT then
-    local old_offset_y = offset_y
-    offset_y = offset_x      -- 🤷
-    offset_x = -old_offset_y -- positive for going right
-  end
+  offset_x, offset_y = self:transform_offset(offset_x, offset_y)
 
   offset_x = offset_x - self.shape_offset_x
   offset_y = offset_y - self.shape_offset_y
@@ -269,18 +275,7 @@ function Selection:for_each_tile(callback)
       local offset_y = -(m + self.shape_offset_y)
 
       -- adjusting the offset to the direction
-      if self.direction == Direction.DOWN_LEFT then
-        offset_x = -offset_x -- flipped
-        offset_y = -offset_y -- flipped
-      elseif self.direction == Direction.UP_LEFT then
-        local old_offset_y = offset_y
-        offset_y = -offset_x    -- 🤷
-        offset_x = old_offset_y -- negative for going left
-      elseif self.direction == Direction.DOWN_RIGHT then
-        local old_offset_y = offset_y
-        offset_y = offset_x      -- 🤷
-        offset_x = -old_offset_y -- positive for going right
-      end
+      offset_x, offset_y = self:transform_offset(offset_x, offset_y)
 
       local x = self.position.x + offset_x
       local y = self.position.y + offset_y
