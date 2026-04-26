@@ -8,12 +8,14 @@ encounters = [
   "BattleNetwork5.Batty",
   "BattleNetwork5.Whirly",
   "BattleNetwork5.Draggin",
+  "BattleNetwork5.CanGuard",
   "BattleNetwork3.Virus.KillerEye",
 ]
 characters = [
   "BattleNetwork5.Batty.Enemy",
   "BattleNetwork5.Spiraly.Enemy",
   "BattleNetwork5.Draglet.Enemy",
+  "BattleNetwork5.CanRaid.Enemy",
   "BattleNetwork3.enemy.KillerEye"
 ]
 libraries = [

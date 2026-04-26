@@ -18,6 +18,7 @@ local package_ids = {
   "BattleNetwork5.Drixol",
   "BattleNetwork5.Draggin",
   "BattleNetwork5.Whirly",
+  "BattleNetwork5.CanGuard",
   "BattleNetwork3.Virus.KillerEye",
   -- "BattleNetwork5.Powie",
   -- libraries
