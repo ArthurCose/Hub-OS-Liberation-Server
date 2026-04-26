@@ -88,7 +88,6 @@
    <properties>
     <property name="Color" type="color" value="#ff6bbdcd"/>
     <property name="Name" value="ACDC2"/>
-    <property name="Post Limit" type="int" value="100"/>
     <property name="bbs" type="bool" value="true"/>
    </properties>
   </object>
