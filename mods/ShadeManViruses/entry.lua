@@ -10,6 +10,7 @@ local VIRUS_POOL = {
     { 1, "BattleNetwork5.Cacter.Enemy",   Rank.V1 },    -- 230 hp, 150 damage
     { 1, "BattleNetwork5.Bugtank3.Enemy", Rank.V1 },    -- 240 hp, 200 damage
     { 2, "BattleNetwork5.Drixa.Enemy",    Rank.V1 },    -- 260 hp, 160 damage
+    { 2, "BattleNetwork5.CanRaid.Enemy",  Rank.EX },    -- 180 hp, 100 damage
 }
 
 ---@param encounter Encounter

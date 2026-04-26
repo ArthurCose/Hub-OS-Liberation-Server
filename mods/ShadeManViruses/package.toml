@@ -10,13 +10,15 @@ encounters = [
   "BattleNetwork5.Cactikil",
   "BattleNetwork5.Bugtank",
   "BattleNetwork5.Drixol",
+  "BattleNetwork5.CanGuard",
 ]
 characters = [
   "BattleNetwork5.Gnarly.Enemy",
   "BattleNetwork6.Mettaur.Enemy",
   "BattleNetwork5.Cacter.Enemy",
   "BattleNetwork5.Bugtank3.Enemy",
-  "BattleNetwork5.Drixa.Enemy"
+  "BattleNetwork5.Drixa.Enemy",
+  "BattleNetwork5.CanRaid.Enemy",
 ]
 libraries = [
   "dev.konstinople.library.liberation",
