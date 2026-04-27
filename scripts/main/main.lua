@@ -14,6 +14,7 @@ local Ability = require("scripts/libs/liberations/ability")
 local Parties = require("scripts/libs/parties")
 local PartiesMenu = require("scripts/libs/parties_menu")
 local PlayerData = require("scripts/main/player_data")
+local ShopData = require("scripts/main/shop_data")
 local randomize_mission = require("scripts/main/randomize_mission")
 
 local MISSION_BOARD_COLOR = { r = 168, g = 128, b = 200 }
@@ -110,15 +111,6 @@ local function transfer_players_to_new_instance(base_area, player_ids, save_data
     -- transfer player
     mission:transfer_player(player_id, ability)
 
-    -- update status
-    local short_name = Net.get_area_custom_property(area_id, "Short Name")
-
-    if short_name == "" then
-      warn(Net.get_area_name(area_id) .. " is missing a short name!")
-    end
-
-    PartiesMenu.set_player_status(player_id, short_name)
-
     recovery_keys[#recovery_keys + 1] = Net.get_player_secret(player_id)
     players_in_mission[player_id] = true
 
@@ -184,7 +176,6 @@ local function transfer_players_to_new_instance(base_area, player_ids, save_data
       transfer_to_lobby(player_id, true)
     end
 
-    PartiesMenu.set_player_status(player_id, "Online")
 
     local key = Net.get_player_secret(player_id)
     recovery_data[key] = nil
@@ -404,4 +395,41 @@ Net:on("player_join", function(event)
   end
 
   PartiesMenu.set_player_status(event.player_id, short_name)
+end)
+
+local function update_status(player_id)
+  local area_id = Net.get_actor_area(player_id)
+
+  if area_id ~= "default" then
+    -- update status
+    local short_name = Net.get_area_custom_property(area_id, "Short Name")
+
+    if short_name == "" then
+      warn(Net.get_area_name(area_id) .. " is missing a short name!")
+      PartiesMenu.set_player_status(player_id, "Unknown")
+      return
+    end
+
+    PartiesMenu.set_player_status(player_id, short_name)
+
+    return
+  end
+
+  PlayerData.fetch(player_id).and_then(function(data)
+    local shop_item_data = data.ability and ShopData.MAP[data.ability]
+
+    if shop_item_data then
+      PartiesMenu.set_player_status(player_id, shop_item_data.short_name)
+    else
+      PartiesMenu.set_player_status(player_id, "LongSwrd")
+    end
+  end)
+end
+
+Net:on("player_join", function(event)
+  update_status(event.player_id)
+end)
+
+Net:on("player_area_transfer", function(event)
+  update_status(event.player_id)
 end)
