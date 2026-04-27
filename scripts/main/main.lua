@@ -394,6 +394,8 @@ Net:on("player_join", function(event)
     return
   end
 
+  Net.lock_player_equipment(event.player_id)
+
   local area_id = player:instance().area_id
   local short_name = Net.get_area_custom_property(area_id, "Short Name")
 
