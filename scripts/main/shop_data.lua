@@ -48,13 +48,14 @@ local SHOP_LIST = {
     requires = "WideSword",
     price = 30,
   },
-  {
-    name = "StepSword",
-    short_name = "StepSwrd",
-    description = "Battle an enemy up to 3 panels away.",
-    requires = "WideSword",
-    price = 35,
-  },
+  -- Rapidly shakes the screen for spectators
+  -- {
+  --   name = "StepSword",
+  --   short_name = "StepSwrd",
+  --   description = "Battle an enemy up to 3 panels away.",
+  --   requires = "WideSword",
+  --   price = 35,
+  -- },
   -- Planned, but not implemented
   -- {
   --   name = "TwinLiberation",
