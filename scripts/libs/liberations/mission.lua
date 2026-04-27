@@ -40,7 +40,7 @@ local function liberate_panel(self, player)
       if panel.custom_properties["Message"] ~= nil then
         Async.await(player:message_with_mug(panel.custom_properties["Message"]))
       else
-        Async.await(player:message_with_mug("A BonusPanel! What's it hiding?"))
+        Async.await(player:message_with_mug("A bonus panel!\nWhat's it hiding?"))
       end
 
       self:remove_panel(panel)
