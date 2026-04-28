@@ -330,8 +330,7 @@ function Player:override_busy(not_busy)
   self._not_busy = not_busy
 end
 
----@param panel Liberation.PanelObject?
-function Player:can_use_active_ability(panel)
+function Player:can_use_active_ability()
   local instance = self._instance
   local ability = self.ability
 
@@ -357,8 +356,26 @@ function Player:can_use_active_ability(panel)
     return true
   end
 
-  -- must have an actionable panel without an enemy blocking access
-  return panel and PanelClass.ABILITY_ACTIONABLE[panel.class] and not instance:get_enemy_at(panel.x, panel.y, panel.z)
+  local panel = self._selection:root_panel()
+
+  if not panel or not PanelClass.ABILITY_ACTIONABLE[panel.class] then
+    -- not an actionable panel
+    return false
+  end
+
+  if instance:get_enemy_at(panel.x, panel.y, panel.z) then
+    -- enemy blocking access
+    return false
+  end
+
+  for _, player in ipairs(instance.players) do
+    if player ~= self and panel == player._selection:root_panel() then
+      -- another player is blocking access
+      return false
+    end
+  end
+
+  return true
 end
 
 function Player:get_ability_permission()

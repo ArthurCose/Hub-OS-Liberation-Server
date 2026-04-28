@@ -852,7 +852,7 @@ function MissionInstance:handle_tile_interaction(player_id, x, y, z, button)
 
   local ability = player.ability
 
-  if ability and player:can_use_active_ability(panel) then
+  if ability and player:can_use_active_ability() then
     table.insert(options, 2, ability.name)
   end
 
