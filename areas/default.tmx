@@ -86,9 +86,9 @@
   </object>
   <object id="25" name="ACDC2" type="Board" gid="24" x="248" y="508" width="32" height="56">
    <properties>
+    <property name="BBS" type="bool" value="true"/>
     <property name="Color" type="color" value="#ff6bbdcd"/>
     <property name="Name" value="ACDC2"/>
-    <property name="bbs" type="bool" value="true"/>
    </properties>
   </object>
   <object id="27" name="Spawn" x="172" y="684">
