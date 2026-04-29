@@ -280,19 +280,26 @@ local function take_enemy_turn(self)
 
     -- wait for the camera
     Async.await(Async.sleep(slide_time))
-
-    -- give turn back to players
-    for _, player in ipairs(self.players) do
-      player:give_turn()
-    end
-
-    self._events:emit("phase_end", { team = "darkloid" })
-    self._phase = self._phase + 1
   end)
       .and_then(function()
-        self._taking_enemy_turn = false
+        -- give turn back to players
+        for _, player in ipairs(self.players) do
+          player:give_turn()
+        end
 
         handle_vote_kick(self)
+
+        -- return turn
+        self._taking_enemy_turn = false
+
+        -- resetting ready count after kicking players
+        -- this makes sure kicked players don't set our ready count to a negative value,
+        -- without some hairy logic
+        self.ready_count = 0
+
+        -- end phase
+        self._events:emit("phase_end", { team = "darkloid" })
+        self._phase = self._phase + 1
 
         if self.needs_disposal then
           self:destroy()
@@ -752,8 +759,7 @@ end
 
 ---@package
 function MissionInstance:tick(elapsed)
-  if not self.liberated and self.ready_count >= #self.players then
-    self.ready_count = 0
+  if not self.liberated and not self._taking_enemy_turn and self.ready_count >= #self.players then
     -- now we can take a turn !
     take_enemy_turn(self)
   end
