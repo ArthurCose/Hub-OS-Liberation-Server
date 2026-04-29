@@ -575,61 +575,56 @@ function Player:initiate_encounter(encounter_path, data)
   -- begin encounter
   local emitter = Net.initiate_netplay(player_ids, encounter_path, data)
 
-  local expected_result_events = #player_ids
-  local result_events = 0
-
   local promise = Async.create_promise(function(resolve)
     local final_result = { won = false, turns = 0 }
     local resolved = false
 
-    emitter:on("battle_results", function(results)
-      local results_player = instance.player_map[results.player_id]
+    Async.create_scope(function()
+      -- emitters don't emit nil events, unlike promises. not sure if this should change
+      for results in Async.await(emitter:async_iter("battle_results")) do
+        local results_player = instance.player_map[results.player_id]
 
-      -- update player
-      if results ~= nil and not spectator_map[results.player_id] and results_player then
-        if results.connection_failed then
-          -- connection failed, free players that joined in
+        -- update player
+        if results ~= nil and not spectator_map[results.player_id] and results_player then
+          if results.connection_failed then
+            -- connection failed, free players that joined in
+            if self.id ~= results_player.id then
+              results_player:unlock_movement()
+            end
+
+            if not resolved then
+              -- resolve immediately
+              resolve(results)
+              resolved = true
+            end
+
+            goto continue
+          end
+
+          local max_health = Net.get_player_max_health(results_player.id)
+
+          results_player._health = results.health
+          Net.set_player_health(results_player.id, math.min(results.health, max_health))
+          Net.set_player_emotion(results_player.id, results.emotion)
+          HealthSprites.update_sprite(self.id, self._health)
+
+          if results.health == 0 then
+            results_player:paralyze()
+          end
+
           if self.id ~= results_player.id then
-            results_player:unlock_movement()
+            results_player:complete_turn()
           end
 
-          if not resolved then
-            -- resolve immediately
-            resolve(results)
-            resolved = true
-          end
-
-          return
+          -- contribute to final result
+          final_result.won = final_result.won or results.won
+          final_result.turns = math.max(final_result.turns, results.turns)
         end
 
-        local max_health = Net.get_player_max_health(results_player.id)
-
-        results_player._health = results.health
-        Net.set_player_health(results_player.id, math.min(results.health, max_health))
-        Net.set_player_emotion(results_player.id, results.emotion)
-        HealthSprites.update_sprite(self.id, self._health)
-
-        if results.health == 0 then
-          results_player:paralyze()
-        end
-
-        if self.id ~= results_player.id then
-          results_player:complete_turn()
-        end
-
-        -- contribute to final result
-        final_result.won = final_result.won or results.won
-        final_result.turns = math.max(final_result.turns, results.turns)
+        ::continue::
       end
 
-      if resolved then
-        return
-      end
-
-      -- resolve final result
-      result_events = result_events + 1
-
-      if expected_result_events == result_events then
+      if not resolved then
         resolve(final_result)
       end
     end)
