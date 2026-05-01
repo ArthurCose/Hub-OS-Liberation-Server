@@ -281,11 +281,15 @@ function Player:message_with_mug(message)
 end
 
 ---@param question string
----@param texture_path? string
+---@param texture_path? string | Net.TextboxOptions
 ---@param animation_path? string
 function Player:question(question, texture_path, animation_path)
   return self:wrap_promise(function()
-    return Async.question_player(self.id, question, texture_path, animation_path)
+    if type(texture_path) == "string" then
+      return Async.question_player(self.id, question, texture_path, animation_path)
+    end
+
+    return Async.question_player(self.id, question, texture_path)
   end)
 end
 
@@ -305,6 +309,10 @@ function Player:quiz(a, b, c, textbox_options)
   return self:wrap_promise(function()
     return Async.quiz_player(self.id, a, b, c, textbox_options)
   end)
+end
+
+function Player:mug()
+  return Net.get_player_mugshot(self.id)
 end
 
 function Player:busy()
@@ -1382,7 +1390,13 @@ function Player:handle_spectator_input(button)
         viewed_player:complete_turn()
       end
     elseif option == ABANDON then
-      local abandon_response = Async.await(self:question_with_mug("Abandon mission?"))
+      ---@type Net.TextboxOptions
+      local textbox_options = {
+        mug = self:mug(),
+        initial_response = 0
+      }
+
+      local abandon_response = Async.await(self:question("Abandon mission?", textbox_options))
 
       if abandon_response == 1 then
         if instance:taking_enemy_turn() then
