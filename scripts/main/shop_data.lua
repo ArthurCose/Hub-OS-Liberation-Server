@@ -72,7 +72,7 @@ local SHOP_LIST = {
   {
     name = "MagnetBarrier",
     short_name = "MagBarr",
-    description = "Use turn and points apply a strong barrier all allies.",
+    description = "Use turn and points to apply a strong barrier on all allies.",
     price = 35,
   },
   {
