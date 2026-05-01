@@ -282,22 +282,23 @@ local function take_enemy_turn(self)
     Async.await(Async.sleep(slide_time))
   end)
       .and_then(function()
-        -- give turn back to players
-        for _, player in ipairs(self.players) do
-          player:give_turn()
-        end
-
         handle_vote_kick(self)
-
-        -- return turn
-        self._taking_enemy_turn = false
 
         -- resetting ready count after kicking players
         -- this makes sure kicked players don't set our ready count to a negative value,
         -- without some hairy logic
         self.ready_count = 0
 
+        -- give turn back to players
+        -- this must happen after resetting ready count,
+        -- for paralyzed players to complete their turn immediately
+        for _, player in ipairs(self.players) do
+          player:give_turn()
+        end
+
         -- end phase
+        self._taking_enemy_turn = false
+
         self._events:emit("phase_end", { team = "darkloid" })
         self._phase = self._phase + 1
 
@@ -350,6 +351,7 @@ end
 ---@field package net_listeners [string, fun()][]
 ---@field package _taking_enemy_turn boolean
 ---@field package needs_disposal boolean
+---@field package destroyed boolean
 local MissionInstance = {}
 
 ---@param area_id string
@@ -733,6 +735,12 @@ function MissionInstance:destroy()
     self.needs_disposal = true
     return
   end
+
+  if self.destroyed then
+    return
+  end
+
+  self.destroyed = true
 
   for _, id in ipairs(Net.list_bots(self.area_id)) do
     Net.remove_bot(id)
