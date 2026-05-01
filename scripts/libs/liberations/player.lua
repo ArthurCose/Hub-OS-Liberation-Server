@@ -798,20 +798,18 @@ function Player:max_health()
 end
 
 function Player:heal(amount)
-  return Async.create_promise(function(resolve)
-    local previous_health = self._health
+  local previous_health = self._health
 
-    self._health = math.min(math.ceil(self._health + amount), self:max_health())
+  self._health = math.min(math.ceil(self._health + amount), self:max_health())
 
-    Net.set_player_health(self.id, self._health)
-    HealthSprites.update_sprite(self.id, self._health)
+  Net.set_player_health(self.id, self._health)
+  HealthSprites.update_sprite(self.id, self._health)
 
-    if previous_health < self._health then
-      RecoverEffect:new(self.id)
-    end
+  if previous_health < self._health then
+    RecoverEffect:new(self.id)
+  end
 
-    return resolve(Async.sleep(0.5))
-  end)
+  return Async.sleep(0.5)
 end
 
 ---@param amount number
@@ -990,7 +988,7 @@ end
 
 function Player:pass_turn()
   -- heal up to 50% of health
-  Async.await(self:heal(self:max_health() / 2)).and_then(function()
+  self:heal(self:max_health() / 2).and_then(function()
     self:complete_turn()
   end)
 end
