@@ -65,14 +65,25 @@ function PlayerSaveData.fetch(player_id)
   end)
 end
 
+local save_listeners = {}
+
 ---@param player_id Net.ActorId
 function PlayerSaveData:save(player_id)
   -- cap zenny
-  self.money = math.min(self.money, 10000)
+  self.money = math.min(self.money, 9999)
 
   local identity = Net.get_player_secret(player_id)
   local path = PLAYER_DATA_DIR .. Net.encode_uri_component(identity)
   Async.write_file(path, json.encode(self))
+
+  for _, callback in ipairs(save_listeners) do
+    callback(player_id, self)
+  end
+end
+
+---@param callback fun(player_id: Net.ActorId, data: LiberationServer.PlayerSaveData)
+function PlayerSaveData.on_any_save(callback)
+  save_listeners[#save_listeners + 1] = callback
 end
 
 Async.ensure_dir(PLAYER_DATA_DIR)

@@ -433,3 +433,7 @@ end)
 Net:on("player_area_transfer", function(event)
   update_status(event.player_id)
 end)
+
+PlayerData.on_any_save(function(player_id)
+  update_status(player_id)
+end)
