@@ -76,7 +76,7 @@ Loot.BUGFRAG = {
 ---@type Liberation.Loot
 Loot.ORDER_POINT = {
   animation = "ORDER_POINT",
-  breakable = false,
+  breakable = true,
   activate = function(player)
     return Async.create_scope(function()
       Async.await(player:message_with_mug("I found\nOrder Points!"))
@@ -97,7 +97,7 @@ Loot.ORDER_POINT = {
 ---@type Liberation.Loot
 Loot.INVINCIBILITY = {
   animation = "INVINCIBILITY",
-  breakable = false,
+  breakable = true,
   activate = function(player)
     return Async.create_scope(function()
       local instance = player:instance()
@@ -114,7 +114,7 @@ Loot.INVINCIBILITY = {
 ---@type Liberation.Loot
 Loot.MAJOR_HIT = {
   animation = "MAJOR_HIT",
-  breakable = false,
+  breakable = true,
   activate = function(player)
     return Async.create_scope(function()
       Async.await(player:message("Damages the closest\nenemy the most!"))
