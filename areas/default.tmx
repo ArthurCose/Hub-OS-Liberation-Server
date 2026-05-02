@@ -131,7 +131,7 @@
    </properties>
    <point/>
   </object>
-  <object id="36" name="Bookmark Bot" type="Script Node: Spawn Bot" x="263" y="629">
+  <object id="36" name="Bookmark Bot" type="Script Node: Spawn Bot" x="264" y="630">
    <properties>
     <property name="Asset" value="bots/male_navi_pink"/>
     <property name="Direction" value="Down Right"/>
