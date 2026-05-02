@@ -58,8 +58,35 @@ end
 ---@param old_properties Net.ActorPropertyKeyframe[]
 ---@param new_properties Net.ActorPropertyKeyframe[]
 local function animate_jump(player, direction, old_properties, new_properties)
+  if not Net.is_actor(player.id) then
+    return
+  end
+
   local f = 1 / 60
 
+  local texture_anim_pair = Net.get_actor_avatar(player.id)
+
+  -- create bot
+  local bot_id = Net.create_bot({
+    area_id = Net.get_actor_area(player.id),
+    x = -1000,
+    warp_in = false,
+    texture_path = texture_anim_pair.texture_path,
+    animation_path = texture_anim_pair.animation_path
+  })
+
+  -- step forward
+  Net.animate_actor_properties(player.id, {
+    {
+      properties = {
+        { property = "Direction", value = direction, ease = "Ceil" },
+        table.unpack(new_properties)
+      },
+      duration = 60 * f
+    }
+  })
+
+  -- animate flickering by flashing between the old position and off screen for the bot
   local flicker_duration = 20 * f
 
   ---@type Net.ActorKeyframe[]
@@ -76,23 +103,23 @@ local function animate_jump(player, direction, old_properties, new_properties)
     properties = old_properties,
     duration = 2 * f
   }
-  local new_frame = {
-    properties = new_properties,
+  local disappear_frame = {
+    properties = {
+      { property = "X", value = -1000, ease = "Ceil" }
+    },
     duration = 2 * f
   }
 
-  for i = 1, math.ceil(flicker_duration / (old_frame.duration + new_frame.duration)) do
+  for i = 1, math.ceil(flicker_duration / (old_frame.duration + disappear_frame.duration)) do
     keyframes[#keyframes + 1] = old_frame
-    keyframes[#keyframes + 1] = new_frame
+    keyframes[#keyframes + 1] = disappear_frame
   end
 
-  -- linger at the new position to avoid the warp animation
-  keyframes[#keyframes + 1] = {
-    properties = new_properties,
-    duration = 40 * f
-  }
+  Net.animate_actor_properties(bot_id, keyframes)
 
-  Net.animate_actor_properties(player.id, keyframes)
+  Async.sleep(2).and_then(function()
+    Net.remove_bot(bot_id)
+  end)
 end
 
 Ability.register({
