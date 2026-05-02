@@ -271,7 +271,7 @@ dark holes...</property>
    <properties>
     <property name="Mug" value="Player"/>
     <property name="Next" type="object" value="66"/>
-    <property name="Text" value="The network over here is under Nebula's control."/>
+    <property name="Text" value="This network is under Nebula's control."/>
    </properties>
    <point/>
   </object>
