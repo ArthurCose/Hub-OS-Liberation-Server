@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.12.1" orientation="isometric" renderorder="right-down" width="23" height="26" tilewidth="64" tileheight="32" infinite="0" nextlayerid="3" nextobjectid="35">
+<map version="1.10" tiledversion="1.12.1" orientation="isometric" renderorder="right-down" width="23" height="26" tilewidth="64" tileheight="32" infinite="0" nextlayerid="3" nextobjectid="73">
  <properties>
   <property name="Background Animation" value="/server/assets/backgrounds/acdc.animation"/>
   <property name="Background Texture" value="/server/assets/backgrounds/acdc.png"/>
   <property name="Music" value="/server/assets/music/lobby.ogg"/>
-  <property name="Name" value="ACDC2"/>
+  <property name="Name" value="ACDC Area2"/>
  </properties>
  <tileset firstgid="1" source="../assets/tiles/acdc2.tsx"/>
  <tileset firstgid="2" source="../assets/tiles/nebula_door.tsx"/>
@@ -128,6 +128,199 @@
     <property name="Mug" value="mugs/normal_navi"/>
     <property name="Next" type="object" value="33"/>
     <property name="Text" value="Other side please."/>
+   </properties>
+   <point/>
+  </object>
+  <object id="36" name="Bookmark Bot" type="Script Node: Spawn Bot" x="263" y="629">
+   <properties>
+    <property name="Asset" value="bots/male_navi_pink"/>
+    <property name="Direction" value="Down Right"/>
+    <property name="On Interact" type="object" value="41"/>
+    <property name="On Load" type="bool" value="true"/>
+    <property name="Solid" type="bool" value="true"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="41" type="Script Node: Face" x="224" y="608">
+   <properties>
+    <property name="Next" type="object" value="43"/>
+    <property name="Target" value="Player"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="42" type="Script Node: Face" x="224" y="560">
+   <properties>
+    <property name="Direction" value="Down Right"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="43" type="Script Node: Message" x="224" y="592">
+   <properties>
+    <property name="Mug" value="mugs/male_navi_pink"/>
+    <property name="Next" type="object" value="46"/>
+    <property name="Text" value="Looking for a bookmark?"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="45" type="Bookmark" x="256" y="622">
+   <point/>
+  </object>
+  <object id="46" type="Script Node: Refer Server" x="224" y="576">
+   <properties>
+    <property name="Address" value="hubos.konstinople.dev:5555"/>
+    <property name="Name" value="ACDC Area2"/>
+    <property name="Next" type="object" value="42"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="47" name="Goofball" type="Script Node: Spawn Bot" x="464" y="549">
+   <properties>
+    <property name="Asset" value="bots/normal_navi"/>
+    <property name="Direction" value="Up Right"/>
+    <property name="On Interact" type="object" value="48"/>
+    <property name="On Load" type="bool" value="true"/>
+    <property name="Solid" type="bool" value="true"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="48" type="Script Node: Face" x="448" y="536">
+   <properties>
+    <property name="Next" type="object" value="50"/>
+    <property name="Target" value="Player"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="49" type="Script Node: Face" x="480" y="536">
+   <properties>
+    <property name="Direction" value="Up Right"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="50" type="Script Node: Message" x="464" y="536">
+   <properties>
+    <property name="Mug" value="mugs/normal_navi"/>
+    <property name="Next" type="object" value="49"/>
+    <property name="Text">Shh! Don't talk to
+me! You'll blow my
+cover!</property>
+   </properties>
+   <point/>
+  </object>
+  <object id="51" name="Dark Hole Hint NPC" type="Script Node: Spawn Bot" x="720" y="568">
+   <properties>
+    <property name="Asset" value="bots/female_navi_purple"/>
+    <property name="Next" type="object" value="53"/>
+    <property name="On Interact" type="object" value="60"/>
+    <property name="On Load" type="bool" value="true"/>
+    <property name="Solid" type="bool" value="true"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="52" x="720" y="528">
+   <properties>
+    <property name="Path Next" type="object" value="54"/>
+    <property name="Speed Multiplier" type="float" value="0.65"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="53" type="Script Node: Set Path" x="720" y="592">
+   <properties>
+    <property name="Interrupt Radius" type="float" value="0.5"/>
+    <property name="Loop" type="bool" value="true"/>
+    <property name="Path Next" type="object" value="52"/>
+    <property name="Path Start" type="object" value="53"/>
+    <property name="Speed Multiplier" type="float" value="0.65"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="56" type="Script Node: Message" x="784" y="568">
+   <properties>
+    <property name="Mug" value="mugs/female_navi_purple"/>
+    <property name="Next" type="object" value="61"/>
+    <property name="Text">I don't have enough
+zenny to buy the new
+ability I want.
+I wonder if I can
+liberate a few
+dark holes...</property>
+   </properties>
+   <point/>
+  </object>
+  <object id="58" type="Script Node: Face" x="768" y="568">
+   <properties>
+    <property name="Next" type="object" value="56"/>
+    <property name="Target" value="Player"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="60" type="Script Node: Pause Path" x="752" y="568">
+   <properties>
+    <property name="Next" type="object" value="58"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="61" type="Script Node: Resume Path" x="800" y="568">
+   <point/>
+  </object>
+  <object id="64" type="Script Entry: Collision" x="693.488" y="234.891" width="37.5854" height="74.3844">
+   <properties>
+    <property name="On Enter" type="object" value="65"/>
+   </properties>
+  </object>
+  <object id="65" type="Script Node: Message" x="720" y="336">
+   <properties>
+    <property name="Mug" value="Player"/>
+    <property name="Next" type="object" value="66"/>
+    <property name="Text" value="The network over here is under Nebula's control."/>
+   </properties>
+   <point/>
+  </object>
+  <object id="66" type="Script Node: Face" x="721.321" y="353.843">
+   <properties>
+    <property name="Direction" value="Up Left"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="67" name="Gow" type="Script Node: Spawn Bot" x="504" y="384">
+   <properties>
+    <property name="Animation State" value="SNOWBALL_DR"/>
+    <property name="Asset" value="bots/gow"/>
+    <property name="Direction" value="Down Right"/>
+    <property name="On Load" type="bool" value="true"/>
+    <property name="Solid" type="bool" value="true"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="68" name="Area End Prog" type="Script Node: Spawn Bot" x="648" y="272">
+   <properties>
+    <property name="Asset" value="bots/prog"/>
+    <property name="Direction" value="Up Left"/>
+    <property name="On Interact" type="object" value="69"/>
+    <property name="On Load" type="bool" value="true"/>
+    <property name="Solid" type="bool" value="true"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="69" type="Script Node: Face" x="672" y="320">
+   <properties>
+    <property name="Next" type="object" value="71"/>
+    <property name="Target" value="Player"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="70" type="Script Node: Face" x="672" y="352">
+   <properties>
+    <property name="Direction" value="Up Left"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="71" type="Script Node: Message" x="672" y="336">
+   <properties>
+    <property name="Mug" value="mugs/prog"/>
+    <property name="Next" type="object" value="70"/>
+    <property name="Text">PLEASE BE PATIENT.
+THE NETWORK WILL BE
+RESTORED SOON.</property>
    </properties>
    <point/>
   </object>
