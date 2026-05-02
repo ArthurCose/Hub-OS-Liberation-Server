@@ -80,6 +80,7 @@ Net.EventEmitter = {}
 ---@field x? number
 ---@field y? number
 ---@field z? number
+---@field sprite_layer? number The render priority of the sprite, differs from map layers. Negative values are closer to the camera
 ---@field direction? string
 ---@field solid? boolean
 
@@ -955,9 +956,9 @@ function Net.remove_sprite(sprite_id) end
 --- - `color`: [Net.Color](https://docs.hubos.dev/server/lua-api/widgets#netcolor)
 ---
 --- Sets the color of the marker used in the map menu to represent this player. Defaults to `{ r: 0, g: 0, b: 0, a: 0 }`
----@param player_id Net.ActorId
+---@param actor_id Net.ActorId
 ---@param color Net.Color
-function Net.set_actor_map_color(player_id, color) end
+function Net.set_actor_map_color(actor_id, color) end
 
 --- Sends a link to the player to open in the browser. Permission will be asked before opening.
 ---
@@ -1490,11 +1491,34 @@ function Net.warp_actor(actor_id, x, y, z, direction) end
 ---@param direction? string
 function Net.transfer_actor(player_id, area_id, warp_in, x, y, z, direction) end
 
+--- Returns [Net.TextureAnimationPair](https://docs.hubos.dev/server/lua-api/widgets#nettextureanimationpair)
+---@param actor_id Net.ActorId
+---@return Net.TextureAnimationPair
+function Net.get_actor_avatar(actor_id) end
+
 --- Sets texture and animation files used to display the actor.
 ---@param actor_id Net.ActorId
 ---@param texture_path string
 ---@param animation_path string
 function Net.set_actor_avatar(actor_id, texture_path, animation_path) end
+
+--- Returns a number, the sprite layer (render priority) of the actor.
+---
+--- This differs from map layers, and is used for deciding the render order within the layer.
+---
+--- Negative values render closer to the camera.
+---@param actor_id Net.ActorId
+---@return number
+function Net.get_actor_sprite_layer(actor_id) end
+
+--- Sets the sprite layer (render priority) of the actor.
+---
+--- This differs from map layers, and is used for deciding the render order within the layer.
+---
+--- Negative values render closer to the camera.
+---@param actor_id Net.ActorId
+---@param sprite_layer number
+function Net.set_actor_sprite_layer(actor_id, sprite_layer) end
 
 --- Displays an emote above the actor. `emote_id` is the name of an animation state in the emotes animation.
 ---
@@ -1509,7 +1533,7 @@ function Net.set_actor_emote(actor_id, emote_id) end
 ---@param loop? boolean
 function Net.animate_actor(actor_id, state_name, loop) end
 
---- - `keyframes`: [Net.ActorKeyframe[]](https://docs.hubos.dev/server/lua-api/actor-api#netactorkeyframe)
+--- - `keyframes`: [Net.ActorKeyframe[]](https://docs.hubos.dev/server/lua-api/actors#netactorkeyframe)
 ---
 --- Interpolated animations for fancy effects.
 ---
