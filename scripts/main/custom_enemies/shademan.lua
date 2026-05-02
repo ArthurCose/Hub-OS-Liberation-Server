@@ -63,6 +63,27 @@ function ShadeMan:get_final_message()
   return "Grr! I can't\nbelieve I've been\ndisgraced again...!\nGyaaaahh!!"
 end
 
+local BANTER_LINES = {
+  {
+    "I didn't expect you",
+    "to make it this far!",
+  },
+  {
+    "Welcome to the party",
+    "of darkness!",
+  },
+  {
+    "It's too early for",
+    "a banquet but",
+    "I have no choice.",
+  },
+  {
+    "Give me a taste",
+    "of your power!",
+    "Ha ha ha!",
+  }
+}
+
 ---@param actor Liberation.Enemy
 ---@param player Liberation.Player
 function ShadeMan:banter(actor, player)
@@ -73,8 +94,11 @@ function ShadeMan:banter(actor, player)
 
     self.is_engaged = true
 
+    -- randomize dialogue to keep his lines short
+    local dialogue = BANTER_LINES[math.random(#BANTER_LINES)]
+
     Async.await(player:message(
-      "Your deletion will be delicious!",
+      table.concat(dialogue, "\n"),
       actor.mug.texture_path,
       actor.mug.animation_path
     ))
