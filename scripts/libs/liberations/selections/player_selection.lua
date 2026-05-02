@@ -61,8 +61,6 @@ function PlayerSelection:new(player)
     texture_path = TEXTURE_PATH,
     animation_path = ANIMATION_PATH,
     state = "SELECTED",
-    offset_x = 1,
-    offset_y = 1,
   })
 
   return player_selection

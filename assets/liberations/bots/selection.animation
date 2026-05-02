@@ -2,21 +2,21 @@ animation state="HIDDEN"
 frame
 
 animation state="SEARCHING"
-frame x="64" w="64" h="32" originx="32" originy="1" duration="25f"
+frame x="64" w="64" h="32" originx="32" duration="25f"
 
 animation state="LIBERATING"
-frame x="0" w="64" h="32" originx="32" originy="1" duration="25f"
-frame x="64" w="64" h="32" originx="32" originy="1" duration="25f"
+frame x="0" w="64" h="32" originx="32" duration="25f"
+frame x="64" w="64" h="32" originx="32" duration="25f"
 
 animation state="SELECTED"
-frame x="64" w="64" h="32" originx="32" originy="1" duration="20f"
-frame x="128" w="64" h="32" originx="32" originy="1" duration="2f"
-frame x="0" y="32" w="64" h="32" originx="32" originy="1" duration="2f"
-frame x="64" y="32" w="64" h="32" originx="32" originy="1" duration="2f"
-frame x="128" y="32" w="64" h="32" originx="32" originy="1" duration="8f"
+frame x="64" w="64" h="32" originx="32" duration="20f"
+frame x="128" w="64" h="32" originx="32" duration="2f"
+frame x="0" y="32" w="64" h="32" originx="32" duration="2f"
+frame x="64" y="32" w="64" h="32" originx="32" duration="2f"
+frame x="128" y="32" w="64" h="32" originx="32" duration="8f"
 
 animation state="ATTACK"
-frame x="0" y="64" w="64" h="32" originx="32" originy="1"
+frame x="0" y="64" w="64" h="32" originx="32"
 
 animation state="BUFF"
-frame x="64" y="64" w="64" h="32" originx="32" originy="1"
+frame x="64" y="64" w="64" h="32" originx="32"

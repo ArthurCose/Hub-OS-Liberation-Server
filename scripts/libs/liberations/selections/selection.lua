@@ -41,8 +41,6 @@ end
 ---@field texture_path string
 ---@field animation_path string
 ---@field state string
----@field offset_x number
----@field offset_y number
 
 ---@param indicator Liberation.Selection.IndicatorOptions
 function Selection:set_indicator(indicator)
@@ -297,8 +295,8 @@ function Selection:indicate()
   self:for_each_tile(function(x, y, z)
     local bot_id = Net.create_bot({
       area_id = self.area_id,
-      x = x + self.indicator.offset_x / 32,
-      y = y + self.indicator.offset_y / 32,
+      x = x,
+      y = y,
       z = z,
       sprite_layer = 1,
       texture_path = self.indicator.texture_path,

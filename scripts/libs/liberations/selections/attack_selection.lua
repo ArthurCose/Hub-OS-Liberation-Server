@@ -24,13 +24,10 @@ function AttackSelection:new(instance)
     return tile.gid > 0
   end)
 
-  --set indicator may need offset_y to adjust with a z input
   attack_selection.selection:set_indicator({
     texture_path = TEXTURE_PATH,
     animation_path = ANIMATION_PATH,
     state = "ATTACK",
-    offset_x = 1,
-    offset_y = 1,
   })
 
   return attack_selection
