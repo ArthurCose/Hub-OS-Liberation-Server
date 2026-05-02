@@ -122,7 +122,11 @@ Loot.MAJOR_HIT = {
       local instance = player:instance()
       local enemy = player:find_closest_guardian() or instance.boss
 
+      player:override_busy(true)
+
       Async.await(enemy:focus(function()
+        player:override_busy(false)
+
         -- wait before showing the attack
         Async.await(Async.sleep(0.5))
 
@@ -166,7 +170,9 @@ Loot.MAJOR_HIT = {
         Async.await(Async.sleep(0.5))
 
         -- play delete animation
+        player:override_busy(true)
         Async.await(enemy:destroy_in_focus())
+        player:override_busy(false)
       end))
     end)
   end
