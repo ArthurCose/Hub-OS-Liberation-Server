@@ -280,28 +280,29 @@ local function take_enemy_turn(self)
 
     -- wait for the camera
     Async.await(Async.sleep(slide_time))
+
+    handle_vote_kick(self)
+
+    -- resetting ready count after kicking players
+    -- this makes sure kicked players don't set our ready count to a negative value,
+    -- without some hairy logic
+    self.ready_count = 0
+
+    -- give turn back to players
+    -- this must happen after resetting ready count,
+    -- for paralyzed players to complete their turn immediately
+    for _, player in ipairs(self.players) do
+      player:give_turn()
+    end
   end)
       .and_then(function()
-        handle_vote_kick(self)
-
-        -- resetting ready count after kicking players
-        -- this makes sure kicked players don't set our ready count to a negative value,
-        -- without some hairy logic
-        self.ready_count = 0
-
-        -- give turn back to players
-        -- this must happen after resetting ready count,
-        -- for paralyzed players to complete their turn immediately
-        for _, player in ipairs(self.players) do
-          player:give_turn()
-        end
-
         -- end phase
         self._taking_enemy_turn = false
 
         self._events:emit("phase_end", { team = "darkloid" })
         self._phase = self._phase + 1
 
+        -- using and_then to make sure we dispose on an early exit
         if self.needs_disposal then
           self:destroy()
         end
