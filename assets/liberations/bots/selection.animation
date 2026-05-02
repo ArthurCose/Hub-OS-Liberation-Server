@@ -17,3 +17,6 @@ frame x="128" y="32" w="64" h="32" originx="32" originy="1" duration="8f"
 
 animation state="ATTACK"
 frame x="0" y="64" w="64" h="32" originx="32" originy="1"
+
+animation state="BUFF"
+frame x="64" y="64" w="64" h="32" originx="32" originy="1"
