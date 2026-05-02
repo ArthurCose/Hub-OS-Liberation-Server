@@ -845,8 +845,8 @@ function Player:hurt(amount)
   DamageNumbers.spawn(
     instance.area_id,
     prev_health - self._health,
-    x + 2 / 32,
-    y + 2 / 32,
+    x,
+    y,
     z + 0.5
   )
 
@@ -1139,9 +1139,9 @@ function Player:animate_search(panels)
       for _, panel in ipairs(panels) do
         keyframes[#keyframes + 1] = {
           properties = {
-            { property = "X", value = panel.x + 1 / 32, ease = "Floor" },
-            { property = "Y", value = panel.y + 1 / 32, ease = "Floor" },
-            { property = "Z", value = panel.z,          ease = "Floor" },
+            { property = "X", value = panel.x, ease = "Floor" },
+            { property = "Y", value = panel.y, ease = "Floor" },
+            { property = "Z", value = panel.z, ease = "Floor" },
           },
           duration = KEY_FRAME_DURATION,
         }

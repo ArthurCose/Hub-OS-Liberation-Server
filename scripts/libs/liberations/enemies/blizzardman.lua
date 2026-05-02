@@ -146,9 +146,10 @@ function BlizzardMan:take_turn(actor)
             animation_path = SNOWBALL_ANIMATION_PATH,
             area_id = instance.area_id,
             warp_in = false,
-            x = player_x + 1 / 32,
-            y = player_y + 1 / 32,
-            z = player_z + 8.5
+            x = player_x,
+            y = player_y,
+            z = player_z + 8.5,
+            sprite_layer = -1
           })
 
           Net.animate_actor_properties(snowball_bot_id, {

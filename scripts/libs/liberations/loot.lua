@@ -134,8 +134,8 @@ Loot.MAJOR_HIT = {
           HitParticle.spawn(
             instance.area_id,
             "CHARGED_SHOT",
-            enemy.x + 0.5 + 1 / 32,
-            enemy.y + 0.5 + 1 / 32,
+            enemy.x + 0.5,
+            enemy.y + 0.5,
             enemy.z + 1
           )
 
@@ -154,8 +154,8 @@ Loot.MAJOR_HIT = {
           DamageNumbers.spawn(
             instance.area_id,
             prev_health - enemy.health,
-            enemy.x + 0.5 + 2 / 32,
-            enemy.y + 0.5 + 2 / 32,
+            enemy.x + 0.5,
+            enemy.y + 0.5,
             enemy.z + 0.5
           )
 
@@ -321,8 +321,8 @@ local function spawn_item_bot(bot_data, property_animation)
       animation_path = ITEM_ANIM_PATH,
       animation = "SHADOW",
       warp_in = false,
-      x = bot_data.x - (1 / 32),
-      y = bot_data.y - (1 / 32),
+      x = bot_data.x,
+      y = bot_data.y,
       z = bot_data.z,
     }
   )

@@ -205,9 +205,10 @@ local function attempt_attack(self, actor)
             animation = "ANIMATE",
             area_id = instance.area_id,
             warp_in = false,
-            x = player_x + 1 / 32,
-            y = player_y + 1 / 32,
-            z = player_z
+            x = player_x,
+            y = player_y,
+            z = player_z,
+            sprite_layer = -1
           }))
         end
 

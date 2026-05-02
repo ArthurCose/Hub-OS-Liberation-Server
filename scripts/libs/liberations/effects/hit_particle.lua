@@ -14,7 +14,8 @@ function HitParticle.spawn(area_id, state, x, y, z)
     animation = state,
     x = x,
     y = y,
-    z = z
+    z = z,
+    sprite_layer = -1
   })
 
   Async.sleep(5).and_then(function()

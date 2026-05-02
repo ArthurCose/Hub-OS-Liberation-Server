@@ -31,9 +31,10 @@ local function internal_new(actor_id, area_wide_sfx, texture_path)
     animation_path = ANIMATION_PATH,
     area_id = area_id,
     warp_in = false,
-    x = position.x + 1 / 32,
-    y = position.y + 1 / 32,
+    x = position.x,
+    y = position.y,
     z = position.z,
+    sprite_layer = -1
   })
 
   Net.animate_actor(recover_bot_id, "DEFAULT")

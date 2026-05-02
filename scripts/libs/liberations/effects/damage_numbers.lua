@@ -24,7 +24,8 @@ function DamageNumbers.spawn(area_id, number, x, y, z)
       warp_in = false,
       x = x,
       y = y,
-      z = z
+      z = z,
+      sprite_layer = -2
     })
 
     Net.create_text_sprite({
