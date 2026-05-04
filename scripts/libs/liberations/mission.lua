@@ -121,7 +121,12 @@ local function take_enemy_turn(self)
 
           Async.await(Async.sleep(slide_time + 0.5))
 
-          local boss_name = Net.get_actor_name(self.boss.id) or "Nebula"
+          local boss_name = "Nebula"
+
+          if Net.is_bot(self.boss.id) then
+            boss_name = Net.get_actor_name(self.boss.id)
+          end
+
           Async.await(player:message_with_mug("Is this the power of " .. boss_name .. "...?"))
 
           Async.await(Async.sleep(0.5))
@@ -768,7 +773,7 @@ end
 
 ---@package
 function MissionInstance:tick(elapsed)
-  if not self.liberated and not self._taking_enemy_turn and self.ready_count >= #self.players then
+  if not self.liberated and not self._taking_enemy_turn and self.ready_count >= #self.players and #self.players > 0 then
     -- now we can take a turn !
     take_enemy_turn(self)
   end
