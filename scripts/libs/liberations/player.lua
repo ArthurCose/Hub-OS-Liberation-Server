@@ -1491,7 +1491,7 @@ function Player:try_reconnect(player_id)
   local instance = self._instance
 
   if
-      instance.liberated or
+      instance.game_ended or
       instance:destroying() or
       not Net.is_area(instance.area_id)
   then

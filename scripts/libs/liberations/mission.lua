@@ -113,6 +113,8 @@ local function take_enemy_turn(self)
     end
 
     if down_count == #self.players then
+      self.game_ended = true
+
       for _, player in ipairs(self.players) do
         Async.create_scope(function()
           Async.await(player:message_with_mug("We're all down?\nRetreat!\nRetreat!!"))
@@ -136,6 +138,7 @@ local function take_enemy_turn(self)
           self:kick_player(player.id, "failure")
         end)
       end
+
 
       return
     end
@@ -335,7 +338,7 @@ end
 ---@field default_encounter string
 ---@field package _phase number
 ---@field package _target_phase Liberation._TargetPhase
----@field liberated boolean
+---@field game_ended boolean
 ---@field ready_count number
 ---@field order_points number
 ---@field MAX_ORDER_POINTS number
@@ -369,7 +372,7 @@ function MissionInstance:new(area_id)
     default_encounter = Net.get_area_custom_property(area_id, "Liberation Encounter"),
     _phase = 1,
     _target_phase = TargetPhase:new(area_id),
-    liberated = false,
+    game_ended = false,
     ready_count = 0,
     order_points = 3,
     MAX_ORDER_POINTS = 8,
@@ -773,7 +776,7 @@ end
 
 ---@package
 function MissionInstance:tick(elapsed)
-  if not self.liberated and not self._taking_enemy_turn and self.ready_count >= #self.players and #self.players > 0 then
+  if not self.game_ended and not self._taking_enemy_turn and self.ready_count >= #self.players and #self.players > 0 then
     -- now we can take a turn !
     take_enemy_turn(self)
   end
@@ -1329,7 +1332,7 @@ function MissionInstance:convert_indestructible_panels()
 end
 
 function MissionInstance:liberate_area()
-  self.liberated = true
+  self.game_ended = true
 
   return Async.create_scope(function()
     for _, layer in pairs(self.panels) do
