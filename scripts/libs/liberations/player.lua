@@ -725,9 +725,9 @@ function Player:initiate_panel_encounter(panel, loot_options)
     if targetted_enemy == instance.boss and (targetted_enemy.health == 0 or (results and results.won)) then
       -- silence for boss deletion
       Net.set_music(instance.area_id, SILENT_MUSIC)
-    end
 
-    if not results.won then
+      self._instance:mark_success()
+    elseif not results.won then
       -- delay to allow the return transition to end
       Async.await(Async.sleep(1))
 
@@ -750,9 +750,7 @@ function Player:initiate_panel_encounter(panel, loot_options)
       selection:apply_dark_hole_shape()
     end
 
-    if not results.won then
-      selection:clear()
-    elseif results.turns == 1 then
+    if results.turns == 1 then
       selection:merge_bonus_shape()
     end
 
@@ -1103,12 +1101,10 @@ function Player:liberate_panels(panels, results)
       end)
     else
       -- Message based on the results.
-      if not results.won then
-        Async.await(self:message_with_mug("Oh, no!\nLiberation failed!"))
-      elseif results.turns == 1 then
-        Async.await(self:message_with_mug("One turn liberation!"))
-      else
+      if not results.won or results.turns > 1 then
         Async.await(self:message_with_mug("Yeah!\nI liberated it!"))
+      else
+        Async.await(self:message_with_mug("One turn liberation!"))
       end
     end
   end)

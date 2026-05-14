@@ -7,6 +7,7 @@ local PanelClass = require("scripts/libs/liberations/panel_class")
 local TargetPhase = require("scripts/libs/liberations/target_phase")
 local Preloader = require("scripts/libs/liberations/preloader")
 local HealthSprites = require("scripts/libs/liberations/effects/health_sprites")
+local Time = require("scripts/libs/liberations/time")
 local Direction = require("scripts/libs/direction")
 
 local MARKERS_TEXTURE_PATH = Preloader.add_asset("/server/assets/liberations/ui/markers.png")
@@ -336,6 +337,8 @@ end
 ---@field area_id string
 ---@field area_name string
 ---@field default_encounter string
+---@field package _start_time number
+---@field package _end_time number
 ---@field package _phase number
 ---@field package _target_phase Liberation._TargetPhase
 ---@field game_ended boolean
@@ -370,6 +373,8 @@ function MissionInstance:new(area_id)
     area_id = area_id,
     area_name = Net.get_area_name(area_id),
     default_encounter = Net.get_area_custom_property(area_id, "Liberation Encounter"),
+    _start_time = os.time(),
+    _end_time = 0,
     _phase = 1,
     _target_phase = TargetPhase:new(area_id),
     game_ended = false,
@@ -676,6 +681,7 @@ end
 --- - "phase_end", { team: "player" | "darkloid" }
 --- - "player_kicked", { player_id, reason: "success" | "failure" | "abandoned" }
 --- - "player_disconnect", { player }
+--- - "success", { total_time } the total_time is in seconds
 --- - "destroyed", {}
 function MissionInstance:events()
   return self._events
@@ -688,6 +694,17 @@ end
 ---Calculates the target phase based on the total amount of players that have joined the mission
 function MissionInstance:target_phase()
   return self._target_phase:calculate()
+end
+
+function MissionInstance:mark_success()
+  if self._end_time > 0 then
+    return
+  end
+
+  self._end_time = os.time()
+  local total_time = os.difftime(self._end_time, self._start_time)
+
+  self:events():emit("success", { total_time = total_time })
 end
 
 ---@param player_id Net.ActorId
@@ -1372,10 +1389,14 @@ function MissionInstance:liberate_area()
 
     Async.await(Async.sleep(3))
 
-    local victory_message =
-        self.area_name .. " Liberated\n" ..
-        "Target: " .. self._target_phase:calculate() .. "\n" ..
-        "Actual: " .. self._phase
+    local total_time = os.difftime(self._end_time, self._start_time)
+    local victory_lines = {
+      self.area_name .. " Liberated",
+      "Target: " .. self._target_phase:calculate(),
+      "Actual: " .. self._phase,
+      "Time: " .. Time.format_time(total_time)
+    }
+    local victory_message = table.concat(victory_lines, "\n")
 
     for _, player in ipairs(self.players) do
       player:message(victory_message).and_then(function()

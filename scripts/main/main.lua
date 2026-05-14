@@ -1,9 +1,10 @@
-local Debug = require("scripts/main/debug")
 require("scripts/main/custom_abilities/step_sword")
 require("scripts/main/shop")
 
 local ScriptNodes = require("scripts/libs/script_nodes")
 local scripts = ScriptNodes:new()
+
+require("scripts/main/custom_nodes")(scripts)
 
 for _, area_id in ipairs(Net.list_areas()) do
   scripts:load(area_id)
@@ -15,18 +16,11 @@ local Parties = require("scripts/libs/parties")
 local PartiesMenu = require("scripts/libs/parties_menu")
 local PlayerData = require("scripts/main/player_data")
 local ShopData = require("scripts/main/shop_data")
+local Leaderboard = require("scripts/main/leaderboard")
+local Constants = require("scripts/main/constants")
 local randomize_mission = require("scripts/main/randomize_mission")
 
 local MISSION_BOARD_COLOR = { r = 168, g = 128, b = 200 }
-local MISSION_AREAS = {
-  "acdc3",
-  "oran_area_3",
-  "nebula_area_3",
-}
-
-if Debug.ENABLED then
-  table.insert(MISSION_AREAS, "test_area")
-end
 
 local LOBBY_AREA = "default"
 local door = Net.get_object_by_name(LOBBY_AREA, "Door")
@@ -176,7 +170,6 @@ local function transfer_players_to_new_instance(base_area, player_ids, save_data
       transfer_to_lobby(player_id, true)
     end
 
-
     local key = Net.get_player_secret(player_id)
     recovery_data[key] = nil
     players_in_mission[player_id] = nil
@@ -209,6 +202,34 @@ local function transfer_players_to_new_instance(base_area, player_ids, save_data
     active_missions = active_missions - 1
     print("Active Missions: " .. active_missions)
   end)
+
+  -- leaderboards
+  ---@type LiberationServer.LeaderboardMissionLog
+  local mission_log = {
+    area_id = base_area,
+    phase = 0,
+    duration = 0,
+    team = {}
+  }
+
+  -- this makes sure to loop only over loaded players,
+  -- some were filtered out above
+  for _, player in ipairs(mission.players) do
+    local ability_shop_data = player.ability and ShopData.MAP[player.ability.name]
+
+    mission_log.team[#mission_log.team + 1] = {
+      identity = Net.get_player_secret(player.id),
+      name = Net.get_actor_name(player.id),
+      navi = Net.get_player_avatar_name(player.id),
+      ability = ability_shop_data and ability_shop_data.short_name
+    }
+  end
+
+  mission_events:on("success", function(event)
+    mission_log.phase = mission:phase()
+    mission_log.duration = event.total_time
+    Leaderboard.log_mission(mission_log)
+  end)
 end
 
 local function pad_left(s, n)
@@ -233,7 +254,7 @@ local function detect_door_interaction(player_id, object_id, button)
 
     local party_size = #Parties.list_online_members(player_id)
 
-    for _, area_id in ipairs(MISSION_AREAS) do
+    for _, area_id in ipairs(Constants.MISSION_AREAS) do
       local solo_target = tonumber(Net.get_area_custom_property(area_id, "Target Phase"))
 
       ---@type number|string
