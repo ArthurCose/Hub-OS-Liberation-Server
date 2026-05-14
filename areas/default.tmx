@@ -12,8 +12,8 @@
  <tileset firstgid="14" source="../assets/tiles/warp.tsx"/>
  <tileset firstgid="20" source="../assets/tiles/home_warp.tsx"/>
  <tileset firstgid="24" source="../assets/tiles/bbs.tsx"/>
- <tileset firstgid="25" source="../assets/liberations/tiles/collision.tsx"/>
- <tileset firstgid="26" source="../assets/tiles/shop_stall.tsx"/>
+ <tileset firstgid="28" source="../assets/liberations/tiles/collision.tsx"/>
+ <tileset firstgid="29" source="../assets/tiles/shop_stall.tsx"/>
  <layer id="1" name="Tile Layer 1" width="23" height="26" visible="0">
   <data encoding="csv">
 0,0,0,0,0,0,0,0,2147483658,0,11,0,11,0,0,0,0,0,0,0,0,0,0,
@@ -79,12 +79,12 @@
    </properties>
    <point/>
   </object>
-  <object id="24" name="Known Issues" type="Board" gid="2147483672" x="91.5" y="279.5" width="32" height="56">
+  <object id="24" name="Known Issues" type="Board" gid="2147483673" x="88" y="280" width="32" height="56">
    <properties>
     <property name="Repo" value="ArthurCose/Hub-OS-Liberation-Server"/>
    </properties>
   </object>
-  <object id="25" name="ACDC2" type="Board" gid="24" x="248" y="508" width="32" height="56">
+  <object id="25" name="ACDC2" type="Board" gid="2147483672" x="184" y="280" width="32" height="56">
    <properties>
     <property name="BBS" type="bool" value="true"/>
     <property name="Color" type="color" value="#ff6bbdcd"/>
@@ -97,9 +97,9 @@
    </properties>
    <point/>
   </object>
-  <object id="28" gid="26" x="330.5" y="227.5" width="44" height="48"/>
-  <object id="29" name="Ability Shop" type="Shop" gid="27" x="338.5" y="235.5" width="44" height="48"/>
-  <object id="30" gid="28" x="319.5" y="216.5" width="44" height="48"/>
+  <object id="28" gid="29" x="330.5" y="227.5" width="44" height="48"/>
+  <object id="29" name="Ability Shop" type="Shop" gid="30" x="338.5" y="235.5" width="44" height="48"/>
+  <object id="30" gid="31" x="319.5" y="216.5" width="44" height="48"/>
   <object id="31" name="Shop Keeper" type="Script Node: Spawn Bot" x="334" y="247">
    <properties>
     <property name="Asset" value="bots/normal_navi"/>
@@ -324,7 +324,7 @@ RESTORED SOON.</property>
    </properties>
    <point/>
   </object>
-  <object id="73" type="Script Node: Open Leaderboard" gid="24" x="56" y="408" width="32" height="56">
+  <object id="73" name="Leaderboard" type="Board" gid="27" x="56" y="408" width="32" height="56">
    <properties>
     <property name="On Interact" type="object" value="74"/>
    </properties>
