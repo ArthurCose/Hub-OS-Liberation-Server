@@ -134,7 +134,7 @@ function PlayerSelection:apply_dark_hole_shape()
 
   for shape_y = 1, 3 do
     for shape_x = 1, 3 do
-      local p_x, p_y = self.selection:transform_offset(shape_x - 2, shape_y - 2)
+      local p_x, p_y = self.selection:perspective_to_world(shape_x - 2, shape_y - 2)
 
       local panel = self.instance:get_panel_at(x + p_x, y + p_y, z)
 

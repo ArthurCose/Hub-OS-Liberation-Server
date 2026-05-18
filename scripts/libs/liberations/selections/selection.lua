@@ -197,23 +197,28 @@ function Selection:move(x, y, z, direction)
 end
 
 --- Transforms a perspective relative offset to a world offset
-function Selection:transform_offset(x, y)
-  -- the default direction is UP RIGHT
-
-  if self.direction == Direction.DOWN_LEFT then
-    x = -x -- flipped
-    y = -y -- flipped
-  elseif self.direction == Direction.UP_LEFT then
-    local old_y = y
-    y = -x    -- 🤷
-    x = old_y -- negative for going left
+function Selection:perspective_to_world(x, y)
+  if self.direction == Direction.UP_LEFT then
+    return -y, -x
   elseif self.direction == Direction.DOWN_RIGHT then
-    local old_y = y
-    y = x      -- 🤷
-    x = -old_y -- positive for going right
+    return y, x
+  elseif self.direction == Direction.UP_RIGHT then
+    return x, -y
   end
+  -- the default direction is UP RIGHT
+  return -x, y
+end
 
-  return x, y
+function Selection:world_to_perspective(x, y)
+  if self.direction == Direction.UP_LEFT then
+    return -y, -x
+  elseif self.direction == Direction.DOWN_RIGHT then
+    return y, x
+  elseif self.direction == Direction.DOWN_LEFT then
+    return -x, y
+  end
+  -- the default direction is UP RIGHT
+  return x, -y
 end
 
 ---@param x number
@@ -228,10 +233,10 @@ function Selection:is_within(x, y, z)
     return false
   end
 
-  local offset_x = self.position.x - x
-  local offset_y = self.position.y - y
+  local offset_x = x - self.position.x
+  local offset_y = y - self.position.y
 
-  offset_x, offset_y = self:transform_offset(offset_x, offset_y)
+  offset_x, offset_y = self:world_to_perspective(offset_x, offset_y)
 
   offset_x = offset_x - self.shape_offset_x
   offset_y = offset_y - self.shape_offset_y
@@ -241,7 +246,7 @@ function Selection:is_within(x, y, z)
   end
 
   local row = self.shape[offset_y]
-  local center_x = (#row - 1) / 2
+  local center_x = #row // 2
   offset_x = offset_x + center_x + 1
 
   if offset_x < 1 or offset_x > #row then
@@ -270,10 +275,10 @@ function Selection:for_each_tile(callback)
 
       -- facing up right by default
       local offset_x = n + self.shape_offset_x - center_x - 1
-      local offset_y = -(m + self.shape_offset_y)
+      local offset_y = m + self.shape_offset_y
 
       -- adjusting the offset to the direction
-      offset_x, offset_y = self:transform_offset(offset_x, offset_y)
+      offset_x, offset_y = self:perspective_to_world(offset_x, offset_y)
 
       local x = self.position.x + offset_x
       local y = self.position.y + offset_y
