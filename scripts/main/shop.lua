@@ -184,7 +184,7 @@ Net:on("object_interaction", function(event)
   local player_id = event.player_id
   local object = Net.get_object_by_id(Net.get_actor_area(player_id), event.object_id)
 
-  if object.name ~= "Ability Shop" then
+  if not object or object.name ~= "Ability Shop" then
     return
   end
 
