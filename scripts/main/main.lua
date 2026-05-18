@@ -223,7 +223,7 @@ local function transfer_players_to_new_instance(base_area, player_ids, save_data
       identity = Net.get_player_secret(player.id),
       name = Net.get_actor_name(player.id),
       navi = Net.get_player_avatar_name(player.id),
-      ability = ability_shop_data and ability_shop_data.short_name
+      ability = ability_shop_data and (ability_shop_data.short_name or ability_shop_data.name)
     }
   end
 
