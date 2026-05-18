@@ -67,7 +67,8 @@ function Leaderboard.log_mission(mission_log)
     try_set("solo_phase", mission_log.phase)
     try_set("solo_time", mission_log.duration)
   else
-    try_set("team_phase", mission_log.phase)
+    -- skip saving team phase until we know how to handle this
+    -- try_set("team_phase", mission_log.phase)
     try_set("team_time", mission_log.duration)
   end
 

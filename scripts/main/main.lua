@@ -12,6 +12,7 @@ end
 
 local Mission = require("scripts/libs/liberations/mission")
 local Ability = require("scripts/libs/liberations/ability")
+local Time = require("scripts/libs/liberations/time")
 local Parties = require("scripts/libs/parties")
 local PartiesMenu = require("scripts/libs/parties_menu")
 local PlayerData = require("scripts/main/player_data")
@@ -227,6 +228,14 @@ local function transfer_players_to_new_instance(base_area, player_ids, save_data
   end
 
   mission_events:on("success", function(event)
+    print(
+      #mission_log.team ..
+      " players completed " ..
+      mission_log.area_id ..
+      " in " ..
+      Time.format_time(event.total_time)
+    )
+
     mission_log.phase = mission:phase()
     mission_log.duration = event.total_time
     Leaderboard.log_mission(mission_log)
