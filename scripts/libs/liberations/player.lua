@@ -682,7 +682,7 @@ function Player:initiate_panel_encounter(panel, loot_options)
     local final_enemy_health = enemy and enemy.health or 0
 
     if Debug.AUTO_WIN then
-      results = { connection_failed = false, won = true, turns = 1 }
+      results = { connection_failed = false, won = true, turns = Debug.AUTO_WIN_TURNS or 1 }
     else
       local promise, emitter = self:initiate_encounter(encounter_path, data)
 
