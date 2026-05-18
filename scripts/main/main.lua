@@ -184,14 +184,15 @@ local function transfer_players_to_new_instance(base_area, player_ids, save_data
   end)
 
   mission_events:on("player_disconnect", function(event)
+    local player = event.player
     if #mission.players == 0 then
       delete_recovery_data()
       mission:destroy()
+    else
+      local key = Net.get_player_secret(player.id)
+      recovery_data[key] = player
     end
 
-    local player = event.player
-    local key = Net.get_player_secret(player.id)
-    recovery_data[key] = player
     players_in_mission[player.id] = nil
   end)
 
