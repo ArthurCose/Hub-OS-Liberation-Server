@@ -1335,6 +1335,14 @@ function MissionInstance:convert_indestructible_panels()
       self.collision_template.z = panel.z
 
       panel.collision_id = Net.create_object(self.area_id, self.collision_template)
+
+      if not self:get_enemy_at(panel.x, panel.y, panel.z) then
+        for _, player in ipairs(self.players) do
+          if player.ability and player.ability.shadow_step then
+            Net.exclude_object_for_player(player.id, panel.collision_id)
+          end
+        end
+      end
     end
 
     self.indestructible_panels = {}
