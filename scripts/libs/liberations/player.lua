@@ -679,7 +679,8 @@ function Player:initiate_panel_encounter(panel, loot_options)
 
     ---@type Liberation.BattleResults
     local results
-    local final_enemy_health = enemy and enemy.health or 0
+    local initial_enemy_health = (enemy and enemy.health) or 0
+    local final_enemy_health = initial_enemy_health
 
     if Debug.AUTO_WIN then
       results = { connection_failed = false, won = true, turns = Debug.AUTO_WIN_TURNS or 1 }
@@ -711,7 +712,10 @@ function Player:initiate_panel_encounter(panel, loot_options)
 
     -- update enemy health before transitions end
     if enemy and enemy:is_alive() then
-      enemy.health = final_enemy_health
+      -- see if the health changed while we were battling, from something like MAJOR HIT
+      local external_health_change = enemy.health - initial_enemy_health
+
+      enemy.health = math.max(final_enemy_health + external_health_change, 0)
 
       if enemy.health == 0 then
         HealthSprites.remove_sprite(enemy.id)
