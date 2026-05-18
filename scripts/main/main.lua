@@ -247,8 +247,7 @@ local function pad_left(s, n)
 end
 
 local function estimate_mins_from_target(target)
-  -- we're guessing each player will spend 45s per turn
-  return math.ceil(target * 45 / 60)
+  return math.ceil(target)
 end
 
 local function detect_door_interaction(player_id, object_id, button)
