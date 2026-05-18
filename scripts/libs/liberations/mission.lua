@@ -108,7 +108,7 @@ local function take_enemy_turn(self)
     local down_count = 0
 
     for _, player in ipairs(self.players) do
-      if player:health() == 0 then
+      if player:health() == 0 or player:paralyzed() then
         down_count = down_count + 1
       end
     end
