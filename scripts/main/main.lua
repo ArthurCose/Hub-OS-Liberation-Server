@@ -450,7 +450,7 @@ local function update_status(player_id)
     local shop_item_data = data.ability and ShopData.MAP[data.ability]
 
     if shop_item_data then
-      PartiesMenu.set_player_status(player_id, shop_item_data.short_name)
+      PartiesMenu.set_player_status(player_id, shop_item_data.short_name or shop_item_data.name)
     else
       PartiesMenu.set_player_status(player_id, "LongSwrd")
     end
