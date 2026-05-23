@@ -1,0 +1,24 @@
+[package]
+category = "encounter"
+id = "dev.konstinople.LiberationServer.ProtoManViruses"
+name = "ProtoMan Virus Encounters"
+
+[dependencies]
+encounters = [
+  "BattleNetwork5.Dominerd",
+  "BattleNetwork5.CanGuard",
+  "BattleNetwork6.BigHat",
+  "BattleNetwork6.Swordy",
+  "BattleNetwork3.Virus.KillerEye",
+]
+characters = [
+  "BattleNetwork5.Dominerd.Enemy",
+  "BattleNetwork5.CanRaid.Enemy",
+  "BattleNetwork6.BigHat.Enemy",
+  "BattleNetwork6.Swordy.Enemy",
+  "BattleNetwork3.enemy.KillerEye",
+]
+libraries = [
+  "dev.konstinople.library.liberation",
+  "dev.konstinople.LiberationServer.Shared"
+]

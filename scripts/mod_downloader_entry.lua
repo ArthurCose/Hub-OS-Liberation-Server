@@ -9,6 +9,7 @@ local package_ids = {
   "BattleNetwork5.Bladia",
   "BattleNetwork5.TinHawk",
   -- viruses
+  "BattleNetwork6.BigHat",
   "BattleNetwork6.Swordy",
   "BattleNetwork6.Mettaur",
   "BattleNetwork5.Cactikil",
@@ -20,6 +21,7 @@ local package_ids = {
   "BattleNetwork5.Whirly",
   "BattleNetwork5.CanGuard",
   "BattleNetwork3.Virus.KillerEye",
+  "BattleNetwork5.Dominerd",
   -- "BattleNetwork5.Powie",
   -- libraries
   "BattleNetwork.Assets",
