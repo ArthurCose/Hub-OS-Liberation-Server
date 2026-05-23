@@ -8,6 +8,7 @@ local package_ids = {
   "BattleNetwork5.Virus.BigBrute",
   "BattleNetwork5.Bladia",
   "BattleNetwork5.TinHawk",
+  "Tim.ProtoMan",
   -- viruses
   "BattleNetwork6.BigHat",
   "BattleNetwork6.Swordy",
@@ -37,6 +38,9 @@ local package_ids = {
   "BattleNetwork6.Libraries.CubesAndBoulders",
   "dev.konstinople.library.sliding_obstacle",
   "dev.konstinople.library.field_math",
+  "dev.konstinople.library.shield",
+  -- ProtoMan's Area Grab
+  "BattleNetwork6.Class01.Standard.165",
   -- Grab Revenge
   "BattleNetwork6.Class01.Standard.167",
   "BattleNetwork6.Libraries.PanelGrab",

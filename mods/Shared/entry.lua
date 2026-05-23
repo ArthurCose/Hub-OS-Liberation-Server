@@ -312,6 +312,44 @@ function Lib.buff_boss(character)
     guard_area(character)
 end
 
+---@param character Entity
+function Lib.darken(character)
+    ---@param color Color
+    local function is_black(color)
+        return color.r == 0 and color.g == 0 and color.b == 0 and color.a == 255
+    end
+
+    ---@param sprite Sprite
+    local function is_sprite_color_unmodified(sprite)
+        return sprite:color_mode() == ColorMode.Add and is_black(sprite:color())
+    end
+
+    local dark_color = Color.new(220, 160, 220)
+    local sprite = character:sprite()
+    local battle_started = false
+
+    local battle_start_component = character:create_component(Lifetime.ActiveBattle)
+    battle_start_component.on_update_func = function()
+        battle_start_component:eject()
+        battle_started = true
+    end
+
+    local color_component = character:create_component(Lifetime.Scene)
+    color_component.on_update_func = function()
+        if is_sprite_color_unmodified(sprite) then
+            sprite:set_color_mode(ColorMode.Multiply)
+            sprite:set_color(dark_color)
+        elseif not battle_started then
+            local color = sprite:color()
+            color.r = dark_color.r
+            color.g = dark_color.g
+            color.b = dark_color.b
+            sprite:set_color(color)
+            sprite:set_color_mode(ColorMode.Multiply)
+        end
+    end
+end
+
 function Lib.generate_ice_field()
     require("generate_ice_field")()
 end

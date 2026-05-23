@@ -178,14 +178,15 @@ function Enemy:move(x, y, z, direction)
     local area_id = Net.get_actor_area(self.id)
 
     -- create blur
+    local start_x, start_y, start_z = Net.get_actor_position_multi(self.id)
     local blur_bot_id = Net.create_bot({
       texture_path = BLUR_TEXTURE_PATH,
       animation_path = BLUR_ANIMATION_PATH,
       area_id = area_id,
       warp_in = false,
-      x = self.x + .5,
-      y = self.y + .5,
-      z = self.z + 1
+      x = start_x,
+      y = start_y,
+      z = start_z + 1
     })
 
     -- animate blur

@@ -1,0 +1,12 @@
+[package]
+category = "encounter"
+id = "dev.konstinople.LiberationServer.ProtoMan"
+name = "ProtoMan"
+
+[dependencies]
+encounters = ["Tim.ProtoMan"]
+characters = ["Tim.ProtoMan.Enemy"]
+libraries = [
+  "dev.konstinople.library.liberation",
+  "dev.konstinople.LiberationServer.Shared"
+]
