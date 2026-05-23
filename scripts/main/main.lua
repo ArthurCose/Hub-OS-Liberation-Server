@@ -266,6 +266,15 @@ local function detect_door_interaction(player_id, object_id, button)
     for _, area_id in ipairs(Constants.MISSION_AREAS) do
       local solo_target = tonumber(Net.get_area_custom_property(area_id, "Target Phase"))
 
+      -- resolve suffix
+      local name_suffix = ""
+
+      if Constants.LEADERBOARD_EXCLUDED[area_id] then
+        name_suffix = "*"
+      end
+
+      -- resolve estimated time
+
       ---@type number|string
       local estimated_time
 
@@ -278,7 +287,7 @@ local function detect_door_interaction(player_id, object_id, button)
 
       posts[#posts + 1] = {
         id = area_id,
-        title = Net.get_area_name(area_id),
+        title = Net.get_area_name(area_id) .. name_suffix,
         author = pad_left("~" .. estimated_time .. "m", 7),
         read = data.hidden_inventory["completed:" .. area_id] == 1
       }

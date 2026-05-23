@@ -36,6 +36,10 @@ local Leaderboard = {
 
 ---@param mission_log LiberationServer.LeaderboardMissionLog
 function Leaderboard.log_mission(mission_log)
+  if Constants.LEADERBOARD_EXCLUDED[mission_log.area_id] then
+    return
+  end
+
   local area_data = Leaderboard.data[mission_log.area_id]
 
   if not area_data then
