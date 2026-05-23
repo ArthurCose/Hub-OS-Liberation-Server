@@ -158,7 +158,7 @@
    <properties>
     <property name="Mug" value="mugs/male_navi_pink"/>
     <property name="Next" type="object" value="46"/>
-    <property name="Text" value="Looking for a bookmark?"/>
+    <property name="Text" value="Need a bookmark?"/>
    </properties>
    <point/>
   </object>
