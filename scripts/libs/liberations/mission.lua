@@ -1397,11 +1397,27 @@ function MissionInstance:liberate_area()
 
     Async.await(Async.sleep(3))
 
+    local target_phase = self._target_phase:calculate()
+    local actual_phase = self._phase
     local total_time = os.difftime(self._end_time, self._start_time)
+
+    local target_phase_suffix = "phases"
+    local actual_phase_suffix = "phases"
+
+    if target_phase == 1 then
+      target_phase_suffix = "phase"
+    end
+
+    if actual_phase == 1 then
+      actual_phase_suffix = "phase"
+    end
+
     local victory_lines = {
       self.area_name .. " Liberated",
-      "Target: " .. self._target_phase:calculate(),
-      "Actual: " .. self._phase,
+      "",
+      "",
+      "Target: " .. target_phase .. " " .. target_phase_suffix,
+      "Actual: " .. actual_phase .. " " .. actual_phase_suffix,
       "Time: " .. Time.format_time(total_time)
     }
     local victory_message = table.concat(victory_lines, "\n")
