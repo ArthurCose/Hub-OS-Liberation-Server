@@ -16,8 +16,8 @@ local GUARDIAN_POOLS = {
     { "TinHawk",  "V5" },
   },
   undernet_4 = {
-    BigBrute = { "V5", "V6" },
-    TinHawk = { "V4", "V5" },
+    BigBrute = { "V5", "V5" },
+    TinHawk = { "V5" },
     Bladia = { "V5", "V5", "V6", "V6" },
   },
   nebula_area_3 = {
