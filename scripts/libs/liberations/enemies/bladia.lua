@@ -183,7 +183,11 @@ local function try_moving_to_players(self, actor)
       -- custom can_move_to logic
       local panel = instance:get_panel_at(test_x, test_y, actor.z)
 
-      if panel and not PanelClass.ENEMY_WALKABLE[panel.class] then
+      if panel then
+        if not PanelClass.ENEMY_WALKABLE[panel.class] then
+          goto continue
+        end
+      elseif Net.get_tile(instance.area_id, test_x, test_y, actor.z).gid == 0 then
         goto continue
       end
 
