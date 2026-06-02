@@ -19,7 +19,6 @@ characters = [
   "BattleNetwork3.enemy.KillerEye"
 ]
 libraries = [
-  "dev.konstinople.library.liberation",
   "dev.konstinople.LiberationServer.Shared",
   "BattleNetwork6.Libraries.CubesAndBoulders",
   "dev.konstinople.library.sliding_obstacle"

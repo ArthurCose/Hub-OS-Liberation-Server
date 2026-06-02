@@ -8,7 +8,7 @@ function encounter_init(encounter, data)
 
     -- no custom field, he already has his clouds
 
-    LiberationLib.init(encounter, data)
+    SharedLib.init(encounter, data)
 
     encounter:set_spectate_on_delete(true)
 

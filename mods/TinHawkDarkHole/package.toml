@@ -6,7 +6,4 @@ name = "TinHawk DarkHole"
 [dependencies]
 encounters = ["BattleNetwork5.TinHawk"]
 characters = ["BattleNetwork5.TinHawk.Enemy"]
-libraries = [
-  "dev.konstinople.library.liberation",
-  "dev.konstinople.LiberationServer.Shared"
-]
+libraries = ["dev.konstinople.LiberationServer.Shared"]

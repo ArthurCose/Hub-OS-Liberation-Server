@@ -10,3 +10,4 @@ tile_states = [
   "BattleNetwork6.TileStates.Poison",
   "BattleNetwork3.TileStates.Sand",
 ]
+libraries = ["dev.konstinople.library.liberation"]

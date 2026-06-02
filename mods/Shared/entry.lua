@@ -1,3 +1,5 @@
+local LiberationLib = require("dev.konstinople.library.liberation")
+
 ---@class dev.konstinople.LiberationServer.Shared
 local Lib = {}
 
@@ -380,6 +382,17 @@ function Lib.crack_panels(n)
     for _ = 1, n do
         local tile = table.remove(tiles, math.random(#tiles))
         tile:set_state(TileState.Cracked)
+    end
+end
+
+---@param encounter Encounter
+function Lib.init(encounter, data)
+    LiberationLib.init(encounter, data)
+
+    for i = 0, encounter:player_count() - 1 do
+        if data.spectators[i] then
+            encounter:disconnect_input(i)
+        end
     end
 end
 

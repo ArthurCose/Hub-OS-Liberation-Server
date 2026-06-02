@@ -16,7 +16,4 @@ characters = [
   "BattleNetwork6.Mettaur.Enemy",
   "BattleNetwork5.Cactroll.Enemy"
 ]
-libraries = [
-  "dev.konstinople.library.liberation",
-  "dev.konstinople.LiberationServer.Shared"
-]
+libraries = ["dev.konstinople.LiberationServer.Shared"]

@@ -5,7 +5,7 @@ local LiberationLib = require("dev.konstinople.library.liberation")
 ---@param encounter Encounter
 function encounter_init(encounter, data)
     SharedLib.buff_terrain(data)
-    LiberationLib.init(encounter, data)
+    SharedLib.init(encounter, data)
     SharedLib.generate_ice_field()
 
     encounter:set_spectate_on_delete(true)

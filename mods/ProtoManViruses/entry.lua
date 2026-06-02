@@ -1,6 +1,5 @@
 ---@type dev.konstinople.LiberationServer.Shared
 local SharedLib = require("dev.konstinople.LiberationServer.Shared")
-local LiberationLib = require("dev.konstinople.library.liberation")
 
 local VIRUS_POOL = {
     { 1, "BattleNetwork5.Dominerd.Enemy", Rank.V1 },    -- 160 hp, 60 damage
@@ -17,7 +16,7 @@ local VIRUS_POOL = {
 function encounter_init(encounter, data)
     SharedLib.crack_panels(6)
 
-    LiberationLib.init(encounter, data)
+    SharedLib.init(encounter, data)
 
     encounter:set_spectate_on_delete(true)
 

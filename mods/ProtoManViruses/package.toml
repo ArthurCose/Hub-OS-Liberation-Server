@@ -18,7 +18,4 @@ characters = [
   "BattleNetwork6.Swordy.Enemy",
   "BattleNetwork3.enemy.KillerEye",
 ]
-libraries = [
-  "dev.konstinople.library.liberation",
-  "dev.konstinople.LiberationServer.Shared"
-]
+libraries = ["dev.konstinople.LiberationServer.Shared"]
