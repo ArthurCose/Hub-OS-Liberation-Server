@@ -148,6 +148,39 @@ local movement_tests = {
   { 0,  1 },
 }
 
+-- custom can_move_to logic
+---@param actor Liberation.Enemy
+local function can_move_to(actor, x, y, z)
+  local instance = actor:instance()
+  local panel = instance:get_panel_at(x, y, z)
+
+  if panel then
+    if not PanelClass.ENEMY_WALKABLE[panel.class] then
+      return false
+    end
+  elseif Net.get_tile(instance.area_id, x, y, z).gid == 0 then
+    return false
+  end
+
+  if instance:get_enemy_at(x, y, z) then
+    return false
+  end
+
+  for _, p in ipairs(instance.players) do
+    local p_x, p_y, p_z = p:floored_position_multi()
+
+    if
+        p_x == x and
+        p_y == y and
+        p_z == z
+    then
+      return false
+    end
+  end
+
+  return true
+end
+
 ---@param self Liberation.Enemies.Bladia
 ---@param actor Liberation.Enemy
 local function try_moving_to_players(self, actor)
@@ -181,30 +214,8 @@ local function try_moving_to_players(self, actor)
       end
 
       -- custom can_move_to logic
-      local panel = instance:get_panel_at(test_x, test_y, actor.z)
-
-      if panel then
-        if not PanelClass.ENEMY_WALKABLE[panel.class] then
-          goto continue
-        end
-      elseif Net.get_tile(instance.area_id, test_x, test_y, actor.z).gid == 0 then
+      if not can_move_to(actor, test_x, test_y, actor.z) then
         goto continue
-      end
-
-      if instance:get_enemy_at(test_x, test_y, actor.z) then
-        goto continue
-      end
-
-      for _, p in ipairs(instance.players) do
-        local p_x, p_y, p_z = p:floored_position_multi()
-
-        if
-            p_x == test_x and
-            p_y == test_y and
-            p_z == actor.z
-        then
-          goto continue
-        end
       end
 
       -- passed
@@ -249,6 +260,10 @@ local function return_home(self, actor)
     local instance = actor:instance()
 
     if self.home.x == actor.x and self.home.y == actor.y and self.home.z == actor.z then
+      return false
+    end
+
+    if not can_move_to(actor, self.home.x, self.home.y, self.home.z) then
       return false
     end
 
