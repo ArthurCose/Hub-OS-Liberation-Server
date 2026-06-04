@@ -524,6 +524,7 @@ function Player:initiate_encounter(encounter_path, data)
   data.terrain = self:resolve_terrain()
   data.spectators = {}
   data.start_invincible = self.invincible
+  self.invincible = false
 
   -- rally teammates
   local x, y, z = self:position_multi()
@@ -575,6 +576,7 @@ function Player:initiate_encounter(encounter_path, data)
       player:lock_movement()
       player._selection:clear()
       player.spectate_next_battle = false
+      player.invincible = false
     end
 
     ::continue::
@@ -599,6 +601,9 @@ function Player:initiate_encounter(encounter_path, data)
             if self.id ~= results_player.id then
               results_player:unlock_movement()
             end
+
+            -- give invincibility back since the player wasn't able to make use of it
+            results_player.invincible = data.start_invincible
 
             if not resolved then
               -- resolve immediately
