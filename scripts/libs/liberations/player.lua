@@ -839,11 +839,11 @@ function Player:hurt(amount)
   local prev_health = self._health
 
   if amount > 0 then
-    Net.play_sound_for_player(self.id, HURT_SFX)
+    Net.play_sound(self._instance.area_id, HURT_SFX)
 
     self._health = math.max(math.ceil(self._health - amount), 0)
   else
-    Net.play_sound_for_player(self.id, GUARD_SFX)
+    Net.play_sound(self._instance.area_id, GUARD_SFX)
   end
 
   -- spawn damage numbers
