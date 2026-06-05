@@ -8,7 +8,6 @@ local MISSION_AREAS = {
 }
 
 local LEADERBOARD_EXCLUDED = {
-  ["undernet_4"] = true,
 }
 
 if Debug.ENABLED then
