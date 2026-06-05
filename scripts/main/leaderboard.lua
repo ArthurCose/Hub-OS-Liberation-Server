@@ -155,10 +155,19 @@ function display_area_scores(player_id, area_id)
       return display_areas(player_id)
     end
 
-    return display_team(player_id, area_id, data.categories[post_id])
+    local topic
+
+    for _, post in ipairs(posts) do
+      if post.id == post_id then
+        topic = post.title
+        break
+      end
+    end
+
+    return topic, display_team(player_id, area_id, data.categories[post_id])
   end
 
-  return posts, listener
+  return Net.get_area_name(area_id), posts, listener
 end
 
 ---@param player_id Net.ActorId
@@ -185,14 +194,14 @@ function display_areas(player_id)
     return display_area_scores(player_id, post_id)
   end
 
-  return posts, listener
+  return "Leaderboard", posts, listener
 end
 
 ---@param player_id Net.ActorId
 function Leaderboard.open(player_id)
-  local posts, listener = display_areas(player_id)
+  local topic, posts, listener = display_areas(player_id)
 
-  local emitter = Net.open_board(player_id, "Leaderboard", BOARD_COLOR, posts)
+  local emitter = Net.open_board(player_id, topic, BOARD_COLOR, posts)
 
   emitter:on("post_selection", function(event)
     -- validate user input, mainly to handle asynchronous menu changes
@@ -208,14 +217,14 @@ function Leaderboard.open(player_id)
       return
     end
 
-    local new_posts, new_listener = listener(event.post_id)
+    local new_topic, new_posts, new_listener = listener(event.post_id)
 
-    if new_posts then
+    if new_topic and new_posts then
       Net.synchronize(function()
+        Net.update_board_topic(player_id, new_topic)
+
         -- remove old posts
-        for _, post in ipairs(posts) do
-          Net.remove_post(player_id, post.id)
-        end
+        Net.clear_board(player_id)
 
         -- send new posts
         Net.append_posts(player_id, new_posts)

@@ -861,12 +861,12 @@ function Net.prompt_player(player_id, textbox_options) end
 ---
 --- Returns [Net.EventEmitter](https://docs.hubos.dev/server/lua-api/event-emitters), re-emits `post_selection`, `post_request`, and `board_close` server events.
 ---@param player_id Net.ActorId
----@param board_name string
+---@param topic string
 ---@param color Net.Color
 ---@param posts Net.BoardPost[]
 ---@param open_instantly? boolean
 ---@return Net.EventEmitter
-function Net.open_board(player_id, board_name, color, posts, open_instantly) end
+function Net.open_board(player_id, topic, color, posts, open_instantly) end
 
 --- Issues may arise when multiple scripts create boards at the same time.
 ---@param player_id Net.ActorId
@@ -884,6 +884,19 @@ function Net.append_posts(player_id, posts, post_id) end
 ---@param player_id Net.ActorId
 ---@param post_id string
 function Net.remove_post(player_id, post_id) end
+
+--- Remove all posts on the currently opened board for the player.
+---
+--- Issues may arise when multiple scripts create boards at the same time.
+---@param player_id Net.ActorId
+function Net.clear_board(player_id) end
+
+--- Updates the top label on currently opened board for the player.
+---
+--- Issues may arise when multiple scripts create boards at the same time.
+---@param player_id Net.ActorId
+---@param topic string
+function Net.update_board_topic(player_id, topic) end
 
 --- Closes the currently opened board for the player.
 ---@param player_id Net.ActorId
