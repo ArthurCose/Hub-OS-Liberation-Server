@@ -389,6 +389,8 @@ end
 function Lib.init(encounter, data)
     LiberationLib.init(encounter, data)
 
+    encounter:set_spectate_on_delete(true)
+
     for i = 0, encounter:player_count() - 1 do
         if data.spectators[i] then
             encounter:disconnect_input(i)

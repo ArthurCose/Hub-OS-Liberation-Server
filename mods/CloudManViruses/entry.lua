@@ -20,7 +20,5 @@ function encounter_init(encounter, data)
 
     SharedLib.init(encounter, data)
 
-    encounter:set_spectate_on_delete(true)
-
     SharedLib.spawn_viruses(encounter, data, VIRUS_POOL)
 end

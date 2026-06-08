@@ -7,7 +7,5 @@ function encounter_init(encounter, data)
     data.terrain = "surrounded"
     SharedLib.init(encounter, data)
 
-    encounter:set_spectate_on_delete(true)
-
     SharedLib.shuffle_dark_hole_guardians(encounter, "BattleNetwork5.Bladia.Enemy", Rank[data.rank])
 end

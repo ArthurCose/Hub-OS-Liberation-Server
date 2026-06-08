@@ -11,8 +11,6 @@ function encounter_init(encounter, data)
 
     SharedLib.init(encounter, data)
 
-    encounter:set_spectate_on_delete(true)
-
     local rank = Rank[data.rank] -- utilizing rank from the server
     encounter:create_spawner("BattleNetwork5.ShadeMan.Enemy", rank)
         :spawn_at(5, 2)
