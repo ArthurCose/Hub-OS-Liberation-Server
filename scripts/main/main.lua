@@ -424,6 +424,8 @@ Net:on("player_join", function(event)
     return
   end
 
+  players_in_mission[event.player_id] = true
+
   Net.lock_player_equipment(event.player_id)
 
   local area_id = player:instance().area_id
