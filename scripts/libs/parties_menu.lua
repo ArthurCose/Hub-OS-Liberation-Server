@@ -179,6 +179,11 @@ Net:on("player_connect", function(event)
   PartiesMenu.set_player_status(event.player_id, "Online")
 end)
 
+Net:on("player_name_change", function(event)
+  local key = Parties.key_from_player_id(event.player_id)
+  names[key] = Net.get_actor_name(event.player_id)
+end)
+
 Net:on("player_disconnect", function(event)
   PartiesMenu.set_player_status(event.player_id, "Offline")
 end)
