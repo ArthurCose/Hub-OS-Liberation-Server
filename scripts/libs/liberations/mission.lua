@@ -458,7 +458,7 @@ function MissionInstance:new(area_id)
       goto continue
     end
 
-    if object.name == "Abandon Point" then
+    if object.name == "Abandon Point" or object.class == "Abandon Point" then
       -- delete to reduce map size
       Net.remove_object(mission.area_id, object_id)
 

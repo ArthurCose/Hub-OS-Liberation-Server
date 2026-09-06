@@ -123,6 +123,10 @@ You can chain multiple spawn points for the library to cycle through by adding a
 
 Each spawn point can have a `Direction` property to decide the direction players face when spawned.
 
+## Abandon Point
+
+Placing point objects with type or name `Abandon Point`, allows players to abandon the mission by walking to the panel under the point.
+
 ## Panels
 
 Panels are Tile Objects, identified by the library using the `Type` field.
