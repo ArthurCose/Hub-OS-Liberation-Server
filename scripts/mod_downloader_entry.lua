@@ -23,6 +23,9 @@ local package_ids = {
   "BattleNetwork5.CanGuard",
   "BattleNetwork3.Virus.KillerEye",
   "BattleNetwork5.Dominerd",
+  "BattleNetwork6.Gunner",
+  "BattleNetwork6.DarkMech",
+  "BattleNetwork.Encounters.Catack",
   -- "BattleNetwork5.Powie",
   -- libraries
   "BattleNetwork.Assets",

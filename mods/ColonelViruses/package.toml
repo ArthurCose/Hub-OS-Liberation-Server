@@ -1,0 +1,25 @@
+[package]
+category = "encounter"
+id = "dev.konstinople.LiberationServer.ColonelViruses"
+name = "Colonel Virus Encounters"
+
+[dependencies]
+encounters = [
+  "BattleNetwork5.Batty",
+  "BattleNetwork6.Gunner",
+  "BattleNetwork.Encounters.Catack",
+  "BattleNetwork5.CanGuard",
+  "BattleNetwork6.DarkMech",
+]
+characters = [
+  "BattleNetwork5.Gnarly.Enemy",
+  "BattleNetwork6.Gunner.Enemy",
+  "BattleNetwork.Enemy.Catack",
+  "BattleNetwork5.CanRaid.Enemy",
+  "BattleNetwork6.DarkMech.Enemy",
+]
+libraries = [
+  "dev.konstinople.LiberationServer.Shared",
+  "BattleNetwork6.Libraries.CubesAndBoulders",
+  "dev.konstinople.library.sliding_obstacle"
+]
