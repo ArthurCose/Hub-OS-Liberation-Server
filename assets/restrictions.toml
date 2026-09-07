@@ -5,6 +5,7 @@ drives_enabled = false
 id_blacklist = [
   "BattleNetwork3.Program02.BreakBuster",
   "LDR100.card.Navi.25.BlastMnΩ", # clears panels, flings obstacles
+  "com.AuraC.card.LifeAur3", # 250 HP life aura
 
 ]
 tag_blacklist = ["OFFLINE_ONLY"]
