@@ -5,6 +5,7 @@ local package_ids = {
   "BattleNetwork5.BlizzardMan",
   "BattleNetwork5.ShadeMan",
   "BattleNetwork5.CloudMan",
+  "BattleNetwork5.Colonel",
   "BattleNetwork5.Virus.BigBrute",
   "BattleNetwork5.Bladia",
   "BattleNetwork5.TinHawk",
@@ -42,6 +43,8 @@ local package_ids = {
   "dev.konstinople.library.sliding_obstacle",
   "dev.konstinople.library.field_math",
   "dev.konstinople.library.shield",
+  -- Colonel's TankCannon
+  "BattleNetwork6.Class01.Standard.012",
   -- ProtoMan's Area Grab
   "BattleNetwork6.Class01.Standard.165",
   -- Grab Revenge

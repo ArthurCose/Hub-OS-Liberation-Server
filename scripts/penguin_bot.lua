@@ -20,7 +20,7 @@ Net:on("actor_interaction", function(event)
     return
   end
 
-  Net.play_sound_for_player(event.player_id, "/server/assets/sound effects/club_penguin_fart.ogg")
+  Net.play_sound_for_player(event.player_id, "/server/assets/sounds/club_penguin_fart.ogg")
 
   if fart_id then
     return
