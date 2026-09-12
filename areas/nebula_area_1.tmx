@@ -7,7 +7,7 @@
   <property name="Music" value="/server/assets/music/mission.ogg"/>
   <property name="Name" value="NebulaArea1"/>
   <property name="Short Name" value="Nebula1"/>
-  <property name="Target Phase" type="int" value="45"/>
+  <property name="Target Phase" type="int" value="40"/>
  </properties>
  <tileset firstgid="1" source="../assets/tiles/panel_base.tsx"/>
  <tileset firstgid="4" source="../assets/liberations/tiles/panels.tsx"/>
