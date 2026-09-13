@@ -39,13 +39,14 @@ function BlizzardMan:new(builder)
   self.__index = self
 
   local shape = {
-    { 1, 1, 1 },
-    { 1, 0, 1 },
-    { 1, 1, 1 },
-    { 1, 1, 1 }
+    { 0, 1, 1, 1, 0 },
+    { 1, 1, 1, 1, 1 },
+    { 1, 1, 0, 1, 1 },
+    { 1, 1, 1, 1, 1 },
+    { 0, 1, 1, 1, 0 }
   }
 
-  blizzardman.selection:set_shape(shape, 0, -2)
+  blizzardman.selection:set_shape(shape, 0, -3)
 
   return builder:build({
     ai = blizzardman,
@@ -113,6 +114,11 @@ function BlizzardMan:take_turn(actor)
     if #caught_players == 0 then
       return
     end
+
+    -- face a random player
+    local random_player = caught_players[math.random(#caught_players)]
+    local random_x, random_y = random_player:position_multi()
+    actor:face_position(random_x, random_y)
 
     self.selection:indicate()
 

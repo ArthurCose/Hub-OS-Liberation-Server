@@ -40,13 +40,14 @@ function CloudMan:new(builder)
   self.__index = self
 
   local shape = {
-    { 1, 1, 1 },
-    { 1, 0, 1 },
-    { 1, 1, 1 },
-    { 1, 1, 1 }
+    { 0, 1, 1, 1, 0 },
+    { 1, 1, 1, 1, 1 },
+    { 1, 1, 0, 1, 1 },
+    { 1, 1, 1, 1, 1 },
+    { 0, 1, 1, 1, 0 }
   }
 
-  cloudman.selection:set_shape(shape, 0, -2)
+  cloudman.selection:set_shape(shape, 0, -3)
 
   return builder:build({
     ai = cloudman,
