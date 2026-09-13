@@ -2,16 +2,20 @@ animation state="DARK_HOLE"
 frame x="1" y="1" w="13" h="6" originx="6" originy="3"
 
 animation state="BONUS"
-frame x="1" y="8" w="10" h="12" originx="5" originy="10"
+frame x="2" y="9" w="10" h="12" originx="5" originy="10"
 
 animation state="ITEM"
-frame x="1" y="22" w="6" h="3" originx="3" originy="2"
-
-animation state="GATE_1"
-frame x="14" y="1" w="12" h="9" originx="6" originy="6"
-
-animation state="GATE_2"
-frame x="14" y="11" w="12" h="9" originx="6" originy="6"
+frame x="18" y="1" w="6" h="3" originx="3" originy="2"
 
 animation state="GATE"
-frame x="14" y="21" w="12" h="6" originx="6" originy="3"
+frame x="15" y="5" w="12" h="6" originx="6" originy="3"
+
+animation state="GATE_1"
+frame x="28" y="2" w="12" h="9" originx="6" originy="6"
+
+animation state="GATE_2"
+frame x="15" y="12" w="12" h="9" originx="6" originy="6"
+
+animation state="GATE_3"
+frame x="28" y="12" w="12" h="9" originx="6" originy="6"
+

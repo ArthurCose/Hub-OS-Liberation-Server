@@ -1202,9 +1202,12 @@ function MissionInstance:load_panel(object)
     if object.class == PanelClass.GATE then
       -- special numbered gate case
       local key = object.custom_properties["Gate Key"]
+      local key_n = tonumber(key)
 
-      if key == "1" or key == "2" then
+      if key_n and key_n <= 3 then
         marker_state = "GATE_" .. key
+      else
+        marker_state = "GATE"
       end
     end
 
