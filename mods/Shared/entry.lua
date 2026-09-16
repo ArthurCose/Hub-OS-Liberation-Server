@@ -372,6 +372,10 @@ function Lib.add_rock_cubes()
     require("add_rock_cubes")()
 end
 
+function Lib.add_ice_cubes()
+    require("add_ice_cubes")()
+end
+
 function Lib.crack_panels(n)
     ---@type Tile[]
     local tiles = {}

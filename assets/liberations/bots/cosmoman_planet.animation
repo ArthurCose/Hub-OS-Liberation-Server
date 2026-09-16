@@ -1,0 +1,25 @@
+animation state="DEFAULT"
+frame x="24" y="1" w="21" h="28" originx="10" originy="14" duration="0.117"
+frame x="1" y="1" w="21" h="32" originx="10" originy="16" duration="0.117"
+frame x="47" y="1" w="21" h="28" originx="10" originy="14" duration="0.117"
+frame x="1" y="1" w="21" h="32" originx="10" originy="16" duration="0.117"
+
+animation state="SMALL"
+frame x="1" y="35" w="21" h="20" originx="10" originy="8" duration="0.3"
+frame x="24" y="35" w="21" h="20" originx="10" originy="8" duration="0.1"
+
+animation state="SMALL_RINGED"
+frame x="1" y="57" w="21" h="28" originx="10" originy="14" duration="0.1"
+frame x="24" y="57" w="21" h="28" originx="10" originy="14" duration="0.1"
+
+animation state="IDLE_DL"
+frame
+
+animation state="IDLE_DR"
+frame
+
+animation state="IDLE_UL"
+frame
+
+animation state="IDLE_UR"
+frame

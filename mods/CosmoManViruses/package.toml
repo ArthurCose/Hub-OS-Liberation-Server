@@ -1,0 +1,25 @@
+[package]
+category = "encounter"
+id = "dev.konstinople.LiberationServer.CosmoManViruses"
+name = "CosmoMan Virus Encounters"
+
+[dependencies]
+encounters = [
+  "BattleNetwork5.Whirly",
+  "BattleNetwork.Encounters.Catack",
+  "BattleNetwork5.CanGuard",
+  "BattleNetwork3.Virus.KillerEye",
+  "BattleNetwork5.Handi",
+]
+characters = [
+  "BattleNetwork5.Spiraly.Enemy",
+  "BattleNetwork.Enemy.Catack",
+  "BattleNetwork5.CanRaid.Enemy",
+  "BattleNetwork3.enemy.KillerEye",
+  "BattleNetwork5.Handum.Enemy",
+]
+libraries = [
+  "dev.konstinople.LiberationServer.Shared",
+  "BattleNetwork6.Libraries.CubesAndBoulders",
+  "dev.konstinople.library.sliding_obstacle"
+]

@@ -2,6 +2,7 @@ local GUARDIAN_ENCOUNTERS = {
   BigBrute = { "/server/mods/BigBruteDarkHole", "/server/mods/BigBrute" },
   TinHawk = { "/server/mods/TinHawkDarkHole", "/server/mods/TinHawk" },
   Bladia = { "/server/mods/BladiaDarkHole", "/server/mods/Bladia" },
+  BlizzardMan = { "/server/mods/BlizzardMan", "/server/mods/BlizzardMan" },
 }
 
 local GUARDIAN_POOLS = {
@@ -29,6 +30,12 @@ local GUARDIAN_POOLS = {
     BigBrute = { "V5", "V6" },
     TinHawk = { "V5", "V6" },
     Bladia = { "V4", "V5" },
+  },
+  nebula_area_5 = {
+    BigBrute = { "V6", "V6", "V6" },
+    TinHawk = { "V6", "V6" },
+    Bladia = { "V6" },
+    BlizzardMan = { "Omega" },
   },
 }
 
@@ -118,8 +125,12 @@ local function randomize_mission(base_area_id, area_id)
       Net.set_object_custom_property(area_id, object_id, "Encounter", encounter)
 
       local rank_index = GUARDIAN_RANK_TO_INDEX[rank]
-      local health = GUARDIAN_HEALTH[guardian][rank_index]
-      Net.set_object_custom_property(area_id, object_id, "Health", tostring(health))
+      local healths = GUARDIAN_HEALTH[guardian]
+
+      if healths then
+        local health = healths[rank_index]
+        Net.set_object_custom_property(area_id, object_id, "Health", tostring(health))
+      end
     end
 
     if object.custom_properties.Boss then

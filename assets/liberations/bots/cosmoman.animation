@@ -1,0 +1,27 @@
+animation state="IDLE_UR"
+frame x="87" y="48" w="25" h="44" originx="11" originy="39" duration="0.067"
+
+animation state="IDLE_DR"
+frame x="87" y="1" w="26" h="45" originx="14" originy="40" duration="0.067"
+
+animation state="IDLE_DL"
+frame x="87" y="1" w="26" h="45" originx="14" originy="40" flipx="1" duration="0.067"
+
+animation state="IDLE_UL"
+frame x="87" y="48" w="25" h="44" originx="11" originy="39" flipx="1" duration="0.067"
+
+animation state="ATTACK_UR"
+frame x="1" y="48" w="37" h="47" originx="13" originy="42" duration="0.033"
+
+animation state="ATTACK_DR"
+frame x="1" y="1" w="44" h="45" originx="22" originy="40" duration="0.033"
+
+animation state="ATTACK_DL"
+frame x="1" y="1" w="44" h="45" originx="22" originy="40" flipx="1" duration="0.033"
+
+animation state="ATTACK_UL"
+frame x="1" y="48" w="37" h="47" originx="13" originy="42" flipx="1" duration="0.033"
+
+animation state="DEFEATED_DL"
+frame x="47" y="45" w="38" h="41" originx="18" originy="36" duration="0.05"
+frame x="47" y="1" w="38" h="42" originx="18" originy="37" duration="0.05"

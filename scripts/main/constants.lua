@@ -6,11 +6,13 @@ local MISSION_AREAS = {
   "undernet_4",
   "nebula_area_1",
   "nebula_area_3",
+  "nebula_area_5",
 }
 
 ---@type table<string, boolean>
 local LEADERBOARD_EXCLUDED = {
   ["nebula_area_1"] = true,
+  ["nebula_area_5"] = true,
 }
 
 if Debug.ENABLED then
