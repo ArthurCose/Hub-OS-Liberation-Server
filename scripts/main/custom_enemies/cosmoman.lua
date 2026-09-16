@@ -295,6 +295,38 @@ function CosmoMan:take_turn(actor)
     ))
 
     actor:attack(caught_players, function(targets)
+      -- pan to the action
+      if #targets > 0 then
+        local camera_min_x = math.huge
+        local camera_min_y = math.huge
+        local camera_min_z = math.huge
+        local camera_max_x = -math.huge
+        local camera_max_y = -math.huge
+        local camera_max_z = -math.huge
+
+        for _, target in ipairs(targets) do
+          local x, y, z = target:position_multi()
+
+          camera_min_x = math.min(camera_min_x, x)
+          camera_min_y = math.min(camera_min_y, y)
+          camera_min_z = math.min(camera_min_z, z)
+          camera_max_x = math.max(camera_max_x, x)
+          camera_max_y = math.max(camera_max_y, y)
+          camera_max_z = math.max(camera_max_z, z)
+        end
+
+        local camera_x = (camera_min_x + camera_max_x) * 0.5
+        local camera_y = (camera_min_y + camera_max_y) * 0.5
+        local camera_z = (camera_min_z + camera_max_z) * 0.5
+
+        for _, player in ipairs(instance.players) do
+          Net.slide_player_camera(player.id, camera_x, camera_y, camera_z, 0.5)
+        end
+
+        Async.await(Async.sleep(0.75))
+      end
+
+      -- spawn planets
       local last_promise
 
       for _, target in ipairs(targets) do
@@ -308,6 +340,17 @@ function CosmoMan:take_turn(actor)
       -- wait for the last planet to despawn
       if last_promise then
         Async.await(last_promise)
+      end
+
+      -- pan back
+      if #targets > 0 then
+        local x, y, z = actor:floored_position_multi()
+        x = x + 0.5
+        y = y + 0.5
+
+        for _, player in ipairs(instance.players) do
+          Net.slide_player_camera(player.id, x, y, z, 0.5)
+        end
       end
 
       Async.await(Async.sleep(1))
