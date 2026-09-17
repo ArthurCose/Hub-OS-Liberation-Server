@@ -11,7 +11,6 @@ local MISSION_AREAS = {
 
 ---@type table<string, boolean>
 local LEADERBOARD_EXCLUDED = {
-  ["nebula_area_1"] = true,
   ["nebula_area_5"] = true,
 }
 
