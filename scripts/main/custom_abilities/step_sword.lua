@@ -250,8 +250,6 @@ Ability.register({
 
       Async.await(Async.sleep(0.5))
 
-      Async.sleep(slide_time)
-
       if results.connection_failed then
         -- avoid ending this player's turn to allow them to retry
         player:unlock_movement()

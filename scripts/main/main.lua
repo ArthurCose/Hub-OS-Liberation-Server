@@ -1,4 +1,5 @@
 require("scripts/main/custom_abilities/step_sword")
+require("scripts/main/custom_abilities/pet")
 require("scripts/main/shop")
 
 local ScriptNodes = require("scripts/libs/script_nodes")

@@ -86,6 +86,13 @@ local SHOP_LIST = {
     description = "Cross dark panels.",
     price = 45
   },
+  {
+    name = "PetDoggy",
+    short_name = "PetDoggy",
+    description = "Use an order point to calm a foe for one turn.",
+    requires = "Barrier",
+    price = 50,
+  },
 }
 
 if Debug.ENABLED then
