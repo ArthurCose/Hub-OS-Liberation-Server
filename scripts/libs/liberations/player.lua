@@ -364,26 +364,8 @@ function Player:can_use_active_ability()
     return true
   end
 
-  local panel = self._selection:root_panel()
-
-  if not panel or not PanelClass.ABILITY_ACTIONABLE[panel.class] then
-    -- not an actionable panel
-    return false
-  end
-
-  if instance:get_enemy_at(panel.x, panel.y, panel.z) then
-    -- enemy blocking access
-    return false
-  end
-
-  for _, player in ipairs(instance.players) do
-    if player ~= self and panel == player._selection:root_panel() then
-      -- another player is blocking access
-      return false
-    end
-  end
-
-  return true
+  -- must generate a shape containing at least one panel
+  return #ability.generate_shape(self) > 0
 end
 
 function Player:get_ability_permission()

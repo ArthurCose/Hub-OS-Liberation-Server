@@ -7,8 +7,33 @@ local BARRIER_TEXTURE = Preloader.add_asset("/server/assets/liberations/bots/bar
 local BARRIER_ANIM_PATH = Preloader.add_asset("/server/assets/liberations/bots/barrier.animation")
 local BARRIER_SFX = Preloader.add_asset("/server/assets/liberations/sounds/barrier.ogg")
 
+local EMPTY_SHAPE = {}
+
 local function static_shape_generator(offset_x, offset_y, shape)
-  return function()
+  ---@param player Liberation.Player
+  ---@return number[][], number, number
+  return function(player)
+    local panel = player:selection():root_panel()
+
+    if not panel or not PanelClass.ABILITY_ACTIONABLE[panel.class] then
+      -- not an actionable panel
+      return EMPTY_SHAPE, 0, 0
+    end
+
+    local instance = player:instance()
+
+    if instance:get_enemy_at(panel.x, panel.y, panel.z) then
+      -- enemy blocking access
+      return EMPTY_SHAPE, 0, 0
+    end
+
+    for _, other_player in ipairs(instance.players) do
+      if other_player ~= player and panel == other_player:selection():root_panel() then
+        -- another player is blocking access
+        return EMPTY_SHAPE, 0, 0
+      end
+    end
+
     return shape, offset_x, offset_y
   end
 end
@@ -79,7 +104,7 @@ end
 ---@field question string
 ---@field cost number
 ---@field per_turn_limit number?
----@field generate_shape (fun(player: Liberation.Player): number[][], number, number)?
+---@field generate_shape (fun(player: Liberation.Player): number[][], number, number)? Returning an empty list hides the option from the menu
 ---@field indicate (fun(player: Liberation.Player): fun(activating: boolean)?)? Return a function to handle cleanup
 ---@field activate fun(player: Liberation.Player)
 
