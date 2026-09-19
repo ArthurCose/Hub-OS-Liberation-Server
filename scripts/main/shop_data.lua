@@ -89,7 +89,7 @@ local SHOP_LIST = {
   {
     name = "PetDoggy",
     short_name = "PetDoggy",
-    description = "Use an order point to calm a foe for one turn.",
+    description = "Random chance to calm a foe for one turn.",
     requires = "Barrier",
     price = 50,
   },

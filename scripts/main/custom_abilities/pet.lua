@@ -1,6 +1,5 @@
 local Ability = require("scripts/libs/liberations/ability")
 local Preloader = require("scripts/libs/liberations/preloader")
-local Direction = require("scripts/libs/direction")
 
 local HEARTS_TEXTURE = Preloader.add_asset("/server/assets/bots/hearts.png")
 local HEARTS_ANIM_PATH = Preloader.add_asset("/server/assets/bots/hearts.animation")
@@ -8,12 +7,30 @@ local PET_SFX = Preloader.add_asset("/server/assets/liberations/sounds/recover.o
 
 local pacified = {}
 
+---Expects to run within an async scope
+---@param player Liberation.Player
 ---@param enemy Liberation.Enemy
-local function pacify(enemy)
+local function pacify(player, enemy)
   local enemy_id = enemy.id
+
   if pacified[enemy_id] then
+    Async.await(Async.sleep(1.6))
     return
   end
+
+  -- dramatic pause
+  Async.await(Async.sleep(1))
+
+  if math.random(3) == 1 then
+    -- same amount of damage as traps in randomize_mission.lua
+    player:hurt(150)
+
+    Async.await(Async.sleep(1))
+
+    Async.await(player:message_with_mug("It bites!"))
+    return
+  end
+
   pacified[enemy_id] = true
 
   -- save old ai
@@ -73,13 +90,15 @@ local function pacify(enemy)
   end
 
   events:on("destroyed", effect_cleanup)
+
+  -- wait a bit to take in the change
+  Async.await(Async.sleep(1.6))
 end
 
 Ability.register({
   name = "PetDoggy",
   question = "Can I pet the dog?",
-  cost = 1,
-  per_turn_limit = 1,
+  cost = 0,
   generate_shape = function(player)
     local instance = player:instance()
     local panel = player:selection():root_panel()
@@ -123,13 +142,12 @@ Ability.register({
       local enemy = instance:get_enemy_at(panel.x, panel.y, panel.z)
 
       if not enemy or enemy == instance.boss then
+        -- just in case we add a cost
         player:refund_ability()
 
         Async.await(player:message_with_mug("Doggy?"))
       else
-        pacify(enemy)
-
-        Async.await(Async.sleep(1.6))
+        pacify(player, enemy)
       end
 
       -- return camera to the original position
@@ -143,6 +161,7 @@ Ability.register({
       )
       Net.unlock_player_camera(player.id)
       player:unlock_movement()
+      player:selection():clear()
     end)
   end
 })
