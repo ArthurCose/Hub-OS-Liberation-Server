@@ -114,7 +114,6 @@ local function randomize_mission(base_area_id, area_id)
       -- randomize guardians
 
       local guardian = object.custom_properties.Spawns
-      print(guardian)
       local rank_list = guardians[guardian]
       local rank
 
