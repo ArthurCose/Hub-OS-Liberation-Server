@@ -3,8 +3,8 @@ local GUARDIAN_ENCOUNTERS = {
   TinHawk = { "/server/mods/TinHawkDarkHole", "/server/mods/TinHawk" },
   Bladia = { "/server/mods/BladiaDarkHole", "/server/mods/Bladia" },
   BlizzardMan = { "/server/mods/BlizzardMan", "/server/mods/BlizzardMan" },
-  ["scripts/main/custom_enemies/protoman"] = { "/server/mods/Colonel", "/server/mods/Colonel" },
-  ["scripts/main/custom_enemies/colonel"] = { "/server/mods/ProtoMan", "/server/mods/ProtoMan" },
+  ["scripts/main/custom_enemies/protoman"] = { "/server/mods/ProtoMan", "/server/mods/ProtoMan" },
+  ["scripts/main/custom_enemies/colonel"] = { "/server/mods/Colonel", "/server/mods/Colonel" },
 }
 
 local GUARDIAN_POOLS = {
