@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.12.1" orientation="isometric" renderorder="right-down" width="23" height="26" tilewidth="64" tileheight="32" infinite="0" nextlayerid="3" nextobjectid="75">
+<map version="1.10" tiledversion="1.12.2" orientation="isometric" renderorder="right-down" width="23" height="26" tilewidth="64" tileheight="32" infinite="0" nextlayerid="3" nextobjectid="77">
  <properties>
   <property name="Background Animation" value="/server/assets/backgrounds/acdc.animation"/>
   <property name="Background Texture" value="/server/assets/backgrounds/acdc.png"/>
@@ -10,10 +10,10 @@
  <tileset firstgid="2" source="../assets/tiles/nebula_door.tsx"/>
  <tileset firstgid="8" source="../assets/tiles/walkable_space.tsx"/>
  <tileset firstgid="14" source="../assets/tiles/warp.tsx"/>
- <tileset firstgid="20" source="../assets/tiles/home_warp.tsx"/>
- <tileset firstgid="24" source="../assets/tiles/bbs.tsx"/>
- <tileset firstgid="28" source="../assets/liberations/tiles/collision.tsx"/>
- <tileset firstgid="29" source="../assets/tiles/shop_stall.tsx"/>
+ <tileset firstgid="23" source="../assets/tiles/home_warp.tsx"/>
+ <tileset firstgid="27" source="../assets/tiles/bbs.tsx"/>
+ <tileset firstgid="31" source="../assets/liberations/tiles/collision.tsx"/>
+ <tileset firstgid="32" source="../assets/tiles/shop_stall.tsx"/>
  <layer id="1" name="Tile Layer 1" width="23" height="26" visible="0">
   <data encoding="csv">
 0,0,0,0,0,0,0,0,2147483658,0,11,0,11,0,0,0,0,0,0,0,0,0,0,
@@ -61,7 +61,7 @@
     <property name="Address" value="servers.hubos.dev"/>
    </properties>
   </object>
-  <object id="15" type="Home Warp" gid="20" x="161" y="673" width="46" height="29"/>
+  <object id="15" type="Home Warp" gid="23" x="161" y="673" width="46" height="29"/>
   <object id="17" type="Server Warp" gid="15" x="352" y="352" width="64" height="32">
    <properties>
     <property name="Address" value="servers.hubos.dev"/>
@@ -79,12 +79,12 @@
    </properties>
    <point/>
   </object>
-  <object id="24" name="Known Issues" type="Board" gid="2147483673" x="88" y="280" width="32" height="56">
+  <object id="24" name="Known Issues" type="Board" gid="2147483676" x="88" y="280" width="32" height="56">
    <properties>
     <property name="Repo" value="ArthurCose/Hub-OS-Liberation-Server"/>
    </properties>
   </object>
-  <object id="25" name="ACDC2" type="Board" gid="2147483672" x="184" y="280" width="32" height="56">
+  <object id="25" name="ACDC2" type="Board" gid="2147483675" x="184" y="280" width="32" height="56">
    <properties>
     <property name="BBS" type="bool" value="true"/>
     <property name="Color" type="color" value="#ff6bbdcd"/>
@@ -97,9 +97,9 @@
    </properties>
    <point/>
   </object>
-  <object id="28" gid="29" x="330.5" y="227.5" width="44" height="48"/>
-  <object id="29" name="Ability Shop" type="Shop" gid="30" x="338.5" y="235.5" width="44" height="48"/>
-  <object id="30" gid="31" x="319.5" y="216.5" width="44" height="48"/>
+  <object id="28" gid="32" x="330.5" y="227.5" width="44" height="48"/>
+  <object id="29" name="Ability Shop" type="Shop" gid="33" x="338.5" y="235.5" width="44" height="48"/>
+  <object id="30" gid="34" x="319.5" y="216.5" width="44" height="48"/>
   <object id="31" name="Shop Keeper" type="Script Node: Spawn Bot" x="334" y="247">
    <properties>
     <property name="Asset" value="bots/normal_navi"/>
@@ -324,7 +324,7 @@ RESTORED SOON.</property>
    </properties>
    <point/>
   </object>
-  <object id="73" name="Leaderboard" type="Board" gid="27" x="56" y="408" width="32" height="56">
+  <object id="73" name="Leaderboard" type="Board" gid="30" x="56" y="408" width="32" height="56">
    <properties>
     <property name="On Interact" type="object" value="74"/>
    </properties>
@@ -332,5 +332,7 @@ RESTORED SOON.</property>
   <object id="74" type="Script Node: Open Leaderboard" x="48" y="472">
    <point/>
   </object>
+  <object id="75" gid="20" x="352" y="352" width="64" height="32"/>
+  <object id="76" gid="20" x="576" y="160" width="64" height="32"/>
  </objectgroup>
 </map>

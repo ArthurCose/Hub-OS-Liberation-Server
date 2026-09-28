@@ -356,12 +356,20 @@ function Lib.generate_ice_field()
     require("generate_ice_field")()
 end
 
+function Lib.generate_lava_field()
+    require("generate_lava_field")()
+end
+
 function Lib.generate_poison_field()
     require("generate_poison_field")()
 end
 
 function Lib.generate_beach_field()
     require("generate_beach_field")()
+end
+
+function Lib.generate_grass_field()
+    require("generate_grass_field")()
 end
 
 function Lib.add_boulders()

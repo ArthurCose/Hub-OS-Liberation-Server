@@ -3,6 +3,8 @@ local GUARDIAN_ENCOUNTERS = {
   TinHawk = { "/server/mods/TinHawkDarkHole", "/server/mods/TinHawk" },
   Bladia = { "/server/mods/BladiaDarkHole", "/server/mods/Bladia" },
   BlizzardMan = { "/server/mods/BlizzardMan", "/server/mods/BlizzardMan" },
+  ["scripts/main/custom_enemies/protoman"] = { "/server/mods/Colonel", "/server/mods/Colonel" },
+  ["scripts/main/custom_enemies/colonel"] = { "/server/mods/ProtoMan", "/server/mods/ProtoMan" },
 }
 
 local GUARDIAN_POOLS = {
@@ -37,6 +39,13 @@ local GUARDIAN_POOLS = {
     Bladia = { "V6" },
     BlizzardMan = { "Omega" },
   },
+  race_for_the_wool = {
+    BigBrute = { "V5", "V5", "V5", "V5", "V5", "V5" },
+    TinHawk = { "V5", "V5" },
+    Bladia = { "V6", "V6", "V6", "V6" },
+    ["scripts/main/custom_enemies/protoman"] = { "Omega" },
+    ["scripts/main/custom_enemies/colonel"] = { "Omega" },
+  }
 }
 
 local GUARDIAN_HEALTH = {
@@ -105,6 +114,7 @@ local function randomize_mission(base_area_id, area_id)
       -- randomize guardians
 
       local guardian = object.custom_properties.Spawns
+      print(guardian)
       local rank_list = guardians[guardian]
       local rank
 

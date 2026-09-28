@@ -38,6 +38,8 @@ local package_ids = {
   "dev.konstinople.library.turn_based",
   "BattleNetwork6.TileStates.Ice",
   "BattleNetwork6.TileStates.Poison",
+  "BattleNetwork6.TileStates.Grass",
+  "BattleNetwork5.TileStates.Lava",
   "BattleNetwork3.TileStates.Sand",
   "BattleNetwork6.Statuses.Uninstall",
   "BattleNetwork6.Statuses.Cage",
