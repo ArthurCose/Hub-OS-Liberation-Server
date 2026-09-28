@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.12.2" orientation="isometric" renderorder="right-down" width="23" height="38" tilewidth="64" tileheight="32" infinite="0" nextlayerid="8" nextobjectid="407">
+<map version="1.10" tiledversion="1.12.2" orientation="isometric" renderorder="right-down" width="23" height="38" tilewidth="64" tileheight="32" infinite="0" nextlayerid="8" nextobjectid="411">
  <properties>
   <property name="Background Animation" value="/server/assets/backgrounds/acdc.animation"/>
   <property name="Background Texture" value="/server/assets/backgrounds/acdc_unliberated.png"/>
@@ -16,6 +16,7 @@
  <tileset firstgid="59" source="../assets/liberations/tiles/collision.tsx"/>
  <tileset firstgid="60" source="../assets/tiles/oran3_arrow.tsx"/>
  <tileset firstgid="61" source="../assets/tiles/warp.tsx"/>
+ <tileset firstgid="70" source="../assets/tiles/conveyor.tsx"/>
  <layer id="3" name="Tile Layer 1" width="23" height="38">
   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,0,3,2,3,0,0,0,0,0,0,0,0,0,0,
@@ -50,7 +51,7 @@
 0,0,0,0,0,0,2147483650,2147483650,0,0,0,0,0,0,0,2,2,0,0,0,0,0,0,
 0,0,0,0,0,0,2147483650,2147483652,0,0,0,0,0,0,0,4,2,0,0,0,0,0,0,
 0,0,0,0,0,0,2147483652,2147483651,2147483652,0,3,3,3,0,4,3,4,0,0,0,0,0,0,
-0,0,0,0,0,0,2147483651,2147483652,2147483651,2147483650,4,3,4,2,3,4,3,0,0,0,0,0,0,
+0,0,0,0,0,0,2147483651,2147483652,2147483651,73,4,3,4,70,3,4,3,0,0,0,0,0,0,
 0,0,0,0,0,0,0,2147483650,2147483650,0,3,2,3,0,2,2,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,53,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,3221225529,0,0,0,0,0,0,0,0,0,0,0,
@@ -64,7 +65,11 @@
   <object id="18" type="Dark Panel" gid="5" x="448" y="640" width="50" height="30"/>
   <object id="20" type="Dark Panel" gid="5" x="224" y="928" width="50" height="30"/>
   <object id="21" type="Dark Panel" gid="5" x="288" y="864" width="50" height="30"/>
-  <object id="23" type="Item Panel" gid="6" x="224" y="960" width="50" height="30"/>
+  <object id="23" name="Order Point" type="Item Panel" gid="6" x="192" y="928" width="50" height="30">
+   <properties>
+    <property name="Specific Loot" value="ORDER_POINT"/>
+   </properties>
+  </object>
   <object id="25" type="Dark Panel" gid="5" x="416" y="608" width="50" height="30"/>
   <object id="26" type="Dark Panel" gid="5" x="256" y="896" width="50" height="30"/>
   <object id="27" type="Dark Panel" gid="5" x="544" y="640" width="50" height="30"/>
@@ -72,7 +77,7 @@
   <object id="29" type="Dark Panel" gid="5" x="192" y="960" width="50" height="30"/>
   <object id="30" type="Dark Panel" gid="5" x="448" y="576" width="50" height="30"/>
   <object id="31" type="Item Panel" gid="6" x="288" y="768" width="50" height="30"/>
-  <object id="33" type="Item Panel" gid="6" x="192" y="928" width="50" height="30"/>
+  <object id="33" type="Item Panel" gid="6" x="224" y="960" width="50" height="30"/>
   <object id="34" type="Dark Panel" gid="5" x="512" y="704" width="50" height="30"/>
   <object id="35" type="Dark Panel" gid="5" x="480" y="640" width="50" height="30"/>
   <object id="36" type="Dark Panel" gid="5" x="480" y="672" width="50" height="30"/>
@@ -210,11 +215,11 @@
   <object id="146" type="Dark Panel" gid="5" x="416" y="384" width="50" height="30"/>
   <object id="147" type="Dark Panel" gid="5" x="384" y="320" width="50" height="30"/>
   <object id="148" type="Dark Panel" gid="5" x="384" y="288" width="50" height="30"/>
-  <object id="149" type="Dark Panel" gid="5" x="448" y="288" width="50" height="30"/>
-  <object id="150" type="Dark Panel" gid="5" x="416" y="256" width="50" height="30"/>
+  <object id="149" type="Dark Panel" gid="5" x="448" y="224" width="50" height="30"/>
+  <object id="150" type="Dark Panel" gid="5" x="480" y="256" width="50" height="30"/>
   <object id="151" type="Dark Panel" gid="5" x="416" y="224" width="50" height="30"/>
   <object id="153" type="Dark Panel" gid="5" x="384" y="224" width="50" height="30"/>
-  <object id="154" type="Dark Panel" gid="5" x="448" y="256" width="50" height="30"/>
+  <object id="154" type="Dark Panel" gid="5" x="416" y="288" width="50" height="30"/>
   <object id="155" type="Dark Panel" gid="5" x="480" y="224" width="50" height="30"/>
   <object id="158" type="Dark Panel" gid="5" x="416" y="96" width="50" height="30"/>
   <object id="159" type="Dark Hole" gid="7" x="448" y="352" width="50" height="30">
@@ -226,21 +231,25 @@
     <property name="Spawns" value="TinHawk"/>
    </properties>
   </object>
-  <object id="161" type="Item Panel" gid="6" x="480" y="256" width="50" height="30"/>
+  <object id="161" type="Item Panel" gid="6" x="384" y="256" width="50" height="30"/>
   <object id="162" type="Dark Panel" gid="5" x="480" y="416" width="50" height="30"/>
   <object id="163" type="Item Panel" gid="6" x="384" y="480" width="50" height="30"/>
   <object id="167" type="Item Panel" gid="6" x="416" y="800" width="50" height="30"/>
   <object id="169" type="Item Panel" gid="6" x="416" y="768" width="50" height="30"/>
   <object id="170" type="Item Panel" gid="6" x="544" y="768" width="50" height="30"/>
-  <object id="171" type="Item Panel" gid="6" x="512" y="928" width="50" height="30"/>
+  <object id="171" type="Item Panel" gid="6" x="480" y="960" width="50" height="30"/>
   <object id="172" type="Dark Panel" gid="5" x="416" y="864" width="50" height="30"/>
   <object id="174" type="Item Panel" gid="6" x="448" y="736" width="50" height="30"/>
   <object id="175" type="Item Panel" gid="6" x="448" y="768" width="50" height="30"/>
-  <object id="176" type="Item Panel" gid="6" x="480" y="960" width="50" height="30"/>
+  <object id="176" name="Order Point" type="Item Panel" gid="6" x="512" y="928" width="50" height="30">
+   <properties>
+    <property name="Specific Loot" value="ORDER_POINT"/>
+   </properties>
+  </object>
   <object id="177" type="Item Panel" gid="6" x="544" y="672" width="50" height="30"/>
   <object id="178" type="Item Panel" gid="6" x="480" y="576" width="50" height="30"/>
   <object id="179" type="Item Panel" gid="6" x="480" y="480" width="50" height="30"/>
-  <object id="193" type="Dark Panel" gid="5" x="576" y="800" width="50" height="30"/>
+  <object id="193" type="Dark Panel" gid="5" x="544" y="800" width="50" height="30"/>
   <object id="195" type="Dark Panel" gid="5" x="512" y="832" width="50" height="30"/>
   <object id="198" type="Indestructible Panel" gid="8" x="352" y="0" width="50" height="30"/>
   <object id="199" type="Indestructible Panel" gid="8" x="384" y="0" width="50" height="30"/>
@@ -277,11 +286,11 @@
   <object id="240" type="Dark Panel" gid="5" x="224" y="224" width="50" height="30"/>
   <object id="241" type="Dark Panel" gid="5" x="288" y="224" width="50" height="30"/>
   <object id="242" type="Dark Panel" gid="5" x="320" y="224" width="50" height="30"/>
-  <object id="243" type="Dark Panel" gid="5" x="288" y="256" width="50" height="30"/>
-  <object id="244" type="Dark Panel" gid="5" x="256" y="256" width="50" height="30"/>
-  <object id="245" type="Dark Panel" gid="5" x="320" y="288" width="50" height="30"/>
+  <object id="243" type="Dark Panel" gid="5" x="320" y="288" width="50" height="30"/>
+  <object id="244" type="Dark Panel" gid="5" x="320" y="256" width="50" height="30"/>
+  <object id="245" type="Dark Panel" gid="5" x="256" y="224" width="50" height="30"/>
   <object id="246" type="Dark Panel" gid="5" x="320" y="320" width="50" height="30"/>
-  <object id="247" type="Dark Panel" gid="5" x="256" y="288" width="50" height="30"/>
+  <object id="247" type="Dark Panel" gid="5" x="288" y="288" width="50" height="30"/>
   <object id="250" type="Dark Panel" gid="5" x="288" y="384" width="50" height="30"/>
   <object id="251" type="Dark Panel" gid="5" x="256" y="384" width="50" height="30"/>
   <object id="252" type="Dark Hole" gid="7" x="256" y="352" width="50" height="30">
@@ -341,7 +350,7 @@
   <object id="286" type="Dark Panel" gid="5" x="224" y="800" width="50" height="30"/>
   <object id="287" type="Dark Panel" gid="5" x="192" y="768" width="50" height="30"/>
   <object id="288" type="Item Panel" gid="6" x="160" y="768" width="50" height="30"/>
-  <object id="289" type="Dark Panel" gid="5" x="128" y="800" width="50" height="30"/>
+  <object id="289" type="Dark Panel" gid="5" x="160" y="800" width="50" height="30"/>
   <object id="290" type="Dark Panel" gid="5" x="192" y="800" width="50" height="30"/>
   <object id="291" type="Dark Panel" gid="5" x="160" y="640" width="50" height="30"/>
   <object id="292" type="Dark Panel" gid="5" x="192" y="640" width="50" height="30"/>
@@ -394,14 +403,13 @@
   <object id="314" type="Dark Panel" gid="5" x="576" y="384" width="50" height="30"/>
   <object id="316" type="Dark Panel" gid="5" x="608" y="352" width="50" height="30"/>
   <object id="317" type="Dark Panel" gid="5" x="576" y="448" width="50" height="30"/>
-  <object id="318" type="Dark Panel" gid="5" x="640" y="448" width="50" height="30"/>
+  <object id="318" type="Dark Panel" gid="5" x="640" y="416" width="50" height="30"/>
   <object id="319" type="Dark Panel" gid="5" x="608" y="480" width="50" height="30"/>
   <object id="320" type="Item Panel" gid="6" x="576" y="352" width="50" height="30"/>
-  <object id="324" type="Dark Panel" gid="5" x="608" y="512" width="50" height="30"/>
+  <object id="324" type="Dark Panel" gid="5" x="640" y="512" width="50" height="30"/>
   <object id="325" type="Dark Panel" gid="5" x="672" y="544" width="50" height="30"/>
   <object id="326" type="Dark Panel" gid="5" x="640" y="544" width="50" height="30"/>
   <object id="327" type="Dark Panel" gid="5" x="672" y="576" width="50" height="30"/>
-  <object id="328" type="Dark Panel" gid="5" x="640" y="608" width="50" height="30"/>
   <object id="334" type="Item Panel" gid="6" x="672" y="480" width="50" height="30"/>
   <object id="335" type="Dark Panel" gid="5" x="640" y="352" width="50" height="30"/>
   <object id="336" type="Custom Warp" gid="62" x="64" y="800" width="64" height="32">
@@ -462,10 +470,10 @@
   <object id="359" type="Dark Panel" gid="5" x="64" y="352" width="50" height="30"/>
   <object id="360" type="Dark Panel" gid="5" x="96" y="352" width="50" height="30"/>
   <object id="361" type="Dark Panel" gid="5" x="64" y="384" width="50" height="30"/>
-  <object id="362" type="Dark Panel" gid="5" x="64" y="448" width="50" height="30"/>
+  <object id="362" type="Dark Panel" gid="5" x="64" y="416" width="50" height="30"/>
   <object id="363" type="Dark Panel" gid="5" x="96" y="384" width="50" height="30"/>
   <object id="364" type="Dark Panel" gid="5" x="96" y="480" width="50" height="30"/>
-  <object id="365" type="Dark Panel" gid="5" x="96" y="512" width="50" height="30"/>
+  <object id="365" type="Dark Panel" gid="5" x="64" y="512" width="50" height="30"/>
   <object id="366" type="Dark Panel" gid="5" x="32" y="576" width="50" height="30"/>
   <object id="367" type="Item Panel" gid="6" x="32" y="480" width="50" height="30"/>
   <object id="370" type="Dark Panel" gid="5" x="32" y="544" width="50" height="30"/>
@@ -558,8 +566,8 @@
     <property name="Specific Loot" value="KEY"/>
    </properties>
   </object>
-  <object id="392" type="Bonus Panel" gid="9" x="576" y="320" width="50" height="30"/>
-  <object id="393" type="Bonus Panel" gid="9" x="128" y="320" width="50" height="30"/>
+  <object id="392" type="Bonus Panel" gid="9" x="576" y="800" width="50" height="30"/>
+  <object id="393" type="Bonus Panel" gid="9" x="128" y="800" width="50" height="30"/>
   <object id="394" type="Indestructible Panel" gid="8" x="480" y="32" width="50" height="30"/>
   <object id="395" type="Indestructible Panel" gid="8" x="224" y="32" width="50" height="30"/>
   <object id="396" type="Gate Panel" gid="12" x="224" y="128" width="50" height="30">
@@ -581,5 +589,8 @@
   <object id="404" type="Dark Panel" gid="5" x="192" y="416" width="50" height="30"/>
   <object id="405" type="Dark Panel" gid="5" x="640" y="384" width="50" height="30"/>
   <object id="406" type="Dark Panel" gid="5" x="608" y="384" width="50" height="30"/>
+  <object id="408" type="Dark Panel" gid="5" x="640" y="608" width="50" height="30"/>
+  <object id="409" type="Dark Panel" gid="5" x="576" y="320" width="50" height="30"/>
+  <object id="410" type="Dark Panel" gid="5" x="128" y="320" width="50" height="30"/>
  </objectgroup>
 </map>
