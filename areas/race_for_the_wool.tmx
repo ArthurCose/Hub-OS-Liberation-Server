@@ -7,7 +7,7 @@
   <property name="Music" value="/server/assets/music/mission.ogg"/>
   <property name="Name" value="Race Demo"/>
   <property name="Short Name" value="Race"/>
-  <property name="Target Phase" type="int" value="33"/>
+  <property name="Target Phase" type="int" value="35"/>
  </properties>
  <tileset firstgid="1" source="../assets/tiles/acdc3_unliberated_paths.tsx"/>
  <tileset firstgid="2" source="../assets/tiles/panel_base.tsx"/>
