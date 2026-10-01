@@ -353,6 +353,7 @@ function Lib.darken(character)
 end
 
 function Lib.generate_ice_field()
+    LiberationLib.allow_spawn_on(TileState.Ice)
     require("generate_ice_field")()
 end
 
@@ -369,6 +370,7 @@ function Lib.generate_beach_field()
 end
 
 function Lib.generate_grass_field()
+    LiberationLib.allow_spawn_on(TileState.Grass)
     require("generate_grass_field")()
 end
 
