@@ -20,10 +20,11 @@ local VIRUS_POOL = {
 ---@param encounter Encounter
 function encounter_init(encounter, data)
     -- generating before initializing the liberation lib to allow it to shift spawns based on our panels
-    SharedLib.generate_grass_field()
-    SharedLib.generate_lava_field()
+    SharedLib.add_boulders()
 
     SharedLib.init(encounter, data)
+
+    SharedLib.generate_grass_field()
 
     SharedLib.spawn_viruses(encounter, data, VIRUS_POOL)
 end

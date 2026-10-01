@@ -26,5 +26,6 @@ characters = [
 ]
 libraries = [
   "dev.konstinople.library.liberation",
-  "dev.konstinople.LiberationServer.Shared"
+  "dev.konstinople.LiberationServer.Shared",
+  "BattleNetwork6.Libraries.CubesAndBoulders",
 ]
