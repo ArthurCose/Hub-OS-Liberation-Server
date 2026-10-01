@@ -1,7 +1,7 @@
 [package]
 category = "encounter"
-id = "dev.konstinople.LiberationServer.RftwViruses"
-name = "ShadeMan Virus Encounters"
+id = "dev.konstinople.LiberationServer.RaceForWoolViruses"
+name = "Race for Wool Virus Encounters"
 
 [dependencies]
 encounters = [

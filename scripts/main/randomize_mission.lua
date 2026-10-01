@@ -39,7 +39,7 @@ local GUARDIAN_POOLS = {
     Bladia = { "V6" },
     BlizzardMan = { "Omega" },
   },
-  race_for_the_wool = {
+  race_for_wool = {
     BigBrute = { "V5", "V5", "V5", "V5", "V5", "V5" },
     TinHawk = { "V5", "V5" },
     Bladia = { "V6", "V6", "V6", "V6" },

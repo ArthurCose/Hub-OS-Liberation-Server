@@ -3,7 +3,7 @@
  <properties>
   <property name="Background Animation" value="/server/assets/backgrounds/acdc.animation"/>
   <property name="Background Texture" value="/server/assets/backgrounds/acdc_unliberated.png"/>
-  <property name="Liberation Encounter" value="/server/mods/RftwViruses"/>
+  <property name="Liberation Encounter" value="/server/mods/RaceForWoolViruses"/>
   <property name="Music" value="/server/assets/music/mission.ogg"/>
   <property name="Name" value="Race Demo"/>
   <property name="Short Name" value="Race"/>
