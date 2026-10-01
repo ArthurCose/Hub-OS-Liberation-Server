@@ -1,0 +1,3 @@
+animation state="DEFAULT"
+frame w="240" h="160" duration="20f"
+frame y="160" w="240" h="160" duration="20f"

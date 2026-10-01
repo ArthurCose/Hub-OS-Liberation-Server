@@ -111,6 +111,8 @@ local function take_enemy_turn(self)
       if player:health() == 0 or player:paralyzed() then
         down_count = down_count + 1
       end
+
+      player:disable_free_cam()
     end
 
     if down_count == #self.players then
@@ -613,6 +615,10 @@ function MissionInstance:new(area_id)
     end
   end)
 
+  add_event_listener("free_cam_tile_interaction", function(event)
+    mission:handle_camera_tile_interaction(event.player_id, event.x, event.y, event.z, event.button)
+  end)
+
   add_event_listener("tile_interaction", function(event)
     mission:handle_tile_interaction(event.player_id, event.x, event.y, event.z, event.button)
   end)
@@ -806,6 +812,31 @@ end
 local IMMEDIATE_TOKEN = "\x04"
 
 ---@package
+function MissionInstance:handle_camera_tile_interaction(player_id, x, y, z, button)
+  local player = self.player_map[player_id]
+
+  if not player or Net.is_player_in_widget(player_id) then
+    return
+  end
+
+  if button == 1 then
+    -- Shoulder L
+    Net.synchronize(function()
+      -- reusing sfx shipped with the client
+      Net.play_sound_for_player(player.id, "resources/sfx/cursor_cancel.ogg")
+
+      player:disable_free_cam()
+      local p_x, p_y, p_z = player:position_multi()
+      Net.slide_player_camera(player.id, p_x, p_y, p_z, 0.5)
+    end)
+
+    Net.unlock_player_camera(player.id)
+
+    return
+  end
+end
+
+---@package
 function MissionInstance:handle_tile_interaction(player_id, x, y, z, button)
   local player = self.player_map[player_id]
 
@@ -822,16 +853,20 @@ function MissionInstance:handle_tile_interaction(player_id, x, y, z, button)
     return
   end
 
+  if button == 1 then
+    -- Shoulder L
+    player:enable_free_cam()
+
+    -- reusing sfx shipped with the client
+    Net.play_sound_for_player(player.id, "resources/sfx/cursor_move.ogg")
+    return
+  end
+
   local player_position = player:position()
   local panel_under_player = self:get_panel_at(player_position.x, player_position.y, player_position.z)
 
   if panel_under_player then
     -- Player is moving over dark panels with an ability and thus cannot interact.
-    return
-  end
-
-  if button == 1 then
-    -- Shoulder L
     return
   end
 

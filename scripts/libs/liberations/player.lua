@@ -14,6 +14,9 @@ local Debug = require("scripts/main/debug")
 local ORDER_POINTS_TEXTURE_PATH = Preloader.add_asset("/server/assets/liberations/ui/order_points.png")
 local ORDER_POINTS_ANIMATION_PATH = Preloader.add_asset("/server/assets/liberations/ui/order_points.animation")
 
+local FREE_CAM_TEXTURE_PATH = Preloader.add_asset("/server/assets/liberations/ui/free_cam.png")
+local FREE_CAM_ANIMATION_PATH = Preloader.add_asset("/server/assets/liberations/ui/free_cam.animation")
+
 local GUARD_SFX = Preloader.add_asset("/server/assets/liberations/sounds/guard.ogg")
 local HURT_SFX = Preloader.add_asset("/server/assets/liberations/sounds/hurt.ogg")
 local TRAP_SFX = Preloader.add_asset("/server/assets/liberations/sounds/trap.ogg")
@@ -31,6 +34,7 @@ local SILENT_MUSIC = Preloader.add_asset("/server/assets/liberations/sounds/sile
 ---@field package paralysis_counter number
 ---@field package emote_delay number
 ---@field package order_points_sprite_id Net.SpriteId?
+---@field package free_cam_hud_id Net.SpriteId?
 ---@field package _ability_activations number The amount of times the set ability was used during the player's turn
 ---@field package _completed_turn boolean
 ---@field package _selection Liberation.PlayerSelection
@@ -59,7 +63,6 @@ function Player:new(instance, player_id)
     paralysis_effect = nil,
     paralysis_counter = 0,
     emote_delay = 0,
-    order_points_sprite_id = nil,
     invincible = false,
     _completed_turn = false,
     ability = nil,
@@ -119,6 +122,16 @@ end
 
 function Player:update_order_points_hud()
   if self.disconnected then
+    return
+  end
+
+  if self.free_cam_hud_id then
+    -- disable if we're displaying the free cam hud
+    if self.order_points_sprite_id then
+      Net.remove_sprite(self.order_points_sprite_id)
+      self.order_points_sprite_id = nil
+    end
+
     return
   end
 
@@ -1008,6 +1021,8 @@ function Player:complete_turn()
     Net.unlock_player_camera(self.id)
   end
 
+  self:disable_free_cam()
+
   instance.ready_count = instance.ready_count + 1
 end
 
@@ -1310,6 +1325,40 @@ function Player:cycle_camera_target()
   Net.track_with_player_camera(self.id, self.viewing_player)
 end
 
+function Player:enable_free_cam()
+  if self.free_cam_hud_id then
+    return
+  end
+
+  self.free_cam_hud_id = Net.create_sprite({
+    player_id = self.id,
+    parent_id = "hud",
+    texture_path = FREE_CAM_TEXTURE_PATH,
+    animation_path = FREE_CAM_ANIMATION_PATH,
+    animation = "DEFAULT",
+    loop_animation = true,
+  })
+
+  Net.hide_hud(self.id)
+
+  Net.enable_camera_controls(self.id)
+
+  self:update_order_points_hud()
+end
+
+function Player:disable_free_cam()
+  if self.free_cam_hud_id then
+    Net.remove_sprite(self.free_cam_hud_id)
+    self.free_cam_hud_id = nil
+  end
+
+  Net.show_hud(self.id)
+
+  Net.disable_camera_controls(self.id)
+
+  self:update_order_points_hud()
+end
+
 function Player:handle_spectator_input(button)
   if button == 1 then
     -- cycle when L is pressed
@@ -1437,6 +1486,8 @@ function Player:handle_disconnect()
   if self.paralysis_effect then
     self.paralysis_effect:remove()
   end
+
+  self:disable_free_cam()
 
   if self.order_points_sprite_id then
     Net.remove_sprite(self.order_points_sprite_id)
