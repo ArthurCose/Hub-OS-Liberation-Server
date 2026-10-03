@@ -5,24 +5,42 @@ name = "Race for Wool Virus Encounters"
 
 [dependencies]
 encounters = [
-  "BattleNetwork5.Dominerd",
-  "BattleNetwork5.Batty",
-  # "BattleNetwork6.Mettaur",
-  # "BattleNetwork5.Bugtank",
-  "BattleNetwork5.Drixol",
-  # "BattleNetwork5.CanGuard",
+  # Colonel
   "BattleNetwork6.Gunner",
+  # ProtoMan
+  "BattleNetwork5.Dominerd",
   "BattleNetwork5.Draggin",
+  # CosmoMan
+  "BattleNetwork5.Handi",
+  "BattleNetwork5.Whirly",
+  "BattleNetwork3.Virus.KillerEye",
+  # ShadeMan
+  # "BattleNetwork5.Batty",
+  # "BattleNetwork5.Bugtank",
+  # "BattleNetwork5.Drixol",
+  # Generic
+  # "BattleNetwork6.Mettaur",
+  # "BattleNetwork5.CanGuard",
+
 ]
 characters = [
-  "BattleNetwork5.Gnarly.Enemy",
-  # "BattleNetwork6.Mettaur.Enemy",
-  "BattleNetwork5.Draglet.Enemy",
-  # "BattleNetwork5.Bugtank3.Enemy",
-  "BattleNetwork5.Drixa.Enemy",
+  # "BattleNetwork5.Draglet.Enemy",
+  # Colonel
   "BattleNetwork6.Gunner.Enemy",
-  # "BattleNetwork5.CanRaid.Enemy",
+  # ProtoMan
   "BattleNetwork5.Dominerd.Enemy",
+  # CosmoMan
+  "BattleNetwork5.Handum.Enemy",
+  "BattleNetwork5.Spiraly.Enemy",
+  "BattleNetwork3.enemy.KillerEye",
+  # ShadeMan
+  # "BattleNetwork5.Gnarly.Enemy",
+  # "BattleNetwork5.Drixa.Enemy",
+  # "BattleNetwork5.Bugtank3.Enemy",
+  # Generic
+  # "BattleNetwork5.CanRaid.Enemy",
+  # "BattleNetwork6.Mettaur.Enemy",
+
 ]
 libraries = [
   "dev.konstinople.library.liberation",

@@ -386,6 +386,7 @@ function Lib.add_ice_cubes()
     require("add_ice_cubes")()
 end
 
+---@param n number
 function Lib.crack_panels(n)
     ---@type Tile[]
     local tiles = {}
