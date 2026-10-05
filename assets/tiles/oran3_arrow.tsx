@@ -7,4 +7,9 @@
    <property name="Layer" type="int" value="10"/>
   </properties>
  </tile>
+ <tile id="1">
+  <properties>
+   <property name="Layer" type="int" value="10"/>
+  </properties>
+ </tile>
 </tileset>
