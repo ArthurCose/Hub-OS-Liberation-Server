@@ -20,8 +20,8 @@ local rank_to_index = {
   Omega = 4,
 }
 
-local mob_health = { 300, 1000, 1600, 2000 }
-local mob_damage = { 70, 120, 150, 200 }
+local health_map = { 300, 1000, 1600, 2000 }
+local damage_map = { 70, 120, 150, 200 }
 
 ---@param builder Liberation.EnemyBuilder
 function ProtoMan:new(builder)
@@ -29,7 +29,7 @@ function ProtoMan:new(builder)
 
   ---@type LiberationServer.CustomEnemies.ProtoMan
   local protoman = {
-    damage = mob_damage[rank_index],
+    damage = damage_map[rank_index],
     selection = AttackSelection:new(builder.instance),
     is_engaged = false
   }
@@ -48,8 +48,8 @@ function ProtoMan:new(builder)
   return builder:build({
     ai = protoman,
     name = "ProtoMan",
-    health = mob_health[rank_index],
-    max_health = mob_health[rank_index],
+    health = health_map[rank_index],
+    max_health = health_map[rank_index],
     texture_path = "/server/assets/liberations/bots/protoman.png",
     animation_path = "/server/assets/liberations/bots/protoman.animation",
     mug = {

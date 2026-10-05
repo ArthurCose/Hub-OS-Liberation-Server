@@ -22,8 +22,8 @@ local rank_to_index = {
   Omega = 4,
 }
 
-local mob_health = { 700, 900, 1300, 1500 }
-local mob_damage = { 40, 60, 120, 140 }
+local health_map = { 700, 900, 1300, 1500 }
+local damage_map = { 40, 60, 120, 140 }
 
 ---@param builder Liberation.EnemyBuilder
 function CloudMan:new(builder)
@@ -31,7 +31,7 @@ function CloudMan:new(builder)
 
   ---@type Liberation.Enemies.CloudMan
   local cloudman = {
-    damage = mob_damage[rank_index],
+    damage = damage_map[rank_index],
     selection = AttackSelection:new(builder.instance),
     is_engaged = false
   }
@@ -52,8 +52,8 @@ function CloudMan:new(builder)
   return builder:build({
     ai = cloudman,
     name = "CloudMan",
-    health = mob_health[rank_index],
-    max_health = mob_health[rank_index],
+    health = health_map[rank_index],
+    max_health = health_map[rank_index],
     texture_path = "/server/assets/liberations/bots/cloudman.png",
     animation_path = "/server/assets/liberations/bots/cloudman.animation",
     mug = {

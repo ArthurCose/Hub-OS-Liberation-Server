@@ -26,8 +26,8 @@ local rank_to_index = {
   Omega = 4,
 }
 
-local mob_health = { 200, 230, 230, 300, 340, 400 }
-local mob_damage = { 50, 80, 120, 160, 200, 250 }
+local health_map = { 200, 230, 230, 300, 340, 400 }
+local damage_map = { 50, 80, 120, 160, 200, 250 }
 local textures = {
   "bladia.v1.png",
   "bladia.v2.png",
@@ -57,7 +57,7 @@ function Bladia:new(builder)
 
   ---@type Liberation.Enemies.Bladia
   local bladia = {
-    damage = mob_damage[rank_index],
+    damage = damage_map[rank_index],
     selection = AttackSelection:new(builder.instance),
     movement_selection = Selection:new(builder.instance),
     home_initialized = false,
@@ -74,8 +74,8 @@ function Bladia:new(builder)
   return builder:build({
     ai = bladia,
     name = "Bladia",
-    health = mob_health[rank_index],
-    max_health = mob_health[rank_index],
+    health = health_map[rank_index],
+    max_health = health_map[rank_index],
     texture_path = "/server/assets/liberations/bots/" .. textures[rank_index],
     animation_path = "/server/assets/liberations/bots/bladia.animation",
   })

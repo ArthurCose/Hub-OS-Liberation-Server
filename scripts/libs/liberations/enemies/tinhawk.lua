@@ -23,8 +23,8 @@ local rank_to_index = {
   Omega = 4,
 }
 
-local mob_health = { 100, 150, 180, 200, 250, 300 }
-local mob_damage = { 30, 50, 70, 90, 120, 150 }
+local health_map = { 100, 150, 180, 200, 250, 300 }
+local damage_map = { 30, 50, 70, 90, 120, 150 }
 local textures = {
   "tinhawk.v1.png",
   "tinhawk.v2.png",
@@ -61,7 +61,7 @@ function TinHawk:new(builder)
   ---@type Liberation.Enemies.TinHawk
   local tinhawk = {
     selection = AttackSelection:new(builder.instance),
-    damage = mob_damage[rank_index],
+    damage = damage_map[rank_index],
   }
 
   setmetatable(tinhawk, self)
@@ -72,8 +72,8 @@ function TinHawk:new(builder)
   return builder:build({
     ai = tinhawk,
     name = "TinHawk",
-    health = mob_health[rank_index],
-    max_health = mob_health[rank_index],
+    health = health_map[rank_index],
+    max_health = health_map[rank_index],
     texture_path = "/server/assets/liberations/bots/" .. textures[rank_index],
     animation_path = "/server/assets/liberations/bots/tinhawk.animation",
   })

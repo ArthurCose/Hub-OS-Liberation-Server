@@ -19,8 +19,8 @@ local rank_to_index = {
   Omega = 4,
 }
 
-local mob_health = { 600, 1000, 1200, 1500 }
-local mob_damage = { 60, 70, 80, 100 }
+local health_map = { 600, 1000, 1200, 1500 }
+local damage_map = { 60, 70, 80, 100 }
 
 ---@param builder Liberation.EnemyBuilder
 function ShadeMan:new(builder)
@@ -29,7 +29,7 @@ function ShadeMan:new(builder)
   ---@type Liberation.Enemies.ShadeMan
   local shademan = {
     selection = AttackSelection:new(builder.instance),
-    damage = mob_damage[rank_index],
+    damage = damage_map[rank_index],
     direction = builder.direction,
     is_engaged = false
   }
@@ -46,8 +46,8 @@ function ShadeMan:new(builder)
   return builder:build({
     ai = shademan,
     name = "ShadeMan",
-    health = mob_health[rank_index],
-    max_health = mob_health[rank_index],
+    health = health_map[rank_index],
+    max_health = health_map[rank_index],
     texture_path = "/server/assets/liberations/bots/shademan.png",
     animation_path = "/server/assets/liberations/bots/shademan.animation",
     mug = {

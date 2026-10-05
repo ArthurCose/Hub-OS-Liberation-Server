@@ -25,8 +25,8 @@ local rank_to_index = {
   Omega = 4,
 }
 
-local mob_health = { 120, 180, 220, 250, 300, 360 }
-local mob_damage = { 30, 60, 90, 130, 170, 200 }
+local health_map = { 120, 180, 220, 250, 300, 360 }
+local damage_map = { 30, 60, 90, 130, 170, 200 }
 local textures = {
   "bigbrute.v1.png",
   "bigbrute.v2.png",
@@ -42,7 +42,7 @@ function BigBrute:new(builder)
 
   ---@type Liberation.Enemies.BigBrute
   local bigbrute = {
-    damage = mob_damage[rank_index],
+    damage = damage_map[rank_index],
     selection = AttackSelection:new(builder.instance),
   }
 
@@ -60,8 +60,8 @@ function BigBrute:new(builder)
   return builder:build({
     ai = bigbrute,
     name = "BigBrute",
-    health = mob_health[rank_index],
-    max_health = mob_health[rank_index],
+    health = health_map[rank_index],
+    max_health = health_map[rank_index],
     texture_path = "/server/assets/liberations/bots/" .. textures[rank_index],
     animation_path = "/server/assets/liberations/bots/bigbrute.animation",
   })

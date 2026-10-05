@@ -21,8 +21,8 @@ local rank_to_index = {
   Omega = 4,
 }
 
-local mob_health = { 400, 1200, 1600, 2000 }
-local mob_damage = { 40, 80, 120, 160 }
+local health_map = { 400, 1200, 1600, 2000 }
+local damage_map = { 40, 80, 120, 160 }
 
 ---@param builder Liberation.EnemyBuilder
 function BlizzardMan:new(builder)
@@ -30,7 +30,7 @@ function BlizzardMan:new(builder)
 
   ---@type Liberation.Enemies.BlizzardMan
   local blizzardman = {
-    damage = mob_damage[rank_index],
+    damage = damage_map[rank_index],
     selection = AttackSelection:new(builder.instance),
     is_engaged = false
   }
@@ -51,8 +51,8 @@ function BlizzardMan:new(builder)
   return builder:build({
     ai = blizzardman,
     name = "BlizzardMan",
-    health = mob_health[rank_index],
-    max_health = mob_health[rank_index],
+    health = health_map[rank_index],
+    max_health = health_map[rank_index],
     texture_path = "/server/assets/liberations/bots/blizzardman.png",
     animation_path = "/server/assets/liberations/bots/blizzardman.animation",
     mug = {

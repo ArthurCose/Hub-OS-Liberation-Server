@@ -24,8 +24,8 @@ local rank_to_index = {
   Omega = 4,
 }
 
-local mob_health = { 400, 1200, 1800, 2000 }
-local mob_damage = { 30, 120, 140, 200 }
+local health_map = { 400, 1200, 1800, 2000 }
+local damage_map = { 30, 120, 140, 200 }
 
 ---@param builder Liberation.EnemyBuilder
 function Colonel:new(builder)
@@ -33,7 +33,7 @@ function Colonel:new(builder)
 
   ---@type LiberationServer.CustomEnemies.Colonel
   local colonel = {
-    damage = mob_damage[rank_index],
+    damage = damage_map[rank_index],
     selection = AttackSelection:new(builder.instance),
     is_engaged = false
   }
@@ -52,8 +52,8 @@ function Colonel:new(builder)
   return builder:build({
     ai = colonel,
     name = "Colonel",
-    health = mob_health[rank_index],
-    max_health = mob_health[rank_index],
+    health = health_map[rank_index],
+    max_health = health_map[rank_index],
     texture_path = "/server/assets/liberations/bots/colonel.png",
     animation_path = "/server/assets/liberations/bots/colonel.animation",
     mug = {

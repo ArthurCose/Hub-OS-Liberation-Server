@@ -25,8 +25,8 @@ local rank_to_index = {
   Omega = 4,
 }
 
-local mob_health = { 1000, 1200, 1500, 1800 }
-local mob_damage = { 80, 100, 200, 220 }
+local health_map = { 1000, 1200, 1500, 1800 }
+local damage_map = { 80, 100, 200, 220 }
 
 ---@param builder Liberation.EnemyBuilder
 function CosmoMan:new(builder)
@@ -34,7 +34,7 @@ function CosmoMan:new(builder)
 
   ---@type LiberationServer.CustomEnemies.CosmoMan
   local cosmoman = {
-    damage = mob_damage[rank_index],
+    damage = damage_map[rank_index],
     selection = AttackSelection:new(builder.instance),
     is_engaged = false
   }
@@ -57,8 +57,8 @@ function CosmoMan:new(builder)
   return builder:build({
     ai = cosmoman,
     name = "CosmoMan",
-    health = mob_health[rank_index],
-    max_health = mob_health[rank_index],
+    health = health_map[rank_index],
+    max_health = health_map[rank_index],
     texture_path = "/server/assets/liberations/bots/cosmoman.png",
     animation_path = "/server/assets/liberations/bots/cosmoman.animation",
     mug = {
