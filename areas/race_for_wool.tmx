@@ -95,13 +95,13 @@
   <object id="44" type="Dark Panel" gid="5" x="512" y="640" width="50" height="30"/>
   <object id="49" type="Dark Panel" gid="5" x="512" y="768" width="50" height="30"/>
   <object id="50" type="Dark Panel" gid="5" x="480" y="608" width="50" height="30"/>
-  <object id="51" name="CosmoMan" type="Dark Panel" gid="5" x="352" y="32" width="50" height="30">
+  <object id="51" name="ShadeMan" type="Dark Panel" gid="5" x="352" y="32" width="50" height="30">
    <properties>
-    <property name="Boss" value="scripts/main/custom_enemies/cosmoman"/>
+    <property name="Boss" value="scripts/main/custom_enemies/shademan"/>
     <property name="Direction" value="Down Left"/>
-    <property name="Encounter" value="/server/mods/CosmoMan"/>
+    <property name="Encounter" value="/server/mods/ShadeMan"/>
     <property name="Next Turn" type="object" value="235"/>
-    <property name="Rank" value="Beta"/>
+    <property name="Rank" value="Omega"/>
    </properties>
   </object>
   <object id="57" name="Spawn Point" x="336" y="1040">

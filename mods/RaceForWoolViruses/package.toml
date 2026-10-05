@@ -34,8 +34,8 @@ characters = [
   "BattleNetwork5.Spiraly.Enemy",
   "BattleNetwork3.enemy.KillerEye",
   # ShadeMan
-  # "BattleNetwork5.Gnarly.Enemy",
-  # "BattleNetwork5.Drixa.Enemy",
+  "BattleNetwork5.Gnarly.Enemy",
+  "BattleNetwork5.Drixa.Enemy",
   # "BattleNetwork5.Bugtank3.Enemy",
   # Generic
   # "BattleNetwork5.CanRaid.Enemy",

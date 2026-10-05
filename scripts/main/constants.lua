@@ -7,7 +7,7 @@ local MISSION_AREAS = {
   "nebula_area_1",
   "nebula_area_3",
   "nebula_area_5",
-  -- "race_for_wool",
+  "race_for_wool",
 }
 
 ---@type table<string, boolean>
