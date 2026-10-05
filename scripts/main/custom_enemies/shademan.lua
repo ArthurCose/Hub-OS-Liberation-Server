@@ -23,7 +23,8 @@ local rank_to_index = {
 }
 
 local health_map = { 600, 1000, 1200, 1500 }
-local damage_map = { 60, 70, 80, 100 }
+-- local damage_map = { 60, 70, 80, 100 }
+local damage_map = { 60, 70, 100, 150 }
 
 ---@param builder Liberation.EnemyBuilder
 function ShadeMan:new(builder)
