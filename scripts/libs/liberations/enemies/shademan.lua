@@ -1,3 +1,4 @@
+local PanelClass = require("scripts/libs/liberations/panel_class")
 local AttackSelection = require("scripts/libs/liberations/selections/attack_selection")
 local Direction = require("scripts/libs/direction")
 
@@ -97,6 +98,15 @@ function ShadeMan:banter(actor, player)
   end)
 end
 
+---@param panel? Liberation.PanelObject
+local function is_panel_punishable(panel)
+  if not panel then
+    return false
+  end
+
+  return PanelClass.TERRAIN[panel.class]
+end
+
 ---@param actor Liberation.Enemy
 function ShadeMan:take_turn(actor)
   return Async.create_scope(function()
@@ -126,10 +136,10 @@ function ShadeMan:take_turn(actor)
       local player_x, player_y, player_z = player:position_multi()
 
       if
-          not instance:get_panel_at(player_x - 1, player_y, player_z) and
-          not instance:get_panel_at(player_x + 1, player_y, player_z) and
-          not instance:get_panel_at(player_x, player_y - 1, player_z) and
-          not instance:get_panel_at(player_x, player_y + 1, player_z)
+          not is_panel_punishable(instance:get_panel_at(player_x - 1, player_y, player_z)) and
+          not is_panel_punishable(instance:get_panel_at(player_x + 1, player_y, player_z)) and
+          not is_panel_punishable(instance:get_panel_at(player_x, player_y - 1, player_z)) and
+          not is_panel_punishable(instance:get_panel_at(player_x, player_y + 1, player_z))
       then
         -- no dark panels nearby
         goto continue
