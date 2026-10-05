@@ -1259,19 +1259,19 @@ function MissionInstance:load_panel(object)
   local z = math.floor(object.z) + 1
   self.panels[z][y][x] = new_panel
 
-  if object.class == PanelClass.ITEM then
-    -- if it has a set drop, try to apply it.
-    if object.custom_properties["Specific Loot"] ~= nil then
-      local name = object.custom_properties["Specific Loot"]
-      new_panel.loot = Loot[name]
+  -- if it has a set drop, try to apply it.
+  if object.class ~= PanelClass.BONUS and object.custom_properties["Specific Loot"] ~= nil then
+    local name = object.custom_properties["Specific Loot"]
+    new_panel.loot = Loot[name]
 
-      if type(new_panel.loot) ~= "table" then
-        warn("Specified Loot: " .. name .. " does not exist!")
-      end
+    if type(new_panel.loot) ~= "table" then
+      warn("Specified Loot: " .. name .. " does not exist!")
     end
+  end
 
+  if object.class == PanelClass.ITEM then
+    -- make sure item panels have at least some kind of loot
     if not new_panel.loot then
-      -- otherwise, give it random loot from the basic pool.
       new_panel.loot = Loot.DEFAULT_POOL[math.random(#Loot.DEFAULT_POOL)]
     end
   elseif object.class == PanelClass.DARK_HOLE then

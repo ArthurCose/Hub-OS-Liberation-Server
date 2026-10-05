@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.12.2" orientation="isometric" renderorder="right-down" width="23" height="38" tilewidth="64" tileheight="32" infinite="0" nextlayerid="8" nextobjectid="417">
+<map version="1.10" tiledversion="1.12.2" orientation="isometric" renderorder="right-down" width="23" height="38" tilewidth="64" tileheight="32" infinite="0" nextlayerid="8" nextobjectid="419">
  <properties>
   <property name="Background Animation" value="/server/assets/backgrounds/acdc.animation"/>
   <property name="Background Texture" value="/server/assets/backgrounds/acdc_unliberated.png"/>
@@ -88,8 +88,11 @@
    <properties>
     <property name="Direction" value="Down Left"/>
     <property name="Encounter" value="/server/mods/BigBrute"/>
+    <property name="Gate Key" value="R1"/>
+    <property name="Next Point" type="object" value="380"/>
     <property name="Next Turn" type="object" value="93"/>
     <property name="Spawns" value="BigBrute"/>
+    <property name="Specific Loot" value="KEY"/>
    </properties>
   </object>
   <object id="44" type="Dark Panel" gid="5" x="512" y="640" width="50" height="30"/>
@@ -101,7 +104,7 @@
     <property name="Direction" value="Down Left"/>
     <property name="Encounter" value="/server/mods/ShadeMan"/>
     <property name="Next Turn" type="object" value="235"/>
-    <property name="Rank" value="Omega"/>
+    <property name="Rank" value="Beta"/>
    </properties>
   </object>
   <object id="57" name="Spawn Point" x="336" y="1040">
@@ -192,8 +195,8 @@
   </object>
   <object id="122" type="Dark Panel" gid="5" x="480" y="160" width="50" height="30"/>
   <object id="131" type="Dark Panel" gid="5" x="384" y="128" width="50" height="30"/>
-  <object id="132" type="Indestructible Panel" gid="8" x="384" y="96" width="50" height="30"/>
-  <object id="133" type="Indestructible Panel" gid="8" x="448" y="96" width="50" height="30"/>
+  <object id="132" gid="8" x="384" y="96" width="50" height="30"/>
+  <object id="133" gid="8" x="448" y="96" width="50" height="30"/>
   <object id="135" type="Dark Panel" gid="5" x="448" y="192" width="50" height="30"/>
   <object id="136" type="Dark Panel" gid="5" x="416" y="160" width="50" height="30"/>
   <object id="137" name="Spawn 5" x="352" y="1008">
@@ -226,9 +229,12 @@
    <properties>
     <property name="Direction" value="Down Left"/>
     <property name="Encounter" value="/server/mods/TinHawk"/>
+    <property name="Gate Key" value="R3"/>
+    <property name="Next Point" type="object" value="381"/>
     <property name="Next Turn" type="object" value="43"/>
     <property name="Position" type="object" value="217"/>
     <property name="Spawns" value="TinHawk"/>
+    <property name="Specific Loot" value="KEY"/>
    </properties>
   </object>
   <object id="161" type="Item Panel" gid="6" x="384" y="256" width="50" height="30"/>
@@ -251,12 +257,11 @@
   <object id="179" type="Item Panel" gid="6" x="480" y="480" width="50" height="30"/>
   <object id="193" type="Dark Panel" gid="5" x="544" y="800" width="50" height="30"/>
   <object id="195" type="Dark Panel" gid="5" x="512" y="832" width="50" height="30"/>
-  <object id="198" type="Indestructible Panel" gid="8" x="352" y="0" width="50" height="30"/>
-  <object id="199" type="Indestructible Panel" gid="8" x="384" y="0" width="50" height="30"/>
+  <object id="198" gid="8" x="352" y="0" width="50" height="30"/>
+  <object id="199" gid="8" x="384" y="0" width="50" height="30"/>
   <object id="201" type="Dark Panel" gid="5" x="320" y="64" width="50" height="30"/>
   <object id="202" type="Dark Panel" gid="5" x="320" y="128" width="50" height="30"/>
   <object id="203" type="Dark Panel" gid="5" x="288" y="64" width="50" height="30"/>
-  <object id="204" type="Dark Panel" gid="5" x="352" y="64" width="50" height="30"/>
   <object id="205" type="Dark Panel" gid="5" x="416" y="64" width="50" height="30"/>
   <object id="206" type="Dark Panel" gid="5" x="384" y="32" width="50" height="30"/>
   <object id="208" type="Dark Panel" gid="5" x="256" y="64" width="50" height="30"/>
@@ -267,9 +272,9 @@
    <point/>
   </object>
   <object id="228" type="Dark Panel" gid="5" x="256" y="128" width="50" height="30"/>
-  <object id="229" type="Indestructible Panel" gid="8" x="256" y="96" width="50" height="30"/>
-  <object id="230" type="Indestructible Panel" gid="8" x="320" y="96" width="50" height="30"/>
-  <object id="233" type="Indestructible Panel" gid="8" x="320" y="0" width="50" height="30"/>
+  <object id="229" gid="8" x="256" y="96" width="50" height="30"/>
+  <object id="230" gid="8" x="320" y="96" width="50" height="30"/>
+  <object id="233" gid="8" x="320" y="0" width="50" height="30"/>
   <object id="234" type="Dark Panel" gid="5" x="288" y="96" width="50" height="30"/>
   <object id="235" name="ProtoMan" type="Guardian" x="304" y="112">
    <properties>
@@ -297,9 +302,12 @@
    <properties>
     <property name="Direction" value="Down Left"/>
     <property name="Encounter" value="/server/mods/TinHawk"/>
+    <property name="Gate Key" value="L3"/>
+    <property name="Next Point" type="object" value="382"/>
     <property name="Next Turn" type="object" value="277"/>
     <property name="Position" type="object" value="255"/>
     <property name="Spawns" value="TinHawk"/>
+    <property name="Specific Loot" value="KEY"/>
    </properties>
   </object>
   <object id="255" name="TinHawk" x="240" y="368">
@@ -335,8 +343,11 @@
    <properties>
     <property name="Direction" value="Down Left"/>
     <property name="Encounter" value="/server/mods/BigBrute"/>
+    <property name="Gate Key" value="L1"/>
+    <property name="Next Point" type="object" value="379"/>
     <property name="Next Turn" type="object" value="298"/>
     <property name="Spawns" value="BigBrute"/>
+    <property name="Specific Loot" value="KEY"/>
    </properties>
   </object>
   <object id="278" type="Dark Panel" gid="5" x="256" y="832" width="50" height="30"/>
@@ -391,8 +402,11 @@
    <properties>
     <property name="Direction" value="Down Left"/>
     <property name="Encounter" value="/server/mods/BigBrute"/>
+    <property name="Gate Key" value="L2"/>
+    <property name="Next Point" type="object" value="386"/>
     <property name="Next Turn" type="object" value="119"/>
     <property name="Spawns" value="BigBrute"/>
+    <property name="Specific Loot" value="KEY"/>
    </properties>
   </object>
   <object id="307" type="Dark Panel" gid="5" x="640" y="320" width="50" height="30"/>
@@ -482,7 +496,10 @@
    <properties>
     <property name="Direction" value="Down Left"/>
     <property name="Encounter" value="/server/mods/BigBrute"/>
+    <property name="Gate Key" value="R2"/>
+    <property name="Next Point" type="object" value="387"/>
     <property name="Spawns" value="BigBrute"/>
+    <property name="Specific Loot" value="KEY"/>
    </properties>
   </object>
   <object id="375" type="Gate Panel" gid="12" x="256" y="160" width="50" height="30">
@@ -517,64 +534,24 @@
   <object id="382" x="272" y="176">
    <point/>
   </object>
-  <object id="383" type="Item Panel" gid="6" x="288" y="320" width="50" height="30">
-   <properties>
-    <property name="Gate Key" value="L3"/>
-    <property name="Next Point" type="object" value="382"/>
-    <property name="Specific Loot" value="KEY"/>
-   </properties>
-  </object>
-  <object id="384" type="Item Panel" gid="6" x="416" y="320" width="50" height="30">
-   <properties>
-    <property name="Gate Key" value="R3"/>
-    <property name="Next Point" type="object" value="381"/>
-    <property name="Specific Loot" value="KEY"/>
-   </properties>
-  </object>
-  <object id="385" type="Item Panel" gid="6" x="640" y="256" width="50" height="30">
-   <properties>
-    <property name="Gate Key" value="L2"/>
-    <property name="Next Point" type="object" value="386"/>
-    <property name="Specific Loot" value="KEY"/>
-   </properties>
-  </object>
+  <object id="383" type="Item Panel" gid="6" x="288" y="320" width="50" height="30"/>
+  <object id="384" type="Item Panel" gid="6" x="416" y="320" width="50" height="30"/>
+  <object id="385" type="Item Panel" gid="6" x="640" y="256" width="50" height="30"/>
   <object id="386" x="288" y="352">
    <point/>
   </object>
   <object id="387" x="448" y="352">
    <point/>
   </object>
-  <object id="388" type="Item Panel" gid="6" x="64" y="256" width="50" height="30">
-   <properties>
-    <property name="Gate Key" value="R2"/>
-    <property name="Next Point" type="object" value="387"/>
-    <property name="Specific Loot" value="KEY"/>
-   </properties>
-  </object>
-  <object id="389" type="Item Panel" gid="6" x="160" y="576" width="50" height="30">
-   <properties>
-    <property name="Gate Key" value="L1"/>
-    <property name="Next Point" type="object" value="379"/>
-    <property name="Specific Loot" value="KEY"/>
-   </properties>
-  </object>
+  <object id="388" type="Item Panel" gid="6" x="64" y="256" width="50" height="30"/>
+  <object id="389" type="Item Panel" gid="6" x="160" y="576" width="50" height="30"/>
   <object id="390" type="Dark Panel" gid="5" x="64" y="608" width="50" height="30"/>
-  <object id="391" type="Item Panel" gid="6" x="544" y="576" width="50" height="30">
-   <properties>
-    <property name="Gate Key" value="R1"/>
-    <property name="Next Point" type="object" value="380"/>
-    <property name="Specific Loot" value="KEY"/>
-   </properties>
-  </object>
+  <object id="391" type="Item Panel" gid="6" x="544" y="576" width="50" height="30"/>
   <object id="392" type="Bonus Panel" gid="9" x="576" y="800" width="50" height="30"/>
   <object id="393" type="Bonus Panel" gid="9" x="128" y="800" width="50" height="30"/>
-  <object id="394" type="Indestructible Panel" gid="8" x="480" y="32" width="50" height="30"/>
-  <object id="395" type="Indestructible Panel" gid="8" x="224" y="32" width="50" height="30"/>
-  <object id="396" type="Gate Panel" gid="12" x="224" y="128" width="50" height="30">
-   <properties>
-    <property name="Gate Key" value="L3"/>
-   </properties>
-  </object>
+  <object id="394" gid="8" x="480" y="32" width="50" height="30"/>
+  <object id="395" gid="8" x="224" y="32" width="50" height="30"/>
+  <object id="396" type="Gate Panel" gid="12" x="224" y="128" width="50" height="30"/>
   <object id="397" type="Gate Panel" gid="12" x="448" y="160" width="50" height="30">
    <properties>
     <property name="Gate Key" value="R3"/>
@@ -600,5 +577,6 @@
   <object id="416" name="Abandon Point" x="592" y="1008">
    <point/>
   </object>
+  <object id="418" type="Dark Panel" gid="5" x="352" y="64" width="50" height="30"/>
  </objectgroup>
 </map>
