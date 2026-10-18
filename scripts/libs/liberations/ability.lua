@@ -181,6 +181,11 @@ Ability.register({
     local shape = {}
 
     local root_panel = player:selection():root_panel()
+
+    if not root_panel then
+      return shape, 0, 0
+    end
+
     local player_x, player_y = player:position_multi()
 
     local direction = Direction.diagonal_from_offset(
