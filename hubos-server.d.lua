@@ -1158,7 +1158,7 @@ function Net.unlock_player_movement(player_id) end
 ---
 --- [deck]
 ---@param player_id Net.ActorId
----@param path string
+---@param path? string
 function Net.set_player_restrictions(player_id, path) end
 
 --- Returns true if the player is in a server sent battle, or if a board, shop, or textbox is open.
@@ -1593,6 +1593,10 @@ function Net.animate_actor(actor_id, state_name, loop) end
 ---@param actor_id Net.ActorId
 ---@param keyframes Net.ActorKeyframe[]
 function Net.animate_actor_properties(actor_id, keyframes) end
+
+--- Returns a list of asset paths.
+---@return string[]
+function Net.list_assets() end
 
 --- - `content`: `string`
 ---

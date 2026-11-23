@@ -132,9 +132,9 @@ CommandProcessing.register_commands({
     usage = { "<actor> <id|name|type|area|avatar|x|y|z|x.|y.|z.>*" },
     description = "Lists all matching actors",
     callback = function(event)
-      local _, _, command_end_index = CommandProcessing.read_word(event.command)
+      local _, _, command_end = CommandProcessing.read_word(event.command)
 
-      local actor_list, _, last_end_index = CommandProcessing.process_selector(event.command, command_end_index + 1)
+      local actor_list, _, last_end = CommandProcessing.process_selector(event.command, command_end + 1)
 
       if not actor_list then
         Net.warn_to(event.player_id, "Missing or invalid selector")
@@ -144,13 +144,13 @@ CommandProcessing.register_commands({
       local resolver_list = {}
 
       while true do
-        local prop, _, prop_end_index = CommandProcessing.read_word(event.command, last_end_index + 1)
+        local prop, _, prop_end = CommandProcessing.read_word(event.command, last_end + 1)
 
         if not prop then
           break
         end
 
-        last_end_index = prop_end_index
+        last_end = prop_end
 
         local resolver = property_resolvers[prop]
 
@@ -184,21 +184,21 @@ CommandProcessing.register_commands({
     usage = { "<actor> <area> [<x> <y> <z>]", "<actor> <dest actor>" },
     description = "Teleports actors to the specified location",
     callback = function(event)
-      local _, _, command_end_index = CommandProcessing.read_word(event.command)
+      local _, _, command_end = CommandProcessing.read_word(event.command)
 
-      local actor_list, _, actor_end_index = CommandProcessing.process_selector(event.command, command_end_index + 1)
+      local actor_list, _, actor_end = CommandProcessing.process_selector(event.command, command_end + 1)
 
       if not actor_list then
         Net.warn_to(event.player_id, "Missing or invalid selector")
         return
       end
 
-      local word_iter = CommandProcessing.words(event.command, actor_end_index + 1)
+      local word_iter = CommandProcessing.words(event.command, actor_end + 1)
       local area_id = word_iter()
       local xs, ys, zs = word_iter(), word_iter(), word_iter()
       local x, y, z
 
-      local dest_list = CommandProcessing.process_selector(event.command, actor_end_index + 1)
+      local dest_list = CommandProcessing.process_selector(event.command, actor_end + 1)
 
       if dest_list and not xs then
         local dest_actor_id = dest_list[1]
@@ -238,13 +238,57 @@ CommandProcessing.register_commands({
       Net.print_to(event.player_id, "Teleported " .. #actor_list .. " actors")
     end
   },
+  ["emote"] = {
+    usage = { "<from_actor> <to_actor> <emote>" },
+    description = "Causes actors to perform an emote",
+    callback = function(event)
+      local _, _, command_end = CommandProcessing.read_word(event.command)
+
+      local from_list, _, from_end = CommandProcessing.process_selector(event.command, command_end + 1)
+
+      if not from_list or not from_end then
+        Net.warn_to(event.player_id, "Missing from selector")
+        return
+      end
+
+      local to_list, _, to_end = CommandProcessing.process_selector(event.command, from_end + 1)
+
+      if not to_list or not to_end then
+        Net.warn_to(event.player_id, "Missing to selector")
+        return
+      end
+
+      local emote = CommandProcessing.read_optionally_quoted(event.command, to_end + 1)
+
+      if not emote then
+        Net.warn_to(event.player_id, "Missing emote")
+        return
+      end
+
+      Net.synchronize(function()
+        local total_to = 0
+
+        for _, to_id in ipairs(to_list) do
+          if Net.is_player(to_id) then
+            for _, from_id in ipairs(from_list) do
+              Net.exclusive_actor_emote_for_player(to_id, from_id, emote)
+            end
+
+            total_to = total_to + 1
+          end
+        end
+
+        Net.print_to(event.player_id, #from_list .. " entities emoted to " .. total_to .. " players")
+      end)
+    end
+  },
   ["kick"] = {
     usage = { "<player> [<reason>]" },
     description = "Kicks players from the server",
     callback = function(event)
-      local _, _, command_end_index = CommandProcessing.read_word(event.command)
+      local _, _, command_end = CommandProcessing.read_word(event.command)
 
-      local player_list, _, sel_end = CommandProcessing.process_selector(event.command, command_end_index + 1)
+      local player_list, _, sel_end = CommandProcessing.process_selector(event.command, command_end + 1)
 
       if not player_list then
         Net.warn_to(event.player_id, "Missing player selector")
@@ -285,15 +329,16 @@ CommandProcessing.register_commands({
     usage = { "<player> [<reason>]" },
     description = "Bans players from the server",
     callback = function(event)
-      local _, _, command_end_index = CommandProcessing.read_word(event.command)
+      local _, _, command_end = CommandProcessing.read_word(event.command)
 
-      local player_list, _, sel_end = CommandProcessing.process_selector(event.command, command_end_index + 1)
+      local player_list, _, sel_end = CommandProcessing.process_selector(event.command, command_end + 1)
 
       if not player_list then
         Net.warn_to(event.player_id, "Missing player selector")
         return
       end
 
+      ---@type string?
       local reason = CommandProcessing.trim(event.command:sub(sel_end + 1))
       local display_reason
 
@@ -341,16 +386,16 @@ CommandProcessing.register_commands({
     usage = { "<player> <duration> [<reason>]" },
     description = "Bans players from the server for a specific time period. Accepts a number and unit (y/d/h/m/s)",
     callback = function(event)
-      local _, _, command_end_index = CommandProcessing.read_word(event.command)
+      local _, _, command_end = CommandProcessing.read_word(event.command)
 
-      local player_list, _, sel_end = CommandProcessing.process_selector(event.command, command_end_index + 1)
+      local player_list, _, sel_end = CommandProcessing.process_selector(event.command, command_end + 1)
 
       if not player_list then
         Net.warn_to(event.player_id, "Missing player selector")
         return
       end
 
-      local duration_str, _, duration_end_index = CommandProcessing.read_word(event.command, sel_end + 1)
+      local duration_str, _, duration_end = CommandProcessing.read_word(event.command, sel_end + 1)
 
       if not duration_str then
         Net.warn_to(event.player_id, "Missing duration")
@@ -364,7 +409,8 @@ CommandProcessing.register_commands({
         return
       end
 
-      local reason = CommandProcessing.trim(event.command:sub(duration_end_index + 1))
+      ---@type string?
+      local reason = CommandProcessing.trim(event.command:sub(duration_end + 1))
       local display_reason
       local end_time = os.time() + duration
 
@@ -413,15 +459,16 @@ CommandProcessing.register_commands({
     usage = { "<player> [<reason>]" },
     description = "Bans players by IP from the server",
     callback = function(event)
-      local _, _, command_end_index = CommandProcessing.read_word(event.command)
+      local _, _, command_end = CommandProcessing.read_word(event.command)
 
-      local player_list, _, sel_end = CommandProcessing.process_selector(event.command, command_end_index + 1)
+      local player_list, _, sel_end = CommandProcessing.process_selector(event.command, command_end + 1)
 
       if not player_list then
         Net.warn_to(event.player_id, "Missing player selector")
         return
       end
 
+      ---@type string?
       local reason = CommandProcessing.trim(event.command:sub(sel_end + 1))
       local display_reason
 
@@ -470,8 +517,8 @@ CommandProcessing.register_commands({
     usage = { "<name>" },
     description = "Unbans a player by nickname from the server, may unban multiple players",
     callback = function(event)
-      local _, _, command_end_index = CommandProcessing.read_word(event.command)
-      local name = CommandProcessing.read_optionally_quoted(event.command, command_end_index + 1)
+      local _, _, command_end = CommandProcessing.read_word(event.command)
+      local name = CommandProcessing.read_optionally_quoted(event.command, command_end + 1)
 
       if not name then
         Net.warn_to(event.player_id, "Missing name")
@@ -513,8 +560,8 @@ CommandProcessing.register_commands({
     usage = { "<ip address>" },
     description = "Unbans a player's IP address from the server",
     callback = function(event)
-      local _, _, command_end_index = CommandProcessing.read_word(event.command)
-      local ip = CommandProcessing.read_word(event.command, command_end_index + 1)
+      local _, _, command_end = CommandProcessing.read_word(event.command)
+      local ip = CommandProcessing.read_word(event.command, command_end + 1)
 
       if not ip then
         Net.warn_to(event.player_id, "Missing IP address")
@@ -588,9 +635,9 @@ CommandProcessing.register_commands({
     usage = { "<player> <message>" },
     description = "Message players through a textbox",
     callback = function(event)
-      local _, _, command_end_index = CommandProcessing.read_word(event.command)
+      local _, _, command_end = CommandProcessing.read_word(event.command)
 
-      local player_list, _, sel_end = CommandProcessing.process_selector(event.command, command_end_index + 1)
+      local player_list, _, sel_end = CommandProcessing.process_selector(event.command, command_end + 1)
 
       if not player_list then
         Net.warn_to(event.player_id, "Missing player selector")
@@ -616,6 +663,144 @@ CommandProcessing.register_commands({
       end
 
       Net.print_to(event.player_id, "Messaged " .. total_messaged .. " players")
+    end
+  },
+  assets = {
+    usage = {
+      "list [<substring>]",
+      "load <server_path> [<file_path>]",
+      "unload <server_path>",
+      "size <server_path>",
+      "type <server_path>",
+      "hash <server_path>",
+    },
+    description = "Loads and unloads assets",
+    callback = function(event)
+      local _, _, command_end = CommandProcessing.read_word(event.command)
+
+      local subcommand, _, subcommand_end = CommandProcessing.read_word(event.command, command_end + 1)
+
+      if not subcommand then
+        Net.warn_to(event.player_id, 'Missing subcommand')
+      end
+
+      -- special check for the list command, as it doesn't use <server_path>
+      if subcommand == "list" then
+        local list = Net.list_assets()
+        local filter = CommandProcessing.read_optionally_quoted(event.command, subcommand_end + 1)
+        local total_matches = 0
+
+        for _, path in ipairs(list) do
+          if not filter or path:find(filter, nil, true) then
+            Net.print_to(event.player_id, path)
+            total_matches = total_matches + 1
+          end
+        end
+
+        if #list == 0 then
+          Net.print_to(event.player_id, "No assets loaded")
+        elseif filter and total_matches then
+          Net.print_to(event.player_id, total_matches .. " assets matched")
+        end
+
+        return
+      end
+
+      -- read server path arg
+      local server_path, _, server_path_end = CommandProcessing.read_optionally_quoted(event.command, subcommand_end + 1)
+
+      if not server_path then
+        Net.warn_to(event.player_id, 'Missing asset path')
+        return
+      end
+
+      -- process subcommands
+      if subcommand == "load" then
+        local file_path = CommandProcessing.read_optionally_quoted(event.command, server_path_end + 1)
+
+        if not file_path then
+          local SERVER_PREFIX = "/server/"
+
+          if server_path:sub(1, #SERVER_PREFIX) ~= SERVER_PREFIX then
+            Net.warn_to(event.player_id, 'Invalid file path')
+            return
+          end
+
+          file_path = server_path:sub(#SERVER_PREFIX + 1)
+        end
+
+        Net.print_to(event.player_id, 'Updating "' .. server_path .. '"...')
+
+        Async.read_file(file_path).and_then(function(contents)
+          Net.update_asset(server_path, contents)
+          Net.print_to(event.player_id, 'Updated "' .. server_path .. '"')
+        end)
+      elseif subcommand == "unload" then
+        Net.remove_asset(server_path)
+        Net.print_to(event.player_id, 'Removed "' .. server_path .. '"')
+      elseif subcommand == "size" then
+        Net.print_to(event.player_id, Net.get_asset_size(server_path))
+      elseif subcommand == "type" then
+        Net.print_to(event.player_id, Net.get_asset_type(server_path))
+      elseif subcommand == "hash" then
+        Net.print_to(event.player_id, Net.get_asset_hash(server_path))
+      else
+        Net.warn_to(event.player_id, 'Invalid subcommand "' .. subcommand .. '"')
+      end
+    end
+  },
+  restrictions = {
+    usage = {
+      "apply <player> <server_path>",
+      "clear <player>"
+    },
+    description = "Applies a restriction file to players",
+    callback = function(event)
+      local _, _, command_end = CommandProcessing.read_word(event.command)
+
+      local subcommand, _, subcommand_end = CommandProcessing.read_word(event.command, command_end + 1)
+
+      if not subcommand then
+        Net.warn_to(event.player_id, 'Missing subcommand')
+      end
+
+      local player_list, _, sel_end = CommandProcessing.process_selector(event.command, subcommand_end + 1)
+
+      if not player_list then
+        Net.warn_to(event.player_id, "Missing player selector")
+        return
+      end
+
+      if subcommand == "apply" then
+        local server_path = CommandProcessing.read_optionally_quoted(event.command, sel_end + 1)
+
+        if not server_path then
+          Net.warn_to(event.player_id, 'Missing asset path')
+          return
+        end
+
+        local total_players = 0
+
+        for _, player_id in ipairs(player_list) do
+          if Net.is_player(player_id) then
+            Net.set_player_restrictions(player_id, server_path)
+            total_players = total_players + 1
+          end
+        end
+
+        Net.print_to(event.player_id, "Cleared restrictions for " .. total_players .. " players")
+      elseif subcommand == "clear" then
+        local total_players = 0
+
+        for _, player_id in ipairs(player_list) do
+          Net.set_player_restrictions(player_id)
+          total_players = total_players + 1
+        end
+
+        Net.print_to(event.player_id, "Cleared restrictions for " .. total_players .. " players")
+      else
+        Net.warn_to(event.player_id, 'Invalid subcommand "' .. subcommand .. '"')
+      end
     end
   },
   stop = {
