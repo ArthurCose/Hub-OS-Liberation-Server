@@ -614,7 +614,7 @@ function Player:initiate_encounter(encounter_path, data)
           results_player._health = results.health
           Net.set_player_health(results_player.id, math.min(results.health, max_health))
           Net.set_player_emotion(results_player.id, results.emotion)
-          HealthSprites.update_sprite(self.id, self._health)
+          HealthSprites.update_sprite(results_player.id, results.health)
 
           if results.health == 0 then
             results_player:paralyze()
